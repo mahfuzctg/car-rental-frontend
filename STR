@@ -27,8 +27,8 @@ car-rental-system/
 │   │   ├── CarDetailsPage.tsx
 │   │   ├── BookingPage.tsx
 │   │   ├── ErrorPage.tsx
-│   │   ├── SignUpPage.tsx
-│   │   ├── SignInPage.tsx
+│   │   ├── 
+│   │   ├── 
 │   ├── redux/                   # Redux functionality
 │   │   ├── carSlice.ts
 │   │   ├── bookingSlice.ts
