@@ -1,107 +1,91 @@
 import React from "react";
-import {
-  FaBars,
-  FaBook,
-  FaCar,
-  FaHome,
-  FaInfoCircle,
-  FaTimes,
-  FaUser,
-} from "react-icons/fa";
-import { Link } from "react-router-dom";
-import HomePage from "../pages/HomePage";
+import { FaBook, FaCar, FaHome, FaInfoCircle, FaUser } from "react-icons/fa";
+import { Link, useNavigate } from "react-router-dom";
+import HeroSection from "../components/HeroSection"; // Import the HeroSection component
 
 const Navbar: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = React.useState(false);
+  const navigate = useNavigate(); // Hook to programmatically navigate
+
+  // Function to handle navigation
+  const handleNavigation = (path: string) => {
+    navigate(path); // Navigate to the specified path
+    setIsMenuOpen(false); // Close the menu after navigating on small devices
+  };
 
   return (
-    <div className="flex flex-col h-screen">
-      {/* Main Navbar */}
-      <nav className="bg-gray-800 text-white shadow-md fixed w-full top-0 left-0 z-50 flex items-center justify-between p-4">
-        {/* Show/Hide Menu Button */}
-        <button
-          className="md:hidden text-white p-4"
-          onClick={() => setIsMenuOpen(!isMenuOpen)}
-        >
-          {isMenuOpen ? <FaTimes /> : <FaBars />}
-        </button>
-
-        {/* Logo and User Profile */}
-        <div className="flex items-center space-x-4 w-full">
-          <img src="/Logo/logo-1.jpg" alt="Logo" className="h-8 w-8" />
-          <span className="text-lg font-semibold">CarRental</span>
-          <div className="hidden md:flex flex-grow items-center justify-end space-x-4">
-            <Link to="/signin" className="hover:text-green-400">
-              <FaUser className="inline mr-1" /> Sign In
-            </Link>
-            <Link
-              to="/signup"
-              className="bg-green-600 px-4 py-2 rounded hover:bg-green-700"
-            >
-              Sign Up
-            </Link>
-          </div>
+    <div className="flex h-screen">
+      {/* Navbar Section */}
+      <nav
+        className={`bg-white text-gray-800 fixed top-0 left-0 h-full w-2/12 transform transition-transform duration-300 ease-in-out ${
+          isMenuOpen ? "translate-x-0" : "-translate-x-full"
+        } md:translate-x-0 md:w-2/12 z-40`}
+      >
+        {/* Logo, Name, and Profile (Visible on Large Devices) */}
+        <div className="hidden md:flex flex-col items-center justify-center p-4 space-y-4 border-b border-gray-200">
+          <img
+            src="/Logo/logo-1.jpg"
+            alt="Logo"
+            className="h-12 w-12 rounded-full cursor-pointer"
+            onClick={() => handleNavigation("/")}
+          />
+          <span
+            className="text-xl font-semibold cursor-pointer"
+            onClick={() => handleNavigation("/")}
+          >
+            CarRental
+          </span>
+          <Link to="/profile" className="hover:text-green-600">
+            <FaUser className="text-gray-800" />
+          </Link>
         </div>
 
-        {/* User Profile Icon (Small Devices) */}
-        <div className="md:hidden flex items-center">
-          <Link to="/profile" className="hover:text-green-400">
-            <FaUser className="text-white" />
-          </Link>
+        {/* Navigation Links */}
+        <div className="flex flex-col items-start p-4 space-y-4 mt-16 md:mt-4">
+          <button
+            onClick={() => handleNavigation("/")}
+            className="flex items-center w-full px-4 py-2 text-gray-800 hover:bg-gray-100"
+          >
+            <FaHome className="mr-2" /> Home
+          </button>
+          <button
+            onClick={() => handleNavigation("/about")}
+            className="flex items-center w-full px-4 py-2 text-gray-800 hover:bg-gray-100"
+          >
+            <FaInfoCircle className="mr-2" /> About
+          </button>
+          <button
+            onClick={() => handleNavigation("/bookings")}
+            className="flex items-center w-full px-4 py-2 text-gray-800 hover:bg-gray-100"
+          >
+            <FaBook className="mr-2" /> Bookings
+          </button>
+          <button
+            onClick={() => handleNavigation("/cars")}
+            className="flex items-center w-full px-4 py-2 text-gray-800 hover:bg-gray-100"
+          >
+            <FaCar className="mr-2" /> Cars
+          </button>
+          <button
+            onClick={() => handleNavigation("/signin")}
+            className="flex items-center w-full px-4 py-2 text-gray-800 hover:bg-gray-100"
+          >
+            <FaUser className="mr-2" /> Sign In
+          </button>
+          <button
+            onClick={() => handleNavigation("/signup")}
+            className="w-full px-4 py-2 bg-green-600 text-white text-center rounded hover:bg-green-700"
+          >
+            Sign Up
+          </button>
         </div>
       </nav>
 
-      <div className="flex flex-1 mt-16">
-        {/* Menu Section */}
-        <div
-          className={`bg-gray-700 text-white w-1/3 md:w-1/4 lg:w-1/5 h-full fixed top-16 left-0 ${
-            isMenuOpen ? "block" : "hidden"
-          } md:block`}
-        >
-          <div className="flex flex-col h-full">
-            <Link
-              to="/"
-              className="block px-4 py-2 text-white hover:bg-gray-600"
-            >
-              <FaHome className="inline mr-1" /> Home
-            </Link>
-            <Link
-              to="/about"
-              className="block px-4 py-2 text-white hover:bg-gray-600"
-            >
-              <FaInfoCircle className="inline mr-1" /> About
-            </Link>
-            <Link
-              to="/bookings"
-              className="block px-4 py-2 text-white hover:bg-gray-600"
-            >
-              <FaBook className="inline mr-1" /> Bookings
-            </Link>
-            <Link
-              to="/cars"
-              className="block px-4 py-2 text-white hover:bg-gray-600"
-            >
-              <FaCar className="inline mr-1" /> Cars
-            </Link>
-            <Link
-              to="/signin"
-              className="block px-4 py-2 text-white hover:bg-gray-600"
-            >
-              <FaUser className="inline mr-1" /> Sign In
-            </Link>
-            <Link
-              to="/signup"
-              className="block px-4 py-2 bg-green-600 text-white text-center rounded hover:bg-green-700"
-            >
-              Sign Up
-            </Link>
-          </div>
-        </div>
-
-        {/* Main Content */}
-        <div className="flex-grow bg-gray-100 p-4 ml-0 md:ml-1/4 lg:ml-[calc(10%+1px)]">
-          <HomePage></HomePage>
-        </div>
+      {/* Main Content */}
+      <div className="flex-grow bg-gray-100 p-4 ml-1/12 md:ml-[20%]">
+        {/* Main content goes here */}
+        <HeroSection />
+        {/* Include HomePage or other content components as needed */}
       </div>
     </div>
   );

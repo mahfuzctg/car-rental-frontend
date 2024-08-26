@@ -6,6 +6,7 @@ import AboutPage from "../pages/AboutPage";
 import BookingPage from "../pages/BookingPage";
 import CarListingPage from "../pages/CarListingPage";
 import HomePage from "../pages/HomePage";
+import NotFoundPage from "../pages/NotFoundPage";
 
 const AppRoutes: React.FC = () => {
   return (
@@ -16,6 +17,8 @@ const AppRoutes: React.FC = () => {
       <Route path="/cars" element={<CarListingPage />} />
       <Route path="/signin" element={<SignIn />} />
       <Route path="/signup" element={<SignUp />} />
+      <Route path="*" element={<NotFoundPage />} />
+      {/* Optional: Handle unknown routes */}
     </Routes>
   );
 };
