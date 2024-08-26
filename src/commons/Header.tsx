@@ -34,20 +34,13 @@ const Navbar: React.FC = () => {
   return (
     <div className="relative">
       {/* Navbar for Small Devices */}
-      <nav
-        className={`fixed top-0 left-0 w-full bg-white text-gray-800 md:hidden z-50 flex items-center justify-between p-4 border-b border-gray-200`}
-      >
-        {/* Menu Icon */}
-        <button onClick={toggleMenu} className="text-gray-800 text-2xl">
-          <FaBars />
-        </button>
-
+      <nav className="fixed top-0 left-0 w-full bg-white text-gray-800 md:hidden z-50 flex items-center justify-between p-4 border-b border-gray-200">
         {/* Logo and Profile */}
         <div className="flex items-center space-x-4">
           <img
-            src="/Logo/logo-1.jpg"
+            src="/src/assets/Logo/logo-1.jpg"
             alt="Logo"
-            className="h-10 w-10 rounded-full cursor-pointer"
+            className="h-12 w-12 rounded-full cursor-pointer"
             onClick={() => handleNavigation("/")}
           />
           <span
@@ -56,9 +49,18 @@ const Navbar: React.FC = () => {
           >
             CarRental
           </span>
+        </div>
+
+        {/* Menu Icon and Profile Icon */}
+        <div className="flex items-center space-x-4">
+          {/* Profile Icon */}
           <Link to="/profile" className="hover:text-green-600">
-            <FaUser className="text-gray-800" />
+            <FaUser className="text-gray-800 text-xl" />
           </Link>
+          {/* Menu Icon */}
+          <button onClick={toggleMenu} className="text-gray-800 text-2xl">
+            <FaBars />
+          </button>
         </div>
       </nav>
 
@@ -122,9 +124,9 @@ const Navbar: React.FC = () => {
         {/* Logo, Name, and Profile */}
         <div className="flex flex-col items-center justify-center p-4 space-y-4 border-b border-gray-200">
           <img
-            src="/Logo/logo-1.jpg"
+            src="/src/assets/Logo/logo-1.jpg"
             alt="Logo"
-            className="h-12 w-12 rounded-full cursor-pointer"
+            className="h-20 w-20 rounded-full cursor-pointer"
             onClick={() => handleNavigation("/")}
           />
           <span
@@ -180,15 +182,14 @@ const Navbar: React.FC = () => {
       </nav>
 
       {/* Main Content */}
-      <div className="mt-14  md:mt-0 md:ml-[20%] md:w-[80%]  mx-auto p-4">
+      <div className="mt-14 md:mt-0 md:ml-[20%] md:w-[80%] mx-auto p-4">
         {/* Main content goes here */}
         <HeroSection />
-
         <HomePage />
         <AboutPage />
         <FeaturedCars />
-        <WhyChooseUs></WhyChooseUs>
-        <CustomerTestimonials></CustomerTestimonials>
+        <WhyChooseUs />
+        <CustomerTestimonials />
       </div>
     </div>
   );

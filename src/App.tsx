@@ -1,5 +1,6 @@
 import React from "react";
 import { Outlet } from "react-router-dom";
+import Footer from "./commons/Footer";
 import Navbar from "./commons/Header";
 
 const App: React.FC = () => {
@@ -11,6 +12,7 @@ const App: React.FC = () => {
         {/* Adjust padding-top as needed */}
         <Outlet /> {/* Renders the matched child route */}
       </main>
+      <Footer></Footer>
     </div>
   );
 };
