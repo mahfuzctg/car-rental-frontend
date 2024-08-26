@@ -9,7 +9,10 @@ import {
   FaUser,
 } from "react-icons/fa";
 import { Link, useNavigate } from "react-router-dom";
-import HeroSection from "../components/HeroSection"; // Import the HeroSection component
+import AboutPage from "../pages/AboutPage";
+import HomePage from "../pages/HomePage";
+import FeaturedCars from "../Sections/FeaturedCarsCarousel";
+import HeroSection from "../Sections/HeroSection";
 
 const Navbar: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = React.useState(false);
@@ -113,7 +116,7 @@ const Navbar: React.FC = () => {
       </nav>
 
       {/* Sidebar for Large Devices */}
-      <nav className="hidden md:flex flex-col fixed top-0 left-0 h-full w-2/12 bg-white text-gray-800 border-r border-gray-200 z-40">
+      <nav className="hidden md:flex flex-col fixed top-0 left-0 h-full w-[20%] bg-white text-gray-800 border-r border-gray-200 z-40">
         {/* Logo, Name, and Profile */}
         <div className="flex flex-col items-center justify-center p-4 space-y-4 border-b border-gray-200">
           <img
@@ -175,9 +178,14 @@ const Navbar: React.FC = () => {
       </nav>
 
       {/* Main Content */}
-      <div className={`md:ml-2/12 mt-16 md:pt-5 bg-gray-100`}>
+      <div className="md:ml-[20%] container w-[80%] mx-auto ">
         {/* Main content goes here */}
         <HeroSection />
+
+        <HomePage />
+        <AboutPage></AboutPage>
+        <FeaturedCars />
+
         {/* Include HomePage or other content components as needed */}
       </div>
     </div>

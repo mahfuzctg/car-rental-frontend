@@ -3,14 +3,17 @@ import React from "react";
 const HeroSection: React.FC = () => {
   return (
     <section
-      className="relative w-full h-[500px] bg-cover bg-center"
-      style={{ backgroundImage: "url('/path-to-your-image.jpg')" }}
+      className="relative w-full h-[700px] bg-white opacity-70 object-cover bg-cover bg-center"
+      style={{
+        backgroundImage:
+          "url('https://i.postimg.cc/gjNRC6MY/Rental-Car-Guide-facts-cb7fe7d21c.png')",
+      }}
     >
       {/* Overlay to darken the background image */}
-      <div className="absolute inset-0 bg-black opacity-50"></div>
-      <div className="relative z-10 flex flex-col items-center justify-center h-full text-center text-white">
+      <div className="absolute inset-0 "></div>
+      <div className="relative z-10 flex flex-col  items-center justify-center h-full text-center text-gray-800">
         {/* Hero Text */}
-        <h1 className="text-4xl md:text-6xl font-bold">
+        <h1 className="text-4xl  md:text-6xl font-bold">
           Find Your Perfect Ride
         </h1>
         <p className="mt-4 text-lg md:text-xl">

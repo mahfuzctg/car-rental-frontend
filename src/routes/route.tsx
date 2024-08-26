@@ -17,8 +17,9 @@ export const router = createBrowserRouter([
     children: [
       {
         index: true, // Default child route for "/"
-        element: <HomePage />, // Render HomePage component for the root path
+        element: <HomePage></HomePage>, // Render HomePage component for the root path
       },
+
       {
         path: "about",
         element: <AboutPage />, // Render SignIn component for "/sign-in"
