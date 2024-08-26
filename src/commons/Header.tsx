@@ -1,3 +1,5 @@
+// src/commons/Navbar.tsx
+
 import React from "react";
 import {
   FaBars,
@@ -8,25 +10,17 @@ import {
   FaTimes,
   FaUser,
 } from "react-icons/fa";
-import { Link, useNavigate } from "react-router-dom";
-import AboutPage from "../pages/AboutPage";
-import HomePage from "../pages/HomePage";
-import FeaturedCars from "../Sections/FeaturedCarsCarousel";
-import HeroSection from "../Sections/HeroSection";
-import CustomerTestimonials from "../Sections/Testimonial";
-import WhyChooseUs from "../Sections/WhyChooseUs";
+import { Link, Outlet, useNavigate } from "react-router-dom";
 
 const Navbar: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = React.useState(false);
-  const navigate = useNavigate(); // Hook to programmatically navigate
+  const navigate = useNavigate();
 
-  // Function to handle navigation
   const handleNavigation = (path: string) => {
-    navigate(path); // Navigate to the specified path
-    setIsMenuOpen(false); // Close the menu after navigating on small devices
+    navigate(path);
+    setIsMenuOpen(false);
   };
 
-  // Function to toggle menu open/close
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
   };
@@ -35,7 +29,6 @@ const Navbar: React.FC = () => {
     <div className="relative">
       {/* Navbar for Small Devices */}
       <nav className="fixed top-0 left-0 w-full bg-white text-gray-800 md:hidden z-50 flex items-center justify-between p-4 border-b border-gray-200">
-        {/* Logo and Profile */}
         <div className="flex items-center space-x-4">
           <img
             src="/src/assets/Logo/logo-1.jpg"
@@ -50,14 +43,10 @@ const Navbar: React.FC = () => {
             CarRental
           </span>
         </div>
-
-        {/* Menu Icon and Profile Icon */}
         <div className="flex items-center space-x-4">
-          {/* Profile Icon */}
           <Link to="/profile" className="hover:text-green-600">
             <FaUser className="text-gray-800 text-xl" />
           </Link>
-          {/* Menu Icon */}
           <button onClick={toggleMenu} className="text-gray-800 text-2xl">
             <FaBars />
           </button>
@@ -70,15 +59,12 @@ const Navbar: React.FC = () => {
           isMenuOpen ? "translate-x-0" : "-translate-x-full"
         }`}
       >
-        {/* Close Button */}
         <button
           onClick={toggleMenu}
           className="absolute top-4 right-4 text-gray-800 text-2xl"
         >
           <FaTimes />
         </button>
-
-        {/* Navigation Links */}
         <div className="flex flex-col items-start p-4 space-y-4 mt-16">
           <button
             onClick={() => handleNavigation("/")}
@@ -121,7 +107,6 @@ const Navbar: React.FC = () => {
 
       {/* Sidebar for Large Devices */}
       <nav className="hidden md:flex flex-col fixed top-0 left-0 h-full w-[20%] bg-white text-gray-800 border-r border-gray-200 z-40">
-        {/* Logo, Name, and Profile */}
         <div className="flex flex-col items-center justify-center p-4 space-y-4 border-b border-gray-200">
           <img
             src="/src/assets/Logo/logo-1.jpg"
@@ -139,8 +124,6 @@ const Navbar: React.FC = () => {
             <FaUser className="text-gray-800" />
           </Link>
         </div>
-
-        {/* Navigation Links */}
         <div className="flex flex-col items-start p-4 space-y-4 mt-16">
           <button
             onClick={() => handleNavigation("/")}
@@ -183,13 +166,8 @@ const Navbar: React.FC = () => {
 
       {/* Main Content */}
       <div className="mt-14 md:mt-0 md:ml-[20%] md:w-[80%] mx-auto p-4">
-        {/* Main content goes here */}
-        <HeroSection />
-        <HomePage />
-        <AboutPage />
-        <FeaturedCars />
-        <WhyChooseUs />
-        <CustomerTestimonials />
+        {/* This is where the content will be rendered based on the route */}
+        <Outlet />
       </div>
     </div>
   );
