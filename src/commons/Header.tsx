@@ -178,15 +178,13 @@ const Navbar: React.FC = () => {
       </nav>
 
       {/* Main Content */}
-      <div className="md:ml-[20%] container w-[80%] mx-auto ">
+      <div className="mt-14  md:mt-0 md:ml-[20%] md:w-[80%]  mx-auto p-4">
         {/* Main content goes here */}
         <HeroSection />
 
         <HomePage />
-        <AboutPage></AboutPage>
+        <AboutPage />
         <FeaturedCars />
-
-        {/* Include HomePage or other content components as needed */}
       </div>
     </div>
   );
