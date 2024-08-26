@@ -1,26 +1,40 @@
-import React from "react";
-import { Route, Routes } from "react-router-dom";
+// router.tsx
+
+import { createBrowserRouter } from "react-router-dom";
+import App from "../App";
 import SignIn from "../Auth/SignIn";
 import SignUp from "../Auth/SignUp";
+
 import AboutPage from "../pages/AboutPage";
-import BookingPage from "../pages/BookingPage";
-import CarListingPage from "../pages/CarListingPage";
 import HomePage from "../pages/HomePage";
 import NotFoundPage from "../pages/NotFoundPage";
 
-const AppRoutes: React.FC = () => {
-  return (
-    <Routes>
-      <Route path="/" element={<HomePage />} />
-      <Route path="/about" element={<AboutPage />} />
-      <Route path="/bookings" element={<BookingPage />} />
-      <Route path="/cars" element={<CarListingPage />} />
-      <Route path="/signin" element={<SignIn />} />
-      <Route path="/signup" element={<SignUp />} />
-      <Route path="*" element={<NotFoundPage />} />
-      {/* Optional: Handle unknown routes */}
-    </Routes>
-  );
-};
-
-export default AppRoutes;
+export const router = createBrowserRouter([
+  {
+    path: "/",
+    element: <App />, // This is the layout component
+    errorElement: <NotFoundPage />, // Optional: Handle unknown routes
+    children: [
+      {
+        index: true, // Default child route for "/"
+        element: <HomePage />, // Render HomePage component for the root path
+      },
+      {
+        path: "about",
+        element: <AboutPage />, // Render SignIn component for "/sign-in"
+      },
+      {
+        path: "sign-in",
+        element: <SignIn />, // Render SignIn component for "/sign-in"
+      },
+      {
+        path: "/sign-up",
+        element: <SignUp />, // Render SignUp component for "/sign-up"
+      },
+    ],
+  },
+  {
+    path: "*",
+    element: <NotFoundPage />, // Render NotFoundPage for any other unknown routes
+  },
+]);
