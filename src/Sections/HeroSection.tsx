@@ -2,12 +2,13 @@ import React from "react";
 
 const HeroSection: React.FC = () => {
   return (
-    <section className="relative w-full py-8 md:h-[700px] bg-cover bg-center flex flex-col justify-start">
-      <div className="relative z-10 flex flex-col items-center justify-start h-full text-center space-y-4">
-        <h1 className="text-2xl sm:text-3xl md:text-5xl lg:text-6xl w-full font-bold text-[#000000] py-2 md:py-4 px-2 md:px-4 uppercase">
+    <section className="relative w-full h-[700px] flex flex-col justify-between">
+      {/* Top Section: Text and Search Bar */}
+      <div className="z-20 flex flex-col items-center justify-center text-center space-y-4 p-4">
+        <h1 className="text-2xl sm:text-3xl md:text-5xl lg:text-6xl font-bold text-gray-800 uppercase">
           Find Your Perfect Ride
         </h1>
-        <p className="text-xs sm:text-sm md:text-lg lg:text-xl font-bold text-gray-800">
+        <p className="text-xs sm:text-sm md:text-lg lg:text-xl font-bold text-gray-700">
           Book your next car rental with ease
         </p>
         <a
@@ -40,8 +41,10 @@ const HeroSection: React.FC = () => {
           </form>
         </div>
       </div>
+
+      {/* Bottom Section: Background Image */}
       <div
-        className="absolute bottom-0 w-full h-[300px] md:h-[400px] bg-cover bg-center"
+        className="w-full h-[50%] bg-cover bg-center"
         style={{
           backgroundImage:
             "url('https://i.postimg.cc/tTRGp2FQ/sale-car-rental-concept-vector-600nw-1387577387.webp')",

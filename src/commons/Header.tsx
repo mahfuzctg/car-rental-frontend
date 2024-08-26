@@ -13,6 +13,8 @@ import AboutPage from "../pages/AboutPage";
 import HomePage from "../pages/HomePage";
 import FeaturedCars from "../Sections/FeaturedCarsCarousel";
 import HeroSection from "../Sections/HeroSection";
+import CustomerTestimonials from "../Sections/Testimonial";
+import WhyChooseUs from "../Sections/WhyChooseUs";
 
 const Navbar: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = React.useState(false);
@@ -185,6 +187,8 @@ const Navbar: React.FC = () => {
         <HomePage />
         <AboutPage />
         <FeaturedCars />
+        <WhyChooseUs></WhyChooseUs>
+        <CustomerTestimonials></CustomerTestimonials>
       </div>
     </div>
   );
