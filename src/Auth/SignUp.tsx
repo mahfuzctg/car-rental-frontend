@@ -1,12 +1,21 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-
 import { ErrorMessage, Field, Form, Formik } from "formik";
 import { Link, useNavigate } from "react-router-dom";
 import * as Yup from "yup";
 
+// Define the type for form values
+interface SignUpFormValues {
+  name: string;
+  email: string;
+  password: string;
+  confirmPassword: string;
+  phoneNumber: string;
+  terms: boolean;
+}
+
 const SignUp = () => {
   const navigate = useNavigate();
 
+  // Validation Schema
   const validationSchema = Yup.object({
     name: Yup.string().required("Name is required"),
     email: Yup.string()
@@ -20,16 +29,17 @@ const SignUp = () => {
     terms: Yup.bool().oneOf([true], "You must accept the terms and conditions"),
   });
 
-  const handleSubmit = (values: any) => {
-    // Handle form submission
+  // Handle Form Submission
+  const handleSubmit = (values: SignUpFormValues) => {
+    // Handle form submission (e.g., call an API to create a new user)
     console.log(values);
     // Redirect to login page after successful registration
     navigate("/sign-in");
   };
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <h1 className="text-2xl font-bold mb-4">Sign Up</h1>
+    <div className="container w-full md:w-7/12 mx-auto px-4 py-8 shadow-xl">
+      <h1 className="text-2xl font-bold mb-4 text-center">Sign Up</h1>
       <Formik
         initialValues={{
           name: "",
@@ -44,6 +54,7 @@ const SignUp = () => {
       >
         {({ isSubmitting }) => (
           <Form className="space-y-4">
+            {/* Name Field */}
             <div>
               <label
                 htmlFor="name"
@@ -55,15 +66,17 @@ const SignUp = () => {
                 type="text"
                 id="name"
                 name="name"
-                className="mt-1 block w-full border-gray-300 rounded-md shadow-sm"
+                placeholder="Enter your name"
+                className="mt-1 py-2 block w-full border-none rounded-md shadow-sm px-2  sm:text-sm"
               />
               <ErrorMessage
                 name="name"
                 component="div"
-                className="text-red-600 text-sm"
+                className="text-red-600 text-sm mt-1"
               />
             </div>
 
+            {/* Email Field */}
             <div>
               <label
                 htmlFor="email"
@@ -75,15 +88,17 @@ const SignUp = () => {
                 type="email"
                 id="email"
                 name="email"
-                className="mt-1 block w-full border-gray-300 rounded-md shadow-sm"
+                placeholder="Enter your email"
+                className="mt-1 py-2 block w-full border-none rounded-md shadow-sm px-2 sm:text-sm"
               />
               <ErrorMessage
                 name="email"
                 component="div"
-                className="text-red-600 text-sm"
+                className="text-red-600 text-sm mt-1"
               />
             </div>
 
+            {/* Password Field */}
             <div>
               <label
                 htmlFor="password"
@@ -95,15 +110,17 @@ const SignUp = () => {
                 type="password"
                 id="password"
                 name="password"
-                className="mt-1 block w-full border-gray-300 rounded-md shadow-sm"
+                placeholder="Enter your password"
+                className="mt-1 py-2 px-2 block w-full border-none rounded-md shadow-sm  sm:text-sm"
               />
               <ErrorMessage
                 name="password"
                 component="div"
-                className="text-red-600 text-sm"
+                className="text-red-600 text-sm mt-1 "
               />
             </div>
 
+            {/* Confirm Password Field */}
             <div>
               <label
                 htmlFor="confirmPassword"
@@ -115,15 +132,17 @@ const SignUp = () => {
                 type="password"
                 id="confirmPassword"
                 name="confirmPassword"
-                className="mt-1 block w-full border-gray-300 rounded-md shadow-sm"
+                placeholder="Confirm your password"
+                className="mt-1 py-2 px-2 block w-full border-none rounded-md shadow-sm  sm:text-sm"
               />
               <ErrorMessage
                 name="confirmPassword"
                 component="div"
-                className="text-red-600 text-sm"
+                className="text-red-600 text-sm mt-1"
               />
             </div>
 
+            {/* Phone Number Field */}
             <div>
               <label
                 htmlFor="phoneNumber"
@@ -135,21 +154,23 @@ const SignUp = () => {
                 type="text"
                 id="phoneNumber"
                 name="phoneNumber"
-                className="mt-1 block w-full border-gray-300 rounded-md shadow-sm"
+                placeholder="Enter your phone number"
+                className="mt-1 py-2 px-2 block w-full border-none rounded-md shadow-sm  sm:text-sm"
               />
               <ErrorMessage
                 name="phoneNumber"
                 component="div"
-                className="text-red-600 text-sm"
+                className="text-red-600 text-sm mt-1"
               />
             </div>
 
-            <div className="flex items-center">
+            {/* Terms and Conditions Checkbox */}
+            <div className="flex items-center mt-2">
               <Field
                 type="checkbox"
                 id="terms"
                 name="terms"
-                className="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded"
+                className="h-4 w-4 text-green-600 focus:ring-green-500"
               />
               <label htmlFor="terms" className="ml-2 text-sm text-gray-700">
                 I agree to the{" "}
@@ -160,15 +181,16 @@ const SignUp = () => {
               <ErrorMessage
                 name="terms"
                 component="div"
-                className="text-red-600 text-sm"
+                className="text-red-600 text-sm mt-1"
               />
             </div>
 
+            {/* Sign Up Button */}
             <div>
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="w-full bg-green-600 text-white py-2 rounded-md hover:bg-green-700"
+                className="w-full bg-green-600 text-white py-2 rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500"
               >
                 Sign Up
               </button>
@@ -177,6 +199,7 @@ const SignUp = () => {
         )}
       </Formik>
 
+      {/* Sign In Instead Link */}
       <div className="mt-4">
         <p className="text-sm text-gray-600">
           Already have an account?{" "}
@@ -186,8 +209,10 @@ const SignUp = () => {
         </p>
       </div>
 
+      {/* Footer Links */}
       <footer className="mt-8">
-        <div className="flex justify-between text-gray-600 text-sm">
+        <hr className="border-gray-300 my-4" />
+        <div className="flex justify-between text-gray-600 text-sm mt-4">
           <Link to="/privacy-policy" className="hover:text-green-600">
             Privacy Policy
           </Link>
