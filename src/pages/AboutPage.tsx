@@ -1,9 +1,50 @@
 import React from "react";
 import { FaBullseye, FaCalendarAlt, FaEye } from "react-icons/fa";
+import "../Customs/style.css"; // Make sure this path is correct
+
+// Define your team members here
+const teamMembers = [
+  {
+    name: "John Doe",
+    role: "CEO",
+    image:
+      "https://i.postimg.cc/D0zQ5PtR/pngtree-user-profile-avatar-png-image-13369989.png",
+    ranking: "Top Leader",
+  },
+  {
+    name: "Jane Smith",
+    role: "CTO",
+    image:
+      "https://i.postimg.cc/D0zQ5PtR/pngtree-user-profile-avatar-png-image-13369989.png",
+    ranking: "Tech Innovator",
+  },
+  {
+    name: "Emily Johnson",
+    role: "CFO",
+    image:
+      "https://i.postimg.cc/D0zQ5PtR/pngtree-user-profile-avatar-png-image-13369989.png",
+    ranking: "Financial Expert",
+  },
+  {
+    name: "Emily Johnson",
+    role: "CFO",
+    image:
+      "https://i.postimg.cc/D0zQ5PtR/pngtree-user-profile-avatar-png-image-13369989.png",
+    ranking: "Financial Expert",
+  },
+  {
+    name: "Emily Johnson",
+    role: "CFO",
+    image:
+      "https://i.postimg.cc/D0zQ5PtR/pngtree-user-profile-avatar-png-image-13369989.png",
+    ranking: "Financial Expert",
+  },
+];
 
 const AboutUsSection: React.FC = () => {
   return (
     <div>
+      {/* Full Width Banner */}
       <section
         className="w-full h-[500px] bg-cover bg-center relative"
         style={{
@@ -25,13 +66,14 @@ const AboutUsSection: React.FC = () => {
           </p>
         </div>
       </section>
+
+      {/* Company History Section */}
       <section className="py-16 px-4 bg-gray-100">
         <div className="container mx-auto">
           <h2 className="text-3xl font-bold text-center mb-8">
             Company History
           </h2>
           <div className="flex flex-col md:flex-row md:space-x-8">
-            {/* Founding Year */}
             <div className="flex-1 bg-white p-6 rounded-lg shadow-lg mb-6 md:mb-0">
               <div className="flex items-center mb-4">
                 <FaCalendarAlt className="text-blue-600 text-3xl mr-4" />
@@ -43,7 +85,6 @@ const AboutUsSection: React.FC = () => {
                 dream.
               </p>
             </div>
-            {/* Mission */}
             <div className="flex-1 bg-white p-6 rounded-lg shadow-lg mb-6 md:mb-0">
               <div className="flex items-center mb-4">
                 <FaBullseye className="text-green-600 text-3xl mr-4" />
@@ -54,7 +95,6 @@ const AboutUsSection: React.FC = () => {
                 through innovation, integrity, and a commitment to excellence.
               </p>
             </div>
-            {/* Vision */}
             <div className="flex-1 bg-white p-6 rounded-lg shadow-lg">
               <div className="flex items-center mb-4">
                 <FaEye className="text-orange-600 text-3xl mr-4" />
@@ -65,6 +105,34 @@ const AboutUsSection: React.FC = () => {
                 in our field, known for our innovative solutions and exceptional
                 service.
               </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Our Team Section */}
+      <section className="py-16 px-4 bg-white overflow-hidden relative">
+        <div className="container mx-auto">
+          <h2 className="text-3xl font-bold text-center mb-8">Our Team</h2>
+          <div className="relative overflow-hidden">
+            <div className="flex gap-8 animate-scroll">
+              {teamMembers.map((member) => (
+                <div
+                  key={member.name}
+                  className="bg-white p-6 rounded-lg shadow-lg w-60 text-center flex-none"
+                >
+                  <div className="flex justify-center mb-4">
+                    <img
+                      src={member.image}
+                      alt={member.name}
+                      className="w-24 h-24 rounded-full object-cover"
+                    />
+                  </div>
+                  <h3 className="text-xl font-semibold mb-2">{member.name}</h3>
+                  <p className="text-gray-600 mb-1">{member.role}</p>
+                  <p className="text-gray-500">{member.ranking}</p>
+                </div>
+              ))}
             </div>
           </div>
         </div>
