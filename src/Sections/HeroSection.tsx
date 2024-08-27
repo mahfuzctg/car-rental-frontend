@@ -51,7 +51,7 @@ const HeroSection: React.FC = () => {
           className="w-full h-[50%] bg-cover bg-center"
           style={{
             backgroundImage:
-              "url('https://i.postimg.cc/tTRGp2FQ/sale-car-rental-concept-vector-600nw-1387577387.webp')",
+              "url('https://i.postimg.cc/Bv0rf4V4/luxury-car-rental-promotional-web-banner-design-10669966.jpg')",
           }}
         ></div>
       </section>

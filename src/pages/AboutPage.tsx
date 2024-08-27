@@ -101,27 +101,30 @@ const AboutUsSection: React.FC = () => {
   return (
     <div>
       {/* Full Width Banner */}
-      <section
-        className="w-full h-[500px] bg-cover bg-center relative"
-        style={{
-          backgroundImage:
-            'url("https://i.postimg.cc/pXNBbKMb/avis-camry-png.avif")',
-        }}
-      >
-        <div className="absolute inset-0 bg-gray-800 bg-opacity-50 flex flex-col items-center justify-center text-white text-center p-6">
-          <h1 className="text-4xl font-bold mb-4">About Us</h1>
-          <p className="text-lg mb-4">
+      <section className="grid sm:grid-cols-1 md:grid-cols-2 w-full mt-8">
+        <div className="justify-center items-center my-auto">
+          <h1 className="text-4xl font-bold mb-4 text-center">ABOUT US</h1>
+          <p className=" mb-4 ">
             We are dedicated to providing exceptional services and delivering
             outstanding customer experiences. Our mission is to innovate and
             lead in our industry while staying committed to excellence.
           </p>
-          <p className="text-lg">
+          <p className=" mb-4 ">
             Founded in [Year], our company has grown to become a leader in our
             field, known for our dedication, integrity, and superior customer
             service.
           </p>
         </div>
+        <div
+          className=" h-[400px] bg-cover bg-center relative"
+          style={{
+            backgroundImage:
+              'url("https://i.postimg.cc/50zKXvzv/network-gb56a1c2b6-1920-1024x427.jpg")',
+          }}
+        ></div>
       </section>
+
+      <section></section>
 
       {/* Company History Section */}
       <section className="py-16 px-4 bg-gray-100">
