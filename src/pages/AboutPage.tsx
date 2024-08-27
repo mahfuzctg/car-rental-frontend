@@ -3,7 +3,13 @@ import {
   FaBullseye,
   FaCalendarAlt,
   FaCar,
+  FaEnvelope,
   FaEye,
+  FaHandsHelping,
+  FaLeaf,
+  FaMapMarkerAlt,
+  FaPhoneAlt,
+  FaShieldAlt,
   FaSitemap,
   FaStar,
 } from "react-icons/fa";
@@ -47,7 +53,7 @@ const teamMembers = [
     ranking: "Financial Expert",
   },
 ];
-// Our Fleet data
+// ===== Our Fleet data ========
 
 const fleetData = [
   {
@@ -67,6 +73,27 @@ const fleetData = [
     description:
       "Spacious and versatile SUVs, ideal for family trips or off-road adventures.",
     icon: <FaSitemap className="text-green-600 text-3xl" />,
+  },
+];
+//===== valuesData ======
+const valuesData = [
+  {
+    title: "Customer Service",
+    description:
+      "Our commitment to delivering exceptional customer service is at the heart of everything we do. We strive to exceed expectations with every interaction.",
+    icon: <FaHandsHelping className="text-blue-600 text-3xl" />,
+  },
+  {
+    title: "Sustainability",
+    description:
+      "We are dedicated to sustainability, constantly seeking ways to reduce our environmental impact and promote eco-friendly practices in our operations.",
+    icon: <FaLeaf className="text-green-600 text-3xl" />,
+  },
+  {
+    title: "Integrity",
+    description:
+      "Integrity is our foundation. We conduct our business with honesty, transparency, and respect, ensuring trust and reliability in all our relationships.",
+    icon: <FaShieldAlt className="text-yellow-600 text-3xl" />,
   },
 ];
 
@@ -183,6 +210,142 @@ const AboutUsSection: React.FC = () => {
                 <p className="text-gray-700">{fleet.description}</p>
               </div>
             ))}
+          </div>
+        </div>
+      </section>
+      {/* valuesData */}
+      <section className="py-16 px-4 bg-white">
+        <div className="container mx-auto">
+          <h2 className="text-3xl font-bold text-center mb-8">
+            Values & Commitment
+          </h2>
+          <div className="flex flex-col md:flex-row md:space-x-8">
+            {valuesData.map((value) => (
+              <div
+                key={value.title}
+                className="flex-1 bg-gray-100 p-6 rounded-lg shadow-lg mb-6 md:mb-0"
+              >
+                <div className="flex items-center mb-4">
+                  {value.icon}
+                  <h3 className="text-2xl font-semibold ml-4">{value.title}</h3>
+                </div>
+                <p className="text-gray-700">{value.description}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+      {/* Contact US Section */}
+      <section className="py-16 px-4 bg-gray-100">
+        <div className="container mx-auto">
+          {/* Title */}
+          <h2 className="text-3xl font-bold text-center mb-8">
+            Contact Information
+          </h2>
+
+          {/* Contact Details and Image */}
+          <div className="flex flex-col md:flex-row mb-8">
+            {/* Contact Details Section */}
+            <div className="md:w-1/2 w-full flex flex-col justify-center">
+              <div className="mb-4">
+                <FaPhoneAlt className="text-green-600 text-3xl inline-block mr-4" />
+                <span className="text-xl">+123-456-7890</span>{" "}
+                {/* Replace with your phone number */}
+              </div>
+              <div className="mb-4">
+                <FaEnvelope className="text-blue-600 text-3xl inline-block mr-4" />
+                <span className="text-xl">info@example.com</span>{" "}
+                {/* Replace with your email */}
+              </div>
+              <div className="mb-6">
+                <FaMapMarkerAlt className="text-red-600 text-3xl inline-block mr-4" />
+                <span className="text-xl">1234 Main St, Anytown, USA</span>{" "}
+                {/* Replace with your address */}
+              </div>
+            </div>
+            {/* Image Section */}
+            <div className="md:w-1/2 w-full mb-8 md:mb-0">
+              <img
+                src="https://i.postimg.cc/QMRTLVXt/kv-contact-us-xs.jpg"
+                alt="Contact Us"
+                className="w-full h-auto rounded-lg "
+              />
+            </div>
+          </div>
+
+          {/* Contact Form and Google Map Section */}
+          <div className="flex  flex-col md:flex-row ">
+            {/* Send Message Form */}
+            <div className="md:w-1/2 w-full px-4 mb-8 md:mb-0">
+              <form className="bg-white p-4 rounded-lg shadow-lg">
+                <div className="mb-4">
+                  <label
+                    htmlFor="name"
+                    className="block text-lg font-medium mb-2"
+                  >
+                    Name
+                  </label>
+                  <input
+                    type="text"
+                    id="name"
+                    name="name"
+                    className="w-full p-2 border border-gray-300 rounded-lg"
+                    placeholder="Your Name"
+                    required
+                  />
+                </div>
+                <div className="mb-4">
+                  <label
+                    htmlFor="email"
+                    className="block text-lg font-medium mb-2"
+                  >
+                    Email
+                  </label>
+                  <input
+                    type="email"
+                    id="email"
+                    name="email"
+                    className="w-full p-2 border border-gray-300 rounded-lg"
+                    placeholder="Your Email"
+                    required
+                  />
+                </div>
+
+                <div className="mb-6">
+                  <label
+                    htmlFor="message"
+                    className="block text-lg font-medium mb-2"
+                  >
+                    Message
+                  </label>
+                  <textarea
+                    id="message"
+                    name="message"
+                    rows="2"
+                    className="w-full p-2 border border-gray-300 rounded-lg"
+                    placeholder="Your Message"
+                    required
+                  ></textarea>
+                </div>
+                <button
+                  type="submit"
+                  className="w-full py-2 bg-green-600 text-white font-bold rounded-lg hover:bg-green-700 transition duration-300"
+                >
+                  Send Message
+                </button>
+              </form>
+            </div>
+
+            {/* Google Map Section */}
+            <div className="md:w-1/2 w-full h-64 md:h-[486px]">
+              <iframe
+                className="w-full h-full rounded-lg shadow-lg"
+                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3651.607926211386!2d91.18349201537028!3d22.33544738522345!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3755c1959fcdfe77%3A0x23fdc00b5ea7b73!2sChittagong%2C%20Bangladesh!5e0!3m2!1sen!2sus!4v1694515306972!5m2!1sen!2sus"
+                allowFullScreen
+                loading="lazy"
+                title="Google Map"
+              ></iframe>
+            </div>
           </div>
         </div>
       </section>
