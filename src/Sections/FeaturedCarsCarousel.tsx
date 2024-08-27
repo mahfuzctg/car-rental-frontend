@@ -5,28 +5,31 @@ import { Card } from "../components/ui/UI/card";
 const featuredCars = [
   {
     id: 1,
-    image: "/path/to/car1.jpg",
+    image:
+      "https://i.postimg.cc/brw5W1QX/2021-ford-expedition-xlt-suv-silver-featured.avif",
     title: "Car Model 1",
     description: "Brief description of Car Model 1.",
     price: "$20,000",
   },
   {
     id: 2,
-    image: "/path/to/car2.jpg",
+    image: "https://i.postimg.cc/N0vzY31k/Ford-Expedition.png",
     title: "Car Model 2",
     description: "Brief description of Car Model 2.",
     price: "$25,000",
   },
   {
     id: 3,
-    image: "/path/to/car3.jpg",
+    image:
+      "https://i.postimg.cc/brw5W1QX/2021-ford-expedition-xlt-suv-silver-featured.avif",
     title: "Car Model 3",
     description: "Brief description of Car Model 3.",
     price: "$30,000",
   },
   {
     id: 4,
-    image: "/path/to/car4.jpg",
+    image:
+      "https://i.postimg.cc/brw5W1QX/2021-ford-expedition-xlt-suv-silver-featured.avif",
     title: "Car Model 4",
     description: "Brief description of Car Model 4.",
     price: "$35,000",
