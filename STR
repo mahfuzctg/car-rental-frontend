@@ -50,3 +50,4 @@ car-rental-system/
 ├── README.md
 ├── tsconfig.json                # TypeScript configuration
 └── yarn.lock                    # Yarn lockfile (if using Yarn)
+; Pleasse use backgorund color #FAF3EF and #FBF7F4 and use btn color #1F5C89 and use text color gray-700 or gray 800
