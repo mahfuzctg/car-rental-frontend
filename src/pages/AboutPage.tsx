@@ -1,5 +1,12 @@
 import React from "react";
-import { FaBullseye, FaCalendarAlt, FaEye } from "react-icons/fa";
+import {
+  FaBullseye,
+  FaCalendarAlt,
+  FaCar,
+  FaEye,
+  FaSitemap,
+  FaStar,
+} from "react-icons/fa";
 import "../Customs/style.css"; // Make sure this path is correct
 
 // Define your team members here
@@ -38,6 +45,28 @@ const teamMembers = [
     image:
       "https://i.postimg.cc/D0zQ5PtR/pngtree-user-profile-avatar-png-image-13369989.png",
     ranking: "Financial Expert",
+  },
+];
+// Our Fleet data
+
+const fleetData = [
+  {
+    type: "Economy",
+    description:
+      "Affordable and fuel-efficient cars, perfect for city driving and budget-conscious travelers.",
+    icon: <FaCar className="text-blue-600 text-3xl" />,
+  },
+  {
+    type: "Luxury",
+    description:
+      "Experience the ultimate in comfort and style with our range of luxury vehicles.",
+    icon: <FaStar className="text-yellow-500 text-3xl" />,
+  },
+  {
+    type: "SUVs",
+    description:
+      "Spacious and versatile SUVs, ideal for family trips or off-road adventures.",
+    icon: <FaSitemap className="text-green-600 text-3xl" />,
   },
 ];
 
@@ -134,6 +163,26 @@ const AboutUsSection: React.FC = () => {
                 </div>
               ))}
             </div>
+          </div>
+        </div>
+      </section>
+      {/* Our Fleet Section */}
+      <section className="py-16 px-4 bg-gray-100">
+        <div className="container mx-auto">
+          <h2 className="text-3xl font-bold text-center mb-8">Our Fleet</h2>
+          <div className="flex flex-col md:flex-row md:space-x-8">
+            {fleetData.map((fleet) => (
+              <div
+                key={fleet.type}
+                className="flex-1 bg-white p-6 rounded-lg shadow-lg mb-6 md:mb-0"
+              >
+                <div className="flex items-center mb-4">
+                  {fleet.icon}
+                  <h3 className="text-2xl font-semibold ml-4">{fleet.type}</h3>
+                </div>
+                <p className="text-gray-700">{fleet.description}</p>
+              </div>
+            ))}
           </div>
         </div>
       </section>
