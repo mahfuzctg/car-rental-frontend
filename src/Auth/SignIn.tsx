@@ -133,7 +133,7 @@ const Login = () => {
             <p className="text-gray-100">
               Don't have an account?{" "}
               <Link to="/sign-up" className="text-orange-500 font-semibold">
-                Sign Up Free!
+                Sign Up!
               </Link>
             </p>
             <p>
