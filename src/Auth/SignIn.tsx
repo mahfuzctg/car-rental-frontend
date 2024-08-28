@@ -1,139 +1,156 @@
-import { ErrorMessage, Field, Form, Formik } from "formik";
+/* eslint-disable @typescript-eslint/no-unused-vars */
+import { useState } from "react";
+import { SubmitHandler, useForm } from "react-hook-form";
 import { Link, useNavigate } from "react-router-dom";
-import * as Yup from "yup";
 
-// Define the type for form values
-interface SignInFormValues {
+import { IoEye, IoEyeOff } from "react-icons/io5";
+import { toast } from "sonner";
+
+import { Label } from "@radix-ui/react-label";
+import { Button } from "../components/ui/UI/button";
+import { Input } from "../components/ui/UI/input";
+import { useAppDispatch } from "../redux/hooks/hook";
+import { verifyToken } from "../utils/token";
+import { useLoginMutation } from "./AuthApi";
+import { setUser, TUser } from "./AuthSlice";
+
+type Inputs = {
   email: string;
   password: string;
-}
+};
+const Login = () => {
+  const [isShowPassword, setIsShowPassword] = useState(false);
 
-const SignIn = () => {
+  const [login] = useLoginMutation();
+  const dispatch = useAppDispatch();
   const navigate = useNavigate();
 
-  // Validation Schema
-  const validationSchema = Yup.object({
-    email: Yup.string()
-      .email("Invalid email address")
-      .required("Email is required"),
-    password: Yup.string().required("Password is required"),
-  });
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<Inputs>();
+  const onSubmit: SubmitHandler<Inputs> = async (data) => {
+    const toastId = toast.loading("Signing in...");
 
-  // Handle Form Submission
-  const handleSubmit = (values: SignInFormValues) => {
-    // Handle form submission (e.g., call an API to authenticate the user)
-    console.log(values);
-    // Redirect to dashboard after successful login
-    navigate("/dashboard");
+    try {
+      const userInfo = {
+        email: data.email,
+        password: data.password,
+      };
+
+      const res = await login(userInfo).unwrap();
+      const { __v, updatedAt, createdAt, ...userData } = res.data;
+
+      const user = verifyToken(res.token) as TUser;
+
+      if (user) {
+        dispatch(setUser({ user: userData, token: res.token }));
+        toast.success("Logged in successfully", {
+          id: toastId,
+          duration: 2000,
+        });
+
+        navigate(`/${user?.role}/dashboard`);
+      } else {
+        toast.error("Invalid credentials", {
+          id: toastId,
+          duration: 2000,
+        });
+        return;
+      }
+    } catch (err) {
+      toast.error(err?.data?.message, {
+        action: (
+          <Button
+            onClick={() => navigate("/password-recovery")}
+            className="text-orange-500"
+          >
+            Recover the password
+          </Button>
+        ),
+        id: toastId,
+        duration: 2000,
+      });
+    }
   };
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <div className="w-full lg:w-7/12 mx-auto">
-        <h1 className="text-2xl font-bold mb-4">Sign In</h1>
-        <Formik
-          initialValues={{
-            email: "",
-            password: "",
-          }}
-          validationSchema={validationSchema}
-          onSubmit={handleSubmit}
-        >
-          {({ isSubmitting }) => (
-            <Form className="space-y-4">
-              {/* Email Field */}
-              <div>
-                <label
-                  htmlFor="email"
-                  className="block text-sm font-medium text-gray-700"
-                >
-                  Email Address
-                </label>
-                <Field
-                  type="email"
-                  id="email"
-                  name="email"
-                  placeholder="Enter your email"
-                  className="mt-1 block w-full border-none rounded-md shadow-sm focus:ring-green-500 focus:ring-2 sm:text-sm p-2"
-                />
-                <ErrorMessage
-                  name="email"
-                  component="div"
-                  className="text-red-600 text-sm mt-1"
-                />
-              </div>
+    <section className="bg-[#ffffff] min-h-screen flex items-center justify-center my-14">
+      <div className="rounded-xl shadow-custom-light shadow-gray-600 p-6 md:py-8">
+        <div className="max-w-8 mx-auto flex items-center justify-center mb-6"></div>
+        <h2 className="text-gray-700 text-2xl font-semibold text-center mb-8">
+          Sign In to your account!
+        </h2>
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+          <div>
+            <div className="grid w-full items-center gap-1.5">
+              <Label htmlFor="email">Email:</Label>
+              <Input
+                className="md:w-80 focus-visible:ring-offset-0"
+                type="email"
+                id="email"
+                {...register("email", { required: true })}
+              />
+            </div>
+            {errors?.email && (
+              <p className="text-red-500 text-sm">Email is required</p>
+            )}
+          </div>
 
-              {/* Password Field */}
-              <div>
-                <label
-                  htmlFor="password"
-                  className="block text-sm font-medium text-gray-700"
-                >
-                  Password
-                </label>
-                <Field
-                  type="password"
-                  id="password"
-                  name="password"
-                  placeholder="Enter your password"
-                  className="mt-1 block w-full border-none rounded-md shadow-sm focus:ring-green-500 focus:ring-2 sm:text-sm p-2"
-                />
-                <ErrorMessage
-                  name="password"
-                  component="div"
-                  className="text-red-600 text-sm mt-1"
-                />
-              </div>
+          <div className="pb-2">
+            <div className="grid w-full items-center gap-1.5 relative">
+              <Label htmlFor="password">Password:</Label>
+              <Input
+                className="md:w-80 focus-visible:ring-offset-0"
+                type={`${isShowPassword ? "text" : "password"}`}
+                id="password"
+                {...register("password", { required: true })}
+              />
+              <p
+                onClick={() => setIsShowPassword(!isShowPassword)}
+                className="absolute right-2 top-[67%] -translate-y-1/2 text-gray-100 cursor-pointer p-1 "
+              >
+                {isShowPassword ? <IoEye /> : <IoEyeOff />}
+              </p>
+            </div>
+            {errors?.password && (
+              <p className="text-red-500 text-sm">Password is required</p>
+            )}
+          </div>
 
-              {/* Sign In Button */}
-              <div>
-                <button
-                  type="submit"
-                  disabled={isSubmitting}
-                  className="w-full bg-green-600 text-white py-2 rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500"
-                >
-                  Sign In
-                </button>
-              </div>
-            </Form>
-          )}
-        </Formik>
-
-        {/* Forgot Password Link */}
-        <div className="mt-4">
-          <Link
-            to="/forgot-password"
-            className="text-green-600 hover:underline"
-          >
+          <Link to="/forget-password" className="text-orange-500 ">
             Forgot Password?
           </Link>
-        </div>
 
-        {/* Sign Up Instead Link */}
-        <div className="mt-4">
-          <p className="text-sm text-gray-600">
-            New user?{" "}
-            <Link to="/sign-up" className="text-green-600 hover:underline">
-              Sign Up instead
-            </Link>
-          </p>
-        </div>
-
-        {/* Footer Links */}
-        <footer className="mt-8">
-          <hr className="border-gray-300 my-4" />
-          <div className="flex justify-between text-gray-600 text-sm mt-4">
-            <Link to="/privacy-policy" className="hover:text-green-600">
-              Privacy Policy
-            </Link>
-            <Link to="/terms" className="hover:text-green-600">
-              Terms of Service
-            </Link>
+          <Button
+            type="submit"
+            className="w-full bg-green-500 hover:bg-green-600"
+          >
+            Sign In
+          </Button>
+          <div>
+            <p className="text-gray-100">
+              Don't have an account?{" "}
+              <Link to="/sign-up" className="text-orange-500 font-semibold">
+                Sign Up Free!
+              </Link>
+            </p>
+            <p>
+              Read our{" "}
+              <Link to="/privacy-policy" className="text-orange-500">
+                Privacy Policy
+              </Link>{" "}
+              and{" "}
+              <Link to="/terms-and-condition" className="text-orange-500">
+                Terms of Service
+              </Link>
+            </p>
           </div>
-        </footer>
+        </form>
       </div>
-    </div>
+    </section>
   );
 };
 
-export default SignIn;
+export default Login;

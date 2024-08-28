@@ -1,35 +1,51 @@
-import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
+import axios from "axios";
+
+// Async thunk to fetch cars
+export const fetchCars = createAsyncThunk("cars/fetchCars", async () => {
+  const response = await axios.get("/api/cars"); // Replace with your API endpoint
+  return response.data;
+});
 
 interface Car {
-  id: string;
-  make: string;
-  model: string;
-  year: number;
+  id: number;
+  type: string;
+  image: string;
   price: number;
+  description: string;
 }
 
-interface CarState {
+interface CarsState {
   cars: Car[];
-  selectedCar: Car | null;
+  loading: boolean;
+  error: string | null;
 }
 
-const initialState: CarState = {
+const initialState: CarsState = {
   cars: [],
-  selectedCar: null,
+  loading: false,
+  error: null,
 };
 
-const carSlice = createSlice({
-  name: "car",
+const carsSlice = createSlice({
+  name: "cars",
   initialState,
-  reducers: {
-    setCars: (state, action: PayloadAction<Car[]>) => {
-      state.cars = action.payload;
-    },
-    selectCar: (state, action: PayloadAction<Car | null>) => {
-      state.selectedCar = action.payload;
-    },
+  reducers: {},
+  extraReducers: (builder) => {
+    builder
+      .addCase(fetchCars.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchCars.fulfilled, (state, action) => {
+        state.loading = false;
+        state.cars = action.payload;
+      })
+      .addCase(fetchCars.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.error.message || "Failed to fetch cars";
+      });
   },
 });
 
-export const { setCars, selectCar } = carSlice.actions;
-export default carSlice.reducer;
+export default carsSlice.reducer;

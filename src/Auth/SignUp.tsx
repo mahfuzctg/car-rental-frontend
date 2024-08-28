@@ -1,227 +1,281 @@
-import { ErrorMessage, Field, Form, Formik } from "formik";
+/* eslint-disable @typescript-eslint/no-unused-vars */
+import { useState } from "react";
+import { Controller, SubmitHandler, useForm } from "react-hook-form";
 import { Link, useNavigate } from "react-router-dom";
-import * as Yup from "yup";
 
-// Define the type for form values
-interface SignUpFormValues {
+import { IoEye, IoEyeOff } from "react-icons/io5";
+
+import { Label } from "@radix-ui/react-label";
+import { toast } from "sonner";
+// import Logo from "../assets/Logo/logo-1.jpg";
+import { Button } from "../components/ui/UI/button";
+import { Input } from "../components/ui/UI/input";
+
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "../components/ui/UI/select";
+import { useSignUpMutation } from "./AuthApi";
+
+type Inputs = {
   name: string;
   email: string;
   password: string;
   confirmPassword: string;
-  phoneNumber: string;
+  phone: string;
+  role: string;
   terms: boolean;
-}
-
+};
 const SignUp = () => {
+  const [signUp, { isLoading }] = useSignUpMutation();
+  const [isShowPassword, setIsShowPassword] = useState(false);
+  const [isConfirmShowPassword, setIsConfirmShowPassword] = useState(false);
+
   const navigate = useNavigate();
 
-  // Validation Schema
-  const validationSchema = Yup.object({
-    name: Yup.string().required("Name is required"),
-    email: Yup.string()
-      .email("Invalid email address")
-      .required("Email is required"),
-    password: Yup.string().required("Password is required"),
-    confirmPassword: Yup.string()
-      .oneOf([Yup.ref("password"), undefined], "Passwords must match")
-      .required("Confirm Password is required"),
-    phoneNumber: Yup.string().optional(),
-    terms: Yup.bool().oneOf([true], "You must accept the terms and conditions"),
-  });
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    control,
+  } = useForm<Inputs>();
+  const onSubmit: SubmitHandler<Inputs> = async (data) => {
+    if (data.password !== data.confirmPassword) {
+      return toast.error("Password and Confirm Password does not match");
+    }
 
-  // Handle Form Submission
-  const handleSubmit = (values: SignUpFormValues) => {
-    // Handle form submission (e.g., call an API to create a new user)
-    console.log(values);
-    // Redirect to login page after successful registration
-    navigate("/sign-in");
+    const userData = {
+      name: data.name,
+      email: data.email,
+      password: data.password,
+      phone: data.phone,
+      role: data.role,
+    };
+
+    const res = await signUp(userData);
+
+    if (res?.data?.success) {
+      toast.success("Registered Successfully!");
+      navigate("/login");
+    } else if (res?.error?.data?.success === false) {
+      toast.error(res?.error?.data?.message);
+    }
   };
 
   return (
-    <div className="container w-full md:w-7/12 mx-auto px-4 py-8 shadow-xl">
-      <h1 className="text-2xl font-bold mb-4 text-center">Sign Up</h1>
-      <Formik
-        initialValues={{
-          name: "",
-          email: "",
-          password: "",
-          confirmPassword: "",
-          phoneNumber: "",
-          terms: false,
-        }}
-        validationSchema={validationSchema}
-        onSubmit={handleSubmit}
-      >
-        {({ isSubmitting }) => (
-          <Form className="space-y-4">
-            {/* Name Field */}
-            <div>
-              <label
-                htmlFor="name"
-                className="block text-sm font-medium text-gray-700"
-              >
-                Name
-              </label>
-              <Field
+    <section className="bg-[#ffffff] shadow-md w-full md:w-7/12 mx-auto text-gray-700 min-h-screen flex items-center justify-center my-14">
+      <div className="rounded-xl shadow-custom-light shadow-gray-600 p-6 md:py-8">
+        <div className="max-w-8 mx-auto flex items-center justify-center mb-6"></div>
+        <h2 className="text-gray-700 text-2xl font-semibold text-center mb-8">
+          Create a new account!
+        </h2>
+        <form
+          onSubmit={handleSubmit(onSubmit)}
+          className="space-y-4 w-full max-w-[370xp]"
+        >
+          <div className="">
+            <div className="grid w-full items-center gap-1.5">
+              <Label htmlFor="name">Name:</Label>
+              <Input
+                className="md:w-80 focus-visible:ring-offset-0"
                 type="text"
                 id="name"
-                name="name"
-                placeholder="Enter your name"
-                className="mt-1 py-2 block w-full border-none rounded-md shadow-sm px-2  sm:text-sm"
-              />
-              <ErrorMessage
-                name="name"
-                component="div"
-                className="text-red-600 text-sm mt-1"
+                {...register("name", { required: true })}
               />
             </div>
-
-            {/* Email Field */}
-            <div>
-              <label
-                htmlFor="email"
-                className="block text-sm font-medium text-gray-700"
-              >
-                Email Address
-              </label>
-              <Field
+            {errors?.name && (
+              <p className="text-red-600 text-sm">Name is required</p>
+            )}
+          </div>
+          <div>
+            <div className="grid w-full items-center gap-1.5">
+              <Label htmlFor="email">Email:</Label>
+              <Input
+                className="md:w-80 focus-visible:ring-offset-0"
                 type="email"
                 id="email"
-                name="email"
-                placeholder="Enter your email"
-                className="mt-1 py-2 block w-full border-none rounded-md shadow-sm px-2 sm:text-sm"
-              />
-              <ErrorMessage
-                name="email"
-                component="div"
-                className="text-red-600 text-sm mt-1"
+                {...register("email", { required: true })}
               />
             </div>
+            {errors?.email && (
+              <p className="text-red-600 text-sm">Email is required</p>
+            )}
+          </div>
 
-            {/* Password Field */}
-            <div>
-              <label
-                htmlFor="password"
-                className="block text-sm font-medium text-gray-700"
-              >
-                Password
-              </label>
-              <Field
-                type="password"
+          <div>
+            <div className="grid w-full items-center gap-1.5 relative">
+              <Label htmlFor="password">Password:</Label>
+              <Input
+                className="md:w-80 focus-visible:ring-offset-0"
+                type={`${isShowPassword ? "text" : "password"}`}
                 id="password"
-                name="password"
-                placeholder="Enter your password"
-                className="mt-1 py-2 px-2 block w-full border-none rounded-md shadow-sm  sm:text-sm"
+                {...register("password", {
+                  required: "Password is required",
+                  minLength: {
+                    value: 6,
+                    message: "Password must be more than 6 characters",
+                  },
+                  maxLength: {
+                    value: 16,
+                    message: "Password must be less than 16 characters",
+                  },
+                  pattern: {
+                    value: /^(?=.*[A-Z])(?=.*\d).{6,16}$/,
+                    message:
+                      "Password must contain at least one uppercase letter and one number",
+                  },
+                })}
               />
-              <ErrorMessage
-                name="password"
-                component="div"
-                className="text-red-600 text-sm mt-1 "
-              />
-            </div>
-
-            {/* Confirm Password Field */}
-            <div>
-              <label
-                htmlFor="confirmPassword"
-                className="block text-sm font-medium text-gray-700"
+              <p
+                onClick={() => setIsShowPassword(!isShowPassword)}
+                className="absolute right-2 top-[67%] -translate-y-1/2 text-gray-100 cursor-pointer p-1 "
               >
-                Confirm Password
-              </label>
-              <Field
-                type="password"
+                {isShowPassword ? <IoEye /> : <IoEyeOff />}
+              </p>
+            </div>
+            {errors?.password && (
+              <p className="text-red-600 text-sm max-w-[300px]">
+                {errors.password.message}
+              </p>
+            )}
+          </div>
+          {/* Confirm password */}
+          <div>
+            <div className="grid w-full items-center gap-1.5 relative">
+              <Label htmlFor="confirmPassword">Confirm Password:</Label>
+              <Input
+                className="md:w-80 focus-visible:ring-offset-0"
+                type={`${isConfirmShowPassword ? "text" : "password"}`}
                 id="confirmPassword"
-                name="confirmPassword"
-                placeholder="Confirm your password"
-                className="mt-1 py-2 px-2 block w-full border-none rounded-md shadow-sm  sm:text-sm"
+                {...register("confirmPassword", {
+                  required: "Password is required",
+                  minLength: {
+                    value: 6,
+                    message: "Password must be more than 6 characters",
+                  },
+                  maxLength: {
+                    value: 16,
+                    message: "Password must be less than 16 characters",
+                  },
+                  pattern: {
+                    value: /^(?=.*[A-Z])(?=.*\d).{6,16}$/,
+                    message:
+                      "Password must contain at least one uppercase letter and one number",
+                  },
+                })}
               />
-              <ErrorMessage
-                name="confirmPassword"
-                component="div"
-                className="text-red-600 text-sm mt-1"
-              />
-            </div>
-
-            {/* Phone Number Field */}
-            <div>
-              <label
-                htmlFor="phoneNumber"
-                className="block text-sm font-medium text-gray-700"
+              <p
+                onClick={() => setIsConfirmShowPassword(!isConfirmShowPassword)}
+                className="absolute right-2 top-[67%] -translate-y-1/2 text-gray-100 cursor-pointer p-1 "
               >
-                Phone Number (optional)
-              </label>
-              <Field
-                type="text"
-                id="phoneNumber"
-                name="phoneNumber"
-                placeholder="Enter your phone number"
-                className="mt-1 py-2 px-2 block w-full border-none rounded-md shadow-sm  sm:text-sm"
-              />
-              <ErrorMessage
-                name="phoneNumber"
-                component="div"
-                className="text-red-600 text-sm mt-1"
+                {isConfirmShowPassword ? <IoEye /> : <IoEyeOff />}
+              </p>
+            </div>
+            {errors?.confirmPassword && (
+              <p className="text-red-600 text-sm max-w-[300px]">
+                {errors.confirmPassword.message}
+              </p>
+            )}
+          </div>
+          <div>
+            <div className="grid w-full items-center gap-1.5">
+              <Label htmlFor="phone">Phone:</Label>
+              <Input
+                className="md:w-80 focus-visible:ring-offset-0"
+                type="phone"
+                id="phone"
+                {...register("phone", { required: true })}
               />
             </div>
+            {errors?.phone && (
+              <p className="text-red-600 text-sm">Phone is required</p>
+            )}
+          </div>
 
-            {/* Terms and Conditions Checkbox */}
-            <div className="flex items-center mt-2">
-              <Field
-                type="checkbox"
+          <div className="grid w-full items-center gap-1.5">
+            <Label htmlFor="role">Role:</Label>
+            <Controller
+              name="role"
+              control={control}
+              rules={{ required: "Role is required" }}
+              render={({ field }) => (
+                <Select onValueChange={field.onChange} value={field.value}>
+                  <SelectTrigger className="md:w-80 focus-visible:ring-offset-0">
+                    <SelectValue placeholder="Select a Role" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectGroup>
+                      <SelectItem value="user">User</SelectItem>
+                      <SelectItem value="admin">Admin</SelectItem>
+                    </SelectGroup>
+                  </SelectContent>
+                </Select>
+              )}
+            />
+            {errors?.role && (
+              <p className="text-red-500 text-sm">{errors.role.message}</p>
+            )}
+          </div>
+
+          <div>
+            <div className="flex items-center space-x-2">
+              <input
                 id="terms"
-                name="terms"
-                className="h-4 w-4 text-green-600 focus:ring-green-500"
+                className="w-4 h-4 rounded  focus:ring-0"
+                type="checkbox"
+                required
+                {...register("terms", { required: true })}
               />
-              <label htmlFor="terms" className="ml-2 text-sm text-gray-700">
-                I agree to the{" "}
-                <Link to="/terms" className="text-green-600 hover:underline">
+              <label
+                htmlFor="terms"
+                className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+              >
+                Accept{" "}
+                <Link
+                  to="/terms-and-condition"
+                  className="text-orange-600 font-semibold"
+                >
                   Terms & Conditions
                 </Link>
               </label>
-              <ErrorMessage
-                name="terms"
-                component="div"
-                className="text-red-600 text-sm mt-1"
-              />
             </div>
-
-            {/* Sign Up Button */}
-            <div>
-              <button
-                type="submit"
-                disabled={isSubmitting}
-                className="w-full bg-green-600 text-white py-2 rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500"
-              >
-                Sign Up
-              </button>
-            </div>
-          </Form>
-        )}
-      </Formik>
-
-      {/* Sign In Instead Link */}
-      <div className="mt-4">
-        <p className="text-sm text-gray-600">
-          Already have an account?{" "}
-          <Link to="/sign-in" className="text-green-600 hover:underline">
-            Sign In instead
-          </Link>
-        </p>
+            {errors?.terms && (
+              <p className="text-red-600 text-sm mt-2">
+                Terms & Conditions is required
+              </p>
+            )}
+          </div>
+          <Button
+            type="submit"
+            className="w-full bg-green-500 hover:bg-orange-600"
+          >
+            Sign Up
+          </Button>
+          <div>
+            <p className="text-gray-700 text-start font-semibold">
+              Already have an account?{" "}
+              <Link to="/login" className="text-green-500 font-semibold">
+                Sign In now!
+              </Link>
+            </p>
+            <p>
+              Read our{" "}
+              <Link to="/privacy-policy" className="text-orange-500">
+                Privacy Policy
+              </Link>{" "}
+              and{" "}
+              <Link to="/terms-and-condition" className="text-orange-500">
+                Terms of Service
+              </Link>
+            </p>
+          </div>
+        </form>
       </div>
-
-      {/* Footer Links */}
-      <footer className="mt-8">
-        <hr className="border-gray-300 my-4" />
-        <div className="flex justify-between text-gray-600 text-sm mt-4">
-          <Link to="/privacy-policy" className="hover:text-green-600">
-            Privacy Policy
-          </Link>
-          <Link to="/terms" className="hover:text-green-600">
-            Terms of Service
-          </Link>
-        </div>
-      </footer>
-    </div>
+    </section>
   );
 };
 
