@@ -2,13 +2,10 @@ import { createBrowserRouter } from "react-router-dom";
 import App from "../App";
 import SignIn from "../Auth/SignIn";
 import SignUp from "../Auth/SignUp";
-
 import AdminDashboard from "../dashboard/admin/AdminDashboard";
 import ManageBookings from "../dashboard/admin/Managements/ManageBookings";
 import ManageCars from "../dashboard/admin/Managements/ManageCars";
-
 import ManageReturnCars from "../dashboard/admin/Managements/ManageReturnCars";
-import Reports from "../dashboard/admin/Managements/Reports";
 import UserManagement from "../dashboard/admin/Managements/UserManagement";
 import AdminLayout from "../Layout/AdminLayout";
 import AboutPage from "../pages/AboutPage";
@@ -29,18 +26,15 @@ export const router = createBrowserRouter([
       { path: "*", element: <NotFoundPage /> },
     ],
   },
-  // Admin dashboard routes
   {
     path: "/admin",
     element: <AdminLayout />,
     children: [
       { path: "dashboard", element: <AdminDashboard /> },
       { path: "manage-cars", element: <ManageCars /> },
-
       { path: "manage-bookings", element: <ManageBookings /> },
       { path: "manage-return-cars", element: <ManageReturnCars /> },
-      { path: "manage-users", element: <UserManagement /> }, // Renamed to "manage-users"
-      { path: "reports", element: <Reports /> },
+      { path: "manage-users", element: <UserManagement /> },
     ],
   },
 ]);

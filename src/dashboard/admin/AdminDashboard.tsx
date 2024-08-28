@@ -10,25 +10,29 @@ import {
 import { useNavigate } from "react-router-dom";
 
 // Importing the logo image correctly
+
+import { logout } from "../../Auth/AuthSlice";
+import { useAppDispatch } from "../../redux/hooks/hook";
 import logo from "/src/assets/Logo/logo-1.jpg";
 
 const AdminDashboard: React.FC = () => {
   const navigate = useNavigate();
+  const dispatch = useAppDispatch();
 
   const handleNavigation = (path: string) => {
     navigate(path);
   };
 
   const handleLogout = () => {
-    // Implement your logout functionality here
-    console.log("Logout clicked");
-    navigate("/sign-in");
+    // Perform logout action
+    dispatch(logout()); // This will clear the user data in Redux store
+    navigate("/"); // Redirect to the home page
   };
 
   return (
-    <div className="flex h-screen">
+    <div className="flex w-full h-screen">
       {/* Sidebar */}
-      <nav className="w-1/4 bg-white text-gray-800 border-r border-gray-200 flex flex-col items-start p-4 space-y-4">
+      <nav className="w-7/9 bg-[#ffffff] text-gray-800 border-r border-gray-200 flex flex-col items-start p-4 space-y-4">
         {/* Logo and Website Name */}
         <div className="flex flex-col items-center justify-center">
           <img

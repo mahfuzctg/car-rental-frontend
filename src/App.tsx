@@ -1,34 +1,35 @@
 import React from "react";
+import { useLocation } from "react-router-dom";
 import Footer from "./commons/Footer";
 import Navbar from "./commons/Header";
+import AdminDashboard from "./dashboard/admin/AdminDashboard";
 
-// import { AuthContext } from "./contexts/AuthContext"; // Uncomment if using context
+import HeroSection from "./Sections/HeroSection";
+import { useUser } from "./context/UserContext";
 
 const App: React.FC = () => {
-  // Example of getting user role from context or state
-  // const { user } = useContext(AuthContext);
-  // Example user role, replace with actual data from context or props
-  const user = { isAuthenticated: true, role: "admin" }; // or "user"
+  const { pathname } = useLocation();
+  const { user } = useUser();
+
+  // Check if the user is authenticated and has the role 'admin'
+  const isAdmin = user.isAuthenticated && user.role === "admin";
 
   return (
     <div>
       <Navbar />
-      <main className="pt-16">
-        {user.isAuthenticated ? (
-          user.role === "admin" ? (
-            ""
-          ) : (
-            ""
-          )
-        ) : (
-          // Render the main content if not authenticated
-          <>
+      {isAdmin ? (
+        // Render AdminDashboard if the user is an admin
+        <AdminDashboard />
+      ) : (
+        <>
+          <Navbar />
+          <main className="pt-16 bg-green-600">
             {/* Conditionally render HeroSection only on the home route */}
-            {/* {location.pathname === "/" && <HeroSection />} */}
-            {/* Other main content here */}
-          </>
-        )}
-      </main>
+            {pathname === "/" && <HeroSection />}
+            {/* Render other main content */}
+          </main>
+        </>
+      )}
       <Footer />
     </div>
   );
