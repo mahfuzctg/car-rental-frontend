@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { useState } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
@@ -18,9 +19,9 @@ type Inputs = {
   email: string;
   password: string;
 };
+
 const Login = () => {
   const [isShowPassword, setIsShowPassword] = useState(false);
-
   const [login] = useLoginMutation();
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
@@ -30,37 +31,31 @@ const Login = () => {
     handleSubmit,
     formState: { errors },
   } = useForm<Inputs>();
+
   const onSubmit: SubmitHandler<Inputs> = async (data) => {
     const toastId = toast.loading("Signing in...");
 
     try {
-      const userInfo = {
-        email: data.email,
-        password: data.password,
-      };
-
-      const res = await login(userInfo).unwrap();
-      const { __v, updatedAt, createdAt, ...userData } = res.data;
+      const { email, password } = data;
+      const res = await login({ email, password }).unwrap();
 
       const user = verifyToken(res.token) as TUser;
 
       if (user) {
+        const { __v, updatedAt, createdAt, ...userData } = res.data;
         dispatch(setUser({ user: userData, token: res.token }));
         toast.success("Logged in successfully", {
           id: toastId,
           duration: 2000,
         });
-
-        navigate(`/${user?.role}/dashboard`);
+        navigate(`/${user.role}/dashboard`);
       } else {
-        toast.error("Invalid credentials", {
-          id: toastId,
-          duration: 2000,
-        });
-        return;
+        toast.error("Invalid credentials", { id: toastId, duration: 2000 });
       }
-    } catch (err) {
-      toast.error(err?.data?.message, {
+    } catch (err: any) {
+      const errorMessage =
+        err?.data?.message || "An unexpected error occurred.";
+      toast.error(errorMessage, {
         action: (
           <Button
             onClick={() => navigate("/password-recovery")}
@@ -78,7 +73,6 @@ const Login = () => {
   return (
     <section className="bg-[#ffffff] min-h-screen flex items-center justify-center my-14">
       <div className="rounded-xl shadow-custom-light shadow-gray-600 p-6 md:py-8">
-        <div className="max-w-8 mx-auto flex items-center justify-center mb-6"></div>
         <h2 className="text-gray-700 text-2xl font-semibold text-center mb-8">
           Sign In to your account!
         </h2>
@@ -90,11 +84,11 @@ const Login = () => {
                 className="md:w-80 focus-visible:ring-offset-0"
                 type="email"
                 id="email"
-                {...register("email", { required: true })}
+                {...register("email", { required: "Email is required" })}
               />
             </div>
-            {errors?.email && (
-              <p className="text-red-500 text-sm">Email is required</p>
+            {errors.email && (
+              <p className="text-red-500 text-sm">{errors.email.message}</p>
             )}
           </div>
 
@@ -103,23 +97,23 @@ const Login = () => {
               <Label htmlFor="password">Password:</Label>
               <Input
                 className="md:w-80 focus-visible:ring-offset-0"
-                type={`${isShowPassword ? "text" : "password"}`}
+                type={isShowPassword ? "text" : "password"}
                 id="password"
-                {...register("password", { required: true })}
+                {...register("password", { required: "Password is required" })}
               />
               <p
                 onClick={() => setIsShowPassword(!isShowPassword)}
-                className="absolute right-2 top-[67%] -translate-y-1/2 text-gray-100 cursor-pointer p-1 "
+                className="absolute right-2 top-[67%] -translate-y-1/2 text-gray-100 cursor-pointer p-1"
               >
                 {isShowPassword ? <IoEye /> : <IoEyeOff />}
               </p>
             </div>
-            {errors?.password && (
-              <p className="text-red-500 text-sm">Password is required</p>
+            {errors.password && (
+              <p className="text-red-500 text-sm">{errors.password.message}</p>
             )}
           </div>
 
-          <Link to="/forget-password" className="text-orange-500 ">
+          <Link to="/forget-password" className="text-orange-500">
             Forgot Password?
           </Link>
 

@@ -1,42 +1,39 @@
-import React from "react";
-import { useLocation } from "react-router-dom";
-import Footer from "./commons/Footer";
-import AdminDashboard from "./dashboard/admin/AdminDashboard";
-
-import HeroSection from "./Sections/HeroSection";
+import { Route, Routes } from "react-router-dom";
+import Login from "./Auth/SignIn";
 import Navbar from "./commons/Header";
-import { useUser } from "./context/UserContext";
+import AdminDashboard from "./dashboard/admin/AdminDashboard";
 import UserDashboard from "./dashboard/user/userDashboard";
+import AboutPage from "./pages/AboutPage";
+import ProtectedRoute from "./Protected/ProtectedRoute";
+import HeroSection from "./Sections/HeroSection";
 
-const App: React.FC = () => {
-  const { pathname } = useLocation();
-  const { user } = useUser();
-
-  // Check if the user is authenticated and has the role 'admin'
-  const isAdmin = user.isAuthenticated && user.role === "admin";
-  // Check if the user is authenticated and has the role 'user'
-  const isUser = user.isAuthenticated && user.role === "user";
-
+const App = () => {
   return (
-    <div>
-      {/* Render dashboard based on user role */}
+    <>
       <Navbar />
-      {isAdmin ? (
-        <AdminDashboard />
-      ) : isUser ? (
-        <UserDashboard /> // Render UserDashboard if the user is authenticated as a user
-      ) : (
-        <>
-          <main className="pt-16 bg-green-600">
-            {/* Conditionally render HeroSection only on the home route */}
-            {pathname === "/" && <HeroSection />}
-            {/* Render other main content */}
-          </main>
-        </>
-      )}
-
-      <Footer />
-    </div>
+      <Routes>
+        <Route path="/" element={<HeroSection />} />
+        <Route path="/about" element={<AboutPage />} />
+        <Route path="/login" element={<Login />} />
+        {/* Private Route examples */}
+        <Route
+          path="/admin/dashboard"
+          element={
+            <ProtectedRoute>
+              <AdminDashboard />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/user/dashboard"
+          element={
+            <ProtectedRoute>
+              <UserDashboard />
+            </ProtectedRoute>
+          }
+        />
+      </Routes>
+    </>
   );
 };
 

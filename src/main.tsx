@@ -5,7 +5,7 @@ import { RouterProvider } from "react-router-dom";
 import { Toaster } from "sonner";
 import "./index.css";
 
-import { UserProvider } from "./context/UserContext"; // Import UserProvider
+import { UserProvider } from "./context/UserContext";
 import { store } from "./redux/store";
 import { router } from "./routes/route";
 
