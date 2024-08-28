@@ -1,13 +1,25 @@
 import { createBrowserRouter } from "react-router-dom";
-import App from "../App";
-import SignIn from "../Auth/SignIn";
-import SignUp from "../Auth/SignUp";
+
+// Admin Imports
 import AdminDashboard from "../dashboard/admin/AdminDashboard";
 import ManageBookings from "../dashboard/admin/Managements/ManageBookings";
 import ManageCars from "../dashboard/admin/Managements/ManageCars";
 import ManageReturnCars from "../dashboard/admin/Managements/ManageReturnCars";
 import UserManagement from "../dashboard/admin/Managements/UserManagement";
+
+// User Imports
+
+import BookingManagement from "../dashboard/user/Managements/BookingManagement";
+import PaymentManagement from "../dashboard/user/Managements/PaymentManagement";
+
+// Other Imports
+import App from "../App";
+import SignIn from "../Auth/SignIn";
+import SignUp from "../Auth/SignUp";
+import Overview from "../dashboard/user/Managements/Overview ";
+import UserDashboard from "../dashboard/user/userDashboard";
 import AdminLayout from "../Layout/AdminLayout";
+import UserLayout from "../Layout/UserLayout";
 import AboutPage from "../pages/AboutPage";
 import BookingPage from "../pages/BookingPage";
 import NotFoundPage from "../pages/NotFoundPage";
@@ -35,6 +47,16 @@ export const router = createBrowserRouter([
       { path: "manage-bookings", element: <ManageBookings /> },
       { path: "manage-return-cars", element: <ManageReturnCars /> },
       { path: "manage-users", element: <UserManagement /> },
+    ],
+  },
+  {
+    path: "/user",
+    element: <UserLayout />,
+    children: [
+      { path: "dashboard", element: <UserDashboard /> },
+      { path: "overview", element: <Overview /> },
+      { path: "booking-management", element: <BookingManagement /> },
+      { path: "payment-management", element: <PaymentManagement /> },
     ],
   },
 ]);

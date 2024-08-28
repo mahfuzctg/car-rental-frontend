@@ -2,6 +2,8 @@ import React, { createContext, ReactNode, useContext } from "react";
 
 interface UserContextType {
   user: {
+    email: ReactNode;
+    name: any;
     isAuthenticated: boolean;
     role: string;
   };
