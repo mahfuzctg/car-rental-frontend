@@ -143,13 +143,7 @@ const Navbar: React.FC = () => {
           >
             <FaBook className="mr-2" /> Bookings
           </button>
-          <button
-            onClick={() => handleNavigation("/admin/dashboard")}
-            className="flex items-center w-full px-4 py-2 text-gray-800 hover:bg-gray-100"
-          >
-            <FaBook className="mr-2" />
-            Dashboard
-          </button>
+
           <button
             onClick={() => handleNavigation("/cars-page")}
             className="flex items-center w-full px-4 py-2 text-gray-800 hover:bg-gray-100"
