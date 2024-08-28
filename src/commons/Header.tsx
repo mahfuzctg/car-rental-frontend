@@ -138,6 +138,12 @@ const Navbar: React.FC = () => {
             <FaInfoCircle className="mr-2" /> About
           </button>
           <button
+            onClick={() => handleNavigation("/admin/dashboard")}
+            className="flex items-center w-full px-4 py-2 text-gray-800 hover:bg-gray-100"
+          >
+            <FaBook className="mr-2" /> dashboard
+          </button>
+          <button
             onClick={() => handleNavigation("/bookings")}
             className="flex items-center w-full px-4 py-2 text-gray-800 hover:bg-gray-100"
           >
