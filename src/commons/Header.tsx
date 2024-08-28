@@ -106,8 +106,8 @@ const Navbar: React.FC = () => {
       </nav>
 
       {/* Sidebar for Large Devices */}
-      <nav className="hidden md:flex flex-col fixed top-0 left-0 h-full w-[20%] bg-white text-gray-800 border-r border-gray-200 z-40">
-        <div className="flex flex-col items-center justify-center p-4 space-y-4 border-b border-gray-200">
+      <nav className="hidden md:flex flex-col fixed  top-0 left-0  w-[20%] bg-[#ffffff] text-gray-800 border border-gray-200  z-40">
+        <div className="flex flex-col items-center justify-center">
           <img
             src="/src/assets/Logo/logo-1.jpg"
             alt="Logo"
@@ -142,6 +142,13 @@ const Navbar: React.FC = () => {
             className="flex items-center w-full px-4 py-2 text-gray-800 hover:bg-gray-100"
           >
             <FaBook className="mr-2" /> Bookings
+          </button>
+          <button
+            onClick={() => handleNavigation("/admin/dashboard")}
+            className="flex items-center w-full px-4 py-2 text-gray-800 hover:bg-gray-100"
+          >
+            <FaBook className="mr-2" />
+            Dashboard
           </button>
           <button
             onClick={() => handleNavigation("/cars-page")}

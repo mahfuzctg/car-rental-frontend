@@ -124,8 +124,6 @@ const AboutUsSection: React.FC = () => {
         ></div>
       </section>
 
-      <section></section>
-
       {/* Company History Section */}
       <section className="py-16 px-4 bg-gray-100">
         <div className="container mx-auto">

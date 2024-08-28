@@ -1,5 +1,4 @@
 import { NavLink, useNavigate } from "react-router-dom";
-import Logo from "../../assets/Logo/logo-1.jpg";
 
 import { logout, selectCurrentUser } from "../../Auth/AuthSlice";
 import { Button } from "../../components/ui/UI/button";
@@ -21,11 +20,9 @@ const DashboardSidebar = ({ sidebarType }: { sidebarType: string }) => {
   };
 
   return (
-    <div className="w-[320px] px-4 py-8 border-r h-screen overflow-y-auto hidden lg:block">
+    <div className="w-[320px] bg-white text-gray-800 px-4 py-8 border-r h-screen overflow-y-auto hidden lg:block">
       {/* Logo */}
-      <div className="max-w-[160px] pb-4">
-        <Logo />
-      </div>
+      <div className="max-w-[160px] pb-4">{/* <Logo /> */}</div>
       <div className="flex flex-col justify-between h-full">
         {/* routes */}
         <div className="flex flex-col gap-4 py-8 border-t">
@@ -34,8 +31,8 @@ const DashboardSidebar = ({ sidebarType }: { sidebarType: string }) => {
                 <NavLink
                   key={item.path}
                   className={({ isActive }) =>
-                    `text-gray-100 hover:text-orange-500 p-2 flex gap-3 items-center text-lg rounded-xl ${
-                      isActive && "text-orange-500 border-l-4 border-orange-500"
+                    `text-gray-800 hover:text-gray-700 p-2 flex gap-3 items-center text-lg rounded-xl ${
+                      isActive && "text-orange-500 border-l-4 border-green-500"
                     }`
                   }
                   to={item.path}
@@ -48,7 +45,7 @@ const DashboardSidebar = ({ sidebarType }: { sidebarType: string }) => {
                 <NavLink
                   key={item.path}
                   className={({ isActive }) =>
-                    `text-gray-100 hover:text-orange-500 p-2 flex gap-3 items-center text-lg rounded-xl ${
+                    `text-gray-800 hover:text-orange-500 p-2 flex gap-3 items-center text-lg rounded-xl ${
                       isActive && "text-orange-500 border-l-4 border-orange-500"
                     }`
                   }
@@ -63,7 +60,7 @@ const DashboardSidebar = ({ sidebarType }: { sidebarType: string }) => {
         <div className="flex flex-col gap-8 pt-8 border-t">
           {/* Profile */}
           <div className="flex gap-3 items-center">
-            <h2 className="p-2 rounded-full bg-orange-500 border text-2xl font-semibold size-12 text-center">
+            <h2 className="p-2 rounded-full bg-green-500 border text-2xl font-semibold size-12 text-center">
               {profileText}
             </h2>
             <div className="">
@@ -80,7 +77,7 @@ const DashboardSidebar = ({ sidebarType }: { sidebarType: string }) => {
           {/* Logout */}
           <Button
             onClick={handleLogout}
-            className="text-gray-100 bg-orange-500 hover:bg-orange-600 w-full"
+            className="text-gray-100 bg-green-500 hover:bg-green-600 w-full"
           >
             LOGOUT
           </Button>
