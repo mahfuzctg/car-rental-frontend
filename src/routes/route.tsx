@@ -8,7 +8,6 @@ import ManageReturnCars from "../dashboard/admin/Managements/ManageReturnCars";
 import UserManagement from "../dashboard/admin/Managements/UserManagement";
 
 // User Imports
-
 import BookingManagement from "../dashboard/user/Managements/BookingManagement";
 import PaymentManagement from "../dashboard/user/Managements/PaymentManagement";
 
@@ -36,8 +35,8 @@ export const router = createBrowserRouter([
       { path: "about", element: <AboutPage /> },
       { path: "bookings", element: <BookingPage /> },
       { path: "cars", element: <CarListing /> },
-      { path: "/car/:id", element: <CarDetails /> },
-      { path: "/book/:id", element: <BookingPage /> },
+      { path: "car/:id", element: <CarDetails /> },
+      { path: "book/:id", element: <BookingPage /> },
 
       { path: "sign-in", element: <SignIn /> },
       { path: "sign-up", element: <SignUp /> },

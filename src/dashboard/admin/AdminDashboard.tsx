@@ -9,10 +9,17 @@ import {
   FaTimes,
   FaUser,
 } from "react-icons/fa";
-import { useNavigate } from "react-router-dom";
+import { Route, Routes, useNavigate } from "react-router-dom";
 import { logout } from "../../Auth/AuthSlice";
 import { useAppDispatch, useAppSelector } from "../../redux/hooks/hook";
+import ManageBookings from "./Managements/ManageBookings";
+import ManageCars from "./Managements/ManageCars";
+import ManageReturnCars from "./Managements/ManageReturnCars";
+import Reports from "./Managements/Reports";
+import UserManagement from "./Managements/UserManagement";
 import logo from "/src/assets/Logo/logo-1.jpg";
+
+// Import pages
 
 const AdminDashboard: React.FC = () => {
   const navigate = useNavigate();
@@ -25,6 +32,7 @@ const AdminDashboard: React.FC = () => {
 
   const handleNavigation = (path: string) => {
     navigate(path);
+    setIsSidebarVisible(false); // Close sidebar on navigation
   };
 
   const handleLogout = () => {
@@ -138,7 +146,13 @@ const AdminDashboard: React.FC = () => {
       {/* Main Content Area */}
       <div className="flex-1 p-8 lg:ml-64">
         <h1 className="text-3xl font-semibold mb-8">Admin Dashboard</h1>
-        {/* The content for each route will be rendered here */}
+        <Routes>
+          <Route path="/manage-cars" element={<ManageCars />} />
+          <Route path="/manage-bookings" element={<ManageBookings />} />
+          <Route path="/manage-return-cars" element={<ManageReturnCars />} />
+          <Route path="/user-management" element={<UserManagement />} />
+          <Route path="/reports" element={<Reports />} />
+        </Routes>
       </div>
     </div>
   );
