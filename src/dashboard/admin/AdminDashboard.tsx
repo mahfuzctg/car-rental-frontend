@@ -127,7 +127,7 @@ const AdminDashboard: React.FC = () => {
             <FaClipboardList className="mr-2" /> Manage Return Cars
           </button>
           <button
-            onClick={() => handleNavigation("/user-management")}
+            onClick={() => handleNavigation("/manage-users")}
             className={`flex items-center w-full px-4 py-2 hover:bg-gray-100 rounded ${
               location.pathname === "/admin/user-management"
                 ? "bg-gray-200"
