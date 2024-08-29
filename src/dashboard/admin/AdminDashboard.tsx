@@ -9,18 +9,14 @@ import {
   FaTimes,
   FaUser,
 } from "react-icons/fa";
-import { Route, Routes, useNavigate } from "react-router-dom";
+import { Outlet, useLocation, useNavigate } from "react-router-dom";
 import { logout } from "../../Auth/AuthSlice";
 import { useAppDispatch, useAppSelector } from "../../redux/hooks/hook";
-import ManageBookings from "./Managements/ManageBookings";
-import ManageCars from "./Managements/ManageCars";
-import ManageReturnCars from "./Managements/ManageReturnCars";
-import Reports from "./Managements/Reports";
-import UserManagement from "./Managements/UserManagement";
 import logo from "/src/assets/Logo/logo-1.jpg";
 
 const AdminDashboard: React.FC = () => {
   const navigate = useNavigate();
+  const location = useLocation(); // Used for determining the current route
   const dispatch = useAppDispatch();
   const [isProfileHovered, setIsProfileHovered] = useState(false);
   const [isSidebarVisible, setIsSidebarVisible] = useState(false);
@@ -102,31 +98,47 @@ const AdminDashboard: React.FC = () => {
         <div className="flex flex-col items-start space-y-4">
           <button
             onClick={() => handleNavigation("/manage-cars")}
-            className="flex items-center w-full px-4 py-2 text-gray-800 hover:bg-gray-100 rounded"
+            className={`flex items-center w-full px-4 py-2 hover:bg-gray-100 rounded ${
+              location.pathname === "/admin/manage-cars" ? "bg-gray-200" : ""
+            }`}
           >
             <FaCar className="mr-2" /> Manage Cars
           </button>
           <button
             onClick={() => handleNavigation("/manage-bookings")}
-            className="flex items-center w-full px-4 py-2 text-gray-800 hover:bg-gray-100 rounded"
+            className={`flex items-center w-full px-4 py-2 hover:bg-gray-100 rounded ${
+              location.pathname === "/admin/manage-bookings"
+                ? "bg-gray-200"
+                : ""
+            }`}
           >
             <FaBook className="mr-2" /> Manage Bookings
           </button>
           <button
             onClick={() => handleNavigation("/manage-return-cars")}
-            className="flex items-center w-full px-4 py-2 text-gray-800 hover:bg-gray-100 rounded"
+            className={`flex items-center w-full px-4 py-2 hover:bg-gray-100 rounded ${
+              location.pathname === "/admin/manage-return-cars"
+                ? "bg-gray-200"
+                : ""
+            }`}
           >
             <FaClipboardList className="mr-2" /> Manage Return Cars
           </button>
           <button
             onClick={() => handleNavigation("/user-management")}
-            className="flex items-center w-full px-4 py-2 text-gray-800 hover:bg-gray-100 rounded"
+            className={`flex items-center w-full px-4 py-2 hover:bg-gray-100 rounded ${
+              location.pathname === "/admin/user-management"
+                ? "bg-gray-200"
+                : ""
+            }`}
           >
             <FaUser className="mr-2" /> User Management
           </button>
           <button
             onClick={() => handleNavigation("/reports")}
-            className="flex items-center w-full px-4 py-2 text-gray-800 hover:bg-gray-100 rounded"
+            className={`flex items-center w-full px-4 py-2 hover:bg-gray-100 rounded ${
+              location.pathname === "/admin/reports" ? "bg-gray-200" : ""
+            }`}
           >
             <FaChartBar className="mr-2" /> Reports
           </button>
@@ -144,13 +156,7 @@ const AdminDashboard: React.FC = () => {
       {/* Main Content Area */}
       <div className="flex-1 p-8 lg:ml-64">
         <h1 className="text-3xl font-semibold mb-8">Admin Dashboard</h1>
-        <Routes>
-          <Route path="manage-cars" element={<ManageCars />} />
-          <Route path="manage-bookings" element={<ManageBookings />} />
-          <Route path="manage-return-cars" element={<ManageReturnCars />} />
-          <Route path="user-management" element={<UserManagement />} />
-          <Route path="reports" element={<Reports />} />
-        </Routes>
+        <Outlet />
       </div>
     </div>
   );

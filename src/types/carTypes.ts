@@ -1,4 +1,9 @@
 export interface Car {
+  image: string | undefined;
+  year: ReactNode;
+  pricing: ReactNode;
+  make: ReactNode;
+  model: ReactNode;
   imageUrl: string;
   _id: string;
   name: string;
