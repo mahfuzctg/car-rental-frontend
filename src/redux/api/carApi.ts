@@ -1,67 +1,26 @@
-import { baseApi } from "./baseApi";
+import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
+import { Car } from "../../types/carTypes";
 
-const carApi = baseApi.injectEndpoints({
+interface ApiResponse<T> {
+  success: boolean;
+  statusCode: number;
+  message: string;
+  data: T;
+}
+
+export const carApi = createApi({
+  reducerPath: "carApi",
+  baseQuery: fetchBaseQuery({ baseUrl: "http://localhost:5000/api" }),
   endpoints: (builder) => ({
     getAllCars: builder.query<Car[], void>({
-      query: () => ({
-        url: "/cars",
-        method: "GET",
-      }),
-      providesTags: ["cars"],
+      query: () => "/cars",
+      transformResponse: (response: ApiResponse<Car[]>) => response.data,
     }),
-    getSingleCar: builder.query<Car, string>({
-      query: (id) => ({
-        url: `/cars/${id}`,
-        method: "GET",
-      }),
-      providesTags: ["cars"],
-    }),
-    createCar: builder.mutation<void, Car>({
-      query: (carData) => ({
-        url: "/cars",
-        method: "POST",
-        body: carData,
-      }),
-      invalidatesTags: ["cars"],
-    }),
-    updateCar: builder.mutation<void, { id: string; data: Partial<Car> }>({
-      query: ({ id, data }) => ({
-        url: `/cars/${id}`,
-        method: "PUT",
-        body: data,
-      }),
-      invalidatesTags: ["cars"],
-    }),
-    deleteCar: builder.mutation<void, string>({
-      query: (id) => ({
-        url: `/cars/${id}`,
-        method: "DELETE",
-      }),
-      invalidatesTags: ["cars"],
+    getCarById: builder.query<Car, string>({
+      query: (id) => `/cars/${id}`,
+      transformResponse: (response: ApiResponse<Car>) => response.data,
     }),
   }),
-  overrideExisting: false, // Optionally add this to control if endpoints should be overridden
 });
 
-export const {
-  useGetAllCarsQuery,
-  useGetSingleCarQuery,
-  useCreateCarMutation,
-  useUpdateCarMutation,
-  useDeleteCarMutation,
-} = carApi;
-
-// Define Car type here or import if defined elsewhere
-interface Car {
-  _id: string;
-  name: string;
-  description: string;
-  color: string;
-  isElectric: boolean;
-  features: string[];
-  pricePerHour: number;
-  status: string;
-  isDeleted: boolean;
-  createdAt: string;
-  updatedAt: string;
-}
+export const { useGetAllCarsQuery, useGetCarByIdQuery } = carApi;

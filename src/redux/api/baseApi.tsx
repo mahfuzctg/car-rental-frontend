@@ -1,3 +1,4 @@
+// src/redux/api/baseApi.ts
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 import { RootState } from "../store";
 
@@ -15,14 +16,6 @@ export const baseApi = createApi({
       return headers;
     },
   }),
-  tagTypes: ["cars", "users"],
-  endpoints: (builder) => ({
-    getFeaturedCars: builder.query({
-      query: () => "/cars",
-      providesTags: ["cars"],
-    }),
-    // Add other endpoints as needed
-  }),
+  tagTypes: ["cars"],
+  endpoints: () => ({}),
 });
-
-export const { useGetFeaturedCarsQuery } = baseApi;

@@ -1,21 +1,23 @@
+// src/store/index.ts
 import { configureStore } from "@reduxjs/toolkit";
 import { persistReducer, persistStore } from "redux-persist";
 import storage from "redux-persist/lib/storage";
 import authReducer from "../Auth/AuthSlice";
 import { carApi } from "./api/carApi";
-// Define persist configuration
+
+// Persist configuration
 const persistConfig = {
   key: "auth",
   storage,
 };
 
-// Create a persisted reducer for auth
+// Create persisted reducer
 const persistedAuthReducer = persistReducer(persistConfig, authReducer);
 
-// Configure the Redux store
+// Configure the store
 export const store = configureStore({
   reducer: {
-    [carApi.reducerPath]: carApi.reducer, // Add carApi.reducer here
+    [carApi.reducerPath]: carApi.reducer,
     auth: persistedAuthReducer,
   },
   middleware: (getDefaultMiddleware) =>
@@ -29,10 +31,10 @@ export const store = configureStore({
           "persist/REMOVE",
         ],
       },
-    }).concat(carApi.middleware), // Add carApi.middleware here
+    }).concat(carApi.middleware),
 });
 
-// Infer the `RootState` and `AppDispatch` types from the store itself
+// Types for the store
 export type RootState = ReturnType<typeof store.getState>;
 export type AppDispatch = typeof store.dispatch;
 
