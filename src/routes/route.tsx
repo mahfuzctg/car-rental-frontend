@@ -15,6 +15,7 @@ import PaymentManagement from "../dashboard/user/Managements/PaymentManagement";
 import App from "../App";
 import SignIn from "../Auth/SignIn";
 import SignUp from "../Auth/SignUp";
+import DashboardOverview from "../dashboard/admin/Managements/DashboardOverview";
 import Overview from "../dashboard/user/Managements/Overview ";
 import UserDashboard from "../dashboard/user/userDashboard";
 import AdminLayout from "../Layout/AdminLayout";
@@ -47,6 +48,7 @@ export const router = createBrowserRouter([
     element: <AdminLayout />,
     children: [
       { path: "dashboard", element: <AdminDashboard /> },
+      { path: "overview", element: <DashboardOverview /> },
       { path: "manage-cars", element: <ManageCars /> },
       { path: "manage-bookings", element: <ManageBookings /> },
       { path: "manage-return-cars", element: <ManageReturnCars /> },

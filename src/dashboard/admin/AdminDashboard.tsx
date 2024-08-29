@@ -6,6 +6,7 @@ import {
   FaChartBar,
   FaClipboardList,
   FaSignOutAlt,
+  FaTachometerAlt,
   FaTimes,
   FaUser,
 } from "react-icons/fa";
@@ -16,17 +17,16 @@ import logo from "/src/assets/Logo/logo-1.jpg";
 
 const AdminDashboard: React.FC = () => {
   const navigate = useNavigate();
-  const location = useLocation(); // Used for determining the current route
+  const location = useLocation();
   const dispatch = useAppDispatch();
   const [isProfileHovered, setIsProfileHovered] = useState(false);
   const [isSidebarVisible, setIsSidebarVisible] = useState(false);
 
-  // Fetch user info from the Redux store
   const user = useAppSelector((state) => state.auth.user);
 
   const handleNavigation = (path: string) => {
     navigate(`/admin${path}`);
-    setIsSidebarVisible(false); // Close sidebar on navigation
+    setIsSidebarVisible(false);
   };
 
   const handleLogout = () => {
@@ -40,7 +40,6 @@ const AdminDashboard: React.FC = () => {
 
   return (
     <div className="flex">
-      {/* Show/Hide Menu Icon for Small Devices */}
       <button
         className="lg:hidden p-4 text-gray-800 focus:outline-none z-50"
         onClick={toggleSidebar}
@@ -48,13 +47,11 @@ const AdminDashboard: React.FC = () => {
         {isSidebarVisible ? <FaTimes size={24} /> : <FaBars size={24} />}
       </button>
 
-      {/* Sidebar */}
       <nav
         className={`fixed top-0 left-0 h-full bg-white text-gray-800 border-r border-gray-200 flex flex-col p-4 space-y-4 transform transition-transform duration-300 ease-in-out lg:relative lg:translate-x-0 lg:w-64 ${
           isSidebarVisible ? "translate-x-0" : "-translate-x-full"
         }`}
       >
-        {/* Logo and Website Name */}
         <div className="flex flex-col items-center mb-10">
           <img
             src={logo}
@@ -70,7 +67,6 @@ const AdminDashboard: React.FC = () => {
           </span>
         </div>
 
-        {/* User Profile */}
         <div
           className="flex flex-col items-center cursor-pointer relative"
           onMouseEnter={() => setIsProfileHovered(true)}
@@ -81,7 +77,6 @@ const AdminDashboard: React.FC = () => {
             {user?.email || "Admin Email"}
           </span>
 
-          {/* Hover Info */}
           {isProfileHovered && (
             <div className="absolute top-full mt-2 py-2 px-4 bg-white border border-gray-300 shadow-lg rounded-md z-10">
               <p className="text-gray-800 text-sm font-semibold">
@@ -94,8 +89,15 @@ const AdminDashboard: React.FC = () => {
           )}
         </div>
 
-        {/* Navigation Links */}
         <div className="flex flex-col items-start space-y-4">
+          <button
+            onClick={() => handleNavigation("/overview")}
+            className={`flex items-center w-full px-4 py-2 hover:bg-gray-100 rounded ${
+              location.pathname === "/admin/overview" ? "bg-gray-200" : ""
+            }`}
+          >
+            <FaTachometerAlt className="mr-2" /> Overview
+          </button>
           <button
             onClick={() => handleNavigation("/manage-cars")}
             className={`flex items-center w-full px-4 py-2 hover:bg-gray-100 rounded ${
@@ -144,7 +146,6 @@ const AdminDashboard: React.FC = () => {
           </button>
         </div>
 
-        {/* Logout Button */}
         <button
           onClick={handleLogout}
           className="mt-auto w-full px-4 py-2 bg-red-600 text-white text-center rounded hover:bg-red-700"
@@ -153,9 +154,9 @@ const AdminDashboard: React.FC = () => {
         </button>
       </nav>
 
-      {/* Main Content Area */}
       <div className="flex-1 p-8 lg:ml-64">
         <h1 className="text-3xl font-semibold mb-8">Admin Dashboard</h1>
+        {/* Insert Overview Component Here */}
       </div>
     </div>
   );
