@@ -9,7 +9,7 @@ import {
   FaTimes,
   FaUser,
 } from "react-icons/fa";
-import { Outlet, useLocation, useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { logout } from "../../Auth/AuthSlice";
 import { useAppDispatch, useAppSelector } from "../../redux/hooks/hook";
 import logo from "/src/assets/Logo/logo-1.jpg";
@@ -156,7 +156,6 @@ const AdminDashboard: React.FC = () => {
       {/* Main Content Area */}
       <div className="flex-1 p-8 lg:ml-64">
         <h1 className="text-3xl font-semibold mb-8">Admin Dashboard</h1>
-        <Outlet />
       </div>
     </div>
   );

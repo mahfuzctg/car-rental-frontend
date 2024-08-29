@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
-
 import React, { useState } from "react";
 import toast from "react-hot-toast";
 import Modal from "react-modal";
@@ -34,7 +32,8 @@ const ManageCars: React.FC = () => {
   const [addCar] = useAddCarMutation();
   const [updateCar] = useUpdateCarMutation();
   const [deleteCar] = useDeleteCarMutation();
-  const [modalIsOpen, setModalIsOpen] = useState(false);
+  const [addModalIsOpen, setAddModalIsOpen] = useState(false);
+  const [updateModalIsOpen, setUpdateModalIsOpen] = useState(false);
   const [currentCar, setCurrentCar] = useState<Car | null>(null);
   const [carForm, setCarForm] = useState<CarFormState>({
     make: "",
@@ -63,7 +62,27 @@ const ManageCars: React.FC = () => {
     }
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleAddSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const formData = new FormData();
+    for (const key in carForm) {
+      if (key === "features") {
+        formData.append(key, JSON.stringify(carForm[key]?.split(",") || []));
+      } else {
+        formData.append(key, carForm[key] || "");
+      }
+    }
+    try {
+      await addCar(formData).unwrap();
+      toast.success("Car added successfully");
+    } catch (err) {
+      toast.error("Failed to add car");
+    }
+    setAddModalIsOpen(false);
+    resetForm();
+  };
+
+  const handleUpdateSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const formData = new FormData();
     for (const key in carForm) {
@@ -77,22 +96,12 @@ const ManageCars: React.FC = () => {
       if (currentCar) {
         await updateCar({ id: currentCar._id, carData: formData }).unwrap();
         toast.success("Car updated successfully");
-      } else {
-        await addCar(formData).unwrap();
-        toast.success("Car added successfully");
       }
     } catch (err) {
-      toast.error("Failed to save car");
+      toast.error("Failed to update car");
     }
-    setModalIsOpen(false);
-    setCarForm({
-      make: "",
-      model: "",
-      year: "",
-      features: "",
-      pricing: "",
-      image: null,
-    });
+    setUpdateModalIsOpen(false);
+    resetForm();
     setCurrentCar(null);
   };
 
@@ -106,7 +115,7 @@ const ManageCars: React.FC = () => {
       pricing: car.pricing.toString(),
       image: null,
     });
-    setModalIsOpen(true);
+    setUpdateModalIsOpen(true);
   };
 
   const handleDelete = async (id: string) => {
@@ -120,13 +129,24 @@ const ManageCars: React.FC = () => {
     }
   };
 
+  const resetForm = () => {
+    setCarForm({
+      make: "",
+      model: "",
+      year: "",
+      features: "",
+      pricing: "",
+      image: null,
+    });
+  };
+
   if (isLoading) return <p>Loading cars...</p>;
   if (error) return <p>Error loading cars</p>;
 
   return (
     <div className="container mx-auto p-4">
-      <h1 className="text-2xl font-bold mb-4">Manage Cars</h1>
-      <Button variant="primary" onClick={() => setModalIsOpen(true)}>
+      <h1 className="text-2xl font-bold mb-4 text-center">Manage Cars</h1>
+      <Button variant="primary" onClick={() => setAddModalIsOpen(true)}>
         Add New Car
       </Button>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mt-4">
@@ -160,19 +180,19 @@ const ManageCars: React.FC = () => {
           </Card>
         ))}
       </div>
+
+      {/* Add New Car Modal */}
       <Modal
-        isOpen={modalIsOpen}
-        onRequestClose={() => setModalIsOpen(false)}
+        isOpen={addModalIsOpen}
+        onRequestClose={() => setAddModalIsOpen(false)}
         className={cn(
           "bg-white p-4 rounded-lg shadow-lg max-w-lg mx-auto mt-20",
           "focus:outline-none"
         )}
         overlayClassName="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center"
       >
-        <h2 className="text-2xl font-bold mb-4">
-          {currentCar ? "Update Car" : "Add New Car"}
-        </h2>
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <h2 className="text-2xl font-bold mb-4">Add New Car</h2>
+        <form onSubmit={handleAddSubmit} className="space-y-4">
           <Input
             name="make"
             value={carForm.make}
@@ -213,6 +233,62 @@ const ManageCars: React.FC = () => {
           <Input type="file" name="image" onChange={handleFileChange} />
           <Button type="submit" variant="primary">
             Save
+          </Button>
+        </form>
+      </Modal>
+
+      {/* Update Car Modal */}
+      <Modal
+        isOpen={updateModalIsOpen}
+        onRequestClose={() => setUpdateModalIsOpen(false)}
+        className={cn(
+          "bg-white p-4 rounded-lg shadow-lg max-w-lg mx-auto mt-20",
+          "focus:outline-none"
+        )}
+        overlayClassName="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center"
+      >
+        <h2 className="text-2xl font-bold mb-4">Update Car</h2>
+        <form onSubmit={handleUpdateSubmit} className="space-y-4">
+          <Input
+            name="make"
+            value={carForm.make}
+            onChange={handleInputChange}
+            placeholder="Make"
+            required
+          />
+          <Input
+            name="model"
+            value={carForm.model}
+            onChange={handleInputChange}
+            placeholder="Model"
+            required
+          />
+          <Input
+            type="number"
+            name="year"
+            value={carForm.year}
+            onChange={handleInputChange}
+            placeholder="Year"
+            required
+          />
+          <Input
+            name="features"
+            value={carForm.features}
+            onChange={handleInputChange}
+            placeholder="Features (comma separated)"
+            required
+          />
+          <Input
+            type="number"
+            name="pricing"
+            value={carForm.pricing}
+            onChange={handleInputChange}
+            placeholder="Pricing"
+            required
+          />
+          <Input type="file" name="image" onChange={handleFileChange} />
+          <Button type="submit" variant="primary">
+            Update
           </Button>
         </form>
       </Modal>
