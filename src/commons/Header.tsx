@@ -151,7 +151,7 @@ const Navbar: React.FC = () => {
           </button>
 
           <button
-            onClick={() => handleNavigation("/cars-page")}
+            onClick={() => handleNavigation("/cars")}
             className="flex items-center w-full px-4 py-2 text-gray-800 hover:bg-gray-100"
           >
             <FaCar className="mr-2" /> Cars

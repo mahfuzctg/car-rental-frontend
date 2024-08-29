@@ -22,6 +22,8 @@ import AdminLayout from "../Layout/AdminLayout";
 import UserLayout from "../Layout/UserLayout";
 import AboutPage from "../pages/AboutPage";
 import BookingPage from "../pages/BookingPage";
+import CarDetails from "../pages/CarDetailsPage";
+import CarListing from "../pages/CarListing";
 import NotFoundPage from "../pages/NotFoundPage";
 import HeroSection from "../Sections/HeroSection";
 
@@ -33,6 +35,8 @@ export const router = createBrowserRouter([
       { path: "/", element: <HeroSection /> },
       { path: "about", element: <AboutPage /> },
       { path: "bookings", element: <BookingPage /> },
+      { path: "cars", element: <CarListing /> },
+      { path: "/cars/:id", element: <CarDetails /> },
       { path: "sign-in", element: <SignIn /> },
       { path: "sign-up", element: <SignUp /> },
       { path: "*", element: <NotFoundPage /> },

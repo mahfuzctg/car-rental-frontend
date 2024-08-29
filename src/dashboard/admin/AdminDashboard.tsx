@@ -76,7 +76,7 @@ const AdminDashboard: React.FC = () => {
         >
           <FaUser className="text-gray-800 text-3xl mb-2" />
           <span className="text-gray-600 text-sm">
-            {user?.name || "Admin Name"}
+            {user?.email || "Admin Email"}
           </span>
 
           {/* Hover Info */}
@@ -86,7 +86,7 @@ const AdminDashboard: React.FC = () => {
                 Role: {user?.role || "Admin"}
               </p>
               <p className="text-gray-800 text-sm">
-                Email: {user?.email || "admin@example.com"}
+                Name: {user?.name || "Admin Name"}
               </p>
             </div>
           )}
