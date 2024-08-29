@@ -63,22 +63,22 @@ const BookingConfirmation = () => {
           src={carData?.data?.image}
           alt={carData?.data?.name || "Car Image"}
         />
-        <h3 className="text-2xl font-semibold text-gray-100 mt-2">
+        <h3 className="text-2xl font-semibold text-gray-700 mt-2">
           {carData?.data?.name}
         </h3>
-        <h3 className="text-xl font-semibold text-orange-500">
+        <h3 className="text-xl font-semibold text-red-600">
           Price Per Hour: {carData?.data?.pricePerHour} USD
         </h3>
 
         <div className="mt-3 border-t py-3">
-          <h3 className="text-gray-100">GPS: {booking?.GPS ? "Yes" : "No"}</h3>
-          <h3 className="text-gray-100">
+          <h3 className="text-gray-700">GPS: {booking?.GPS ? "Yes" : "No"}</h3>
+          <h3 className="text-gray-700">
             Child Seat: {booking?.childSeat ? "Yes" : "No"}
           </h3>
         </div>
         <Button
           onClick={handleBooking}
-          className="w-full bg-orange-500 hover:bg-orange-600"
+          className="w-full bg-red-600 hover:bg-red-700 text-white"
         >
           Confirm Booking
         </Button>

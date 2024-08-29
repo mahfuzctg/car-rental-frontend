@@ -1,4 +1,5 @@
 export type TUser = {
+  status(status: any): unknown;
   _id: string;
   name: string;
   email: string;

@@ -1,8 +1,16 @@
 import React, { useEffect, useState } from "react";
 import { FaCar } from "react-icons/fa";
 
-// Sample return cars data
-const returnCarsData = [
+interface ReturnCar {
+  id: number;
+  customer: string;
+  car: string;
+  bookingDate: string;
+  returnDate: string | null;
+  status: string;
+}
+
+const returnCarsData: ReturnCar[] = [
   {
     id: 1,
     customer: "John Doe",
@@ -23,68 +31,140 @@ const returnCarsData = [
 ];
 
 const ManageReturnCars: React.FC = () => {
-  const [returnCars, setReturnCars] = useState(returnCarsData);
+  const [returnCars, setReturnCars] = useState<ReturnCar[]>(returnCarsData);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  const handleReturn = (id: number) => {
+  const handleReturn = async (id: number) => {
+    setLoading(true);
+    setError(null);
+
     const today = new Date().toISOString().split("T")[0];
-    setReturnCars(
-      returnCars.map((car) =>
-        car.id === id ? { ...car, returnDate: today, status: "Returned" } : car
-      )
-    );
+    const endTime = new Date().toISOString().split("T")[1].substring(0, 5); // Current time
+
+    try {
+      const response = await fetch(
+        "https://assignment3-phi-fawn.vercel.app/api/cars/return",
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization:
+              "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c",
+          },
+          body: JSON.stringify({
+            bookingId: id,
+            endTime,
+          }),
+        }
+      );
+
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.message || "An error occurred");
+      }
+
+      setReturnCars((prev) =>
+        prev.map((car) =>
+          car.id === id
+            ? {
+                ...car,
+                returnDate: today,
+                status: "Returned",
+              }
+            : car
+        )
+      );
+    } catch (err) {
+      setError((err as Error).message);
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => {
-    // Fetch actual return cars data from the server
+    // Fetch actual return cars data from the server if needed
     // fetchReturnCars();
   }, []);
 
   return (
-    <div className="p-6">
-      <h1 className="text-2xl font-semibold mb-4">Manage Return Cars</h1>
-      <table className="w-full bg-white border border-gray-200 rounded-md shadow-sm">
-        <thead className="bg-gray-100">
-          <tr>
-            <th className="p-3 text-left">Customer</th>
-            <th className="p-3 text-left">Car</th>
-            <th className="p-3 text-left">Booking Date</th>
-            <th className="p-3 text-left">Return Date</th>
-            <th className="p-3 text-left">Status</th>
-            <th className="p-3 text-center">Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          {returnCars.map((car) => (
-            <tr key={car.id}>
-              <td className="p-3">{car.customer}</td>
-              <td className="p-3">{car.car}</td>
-              <td className="p-3">{car.bookingDate}</td>
-              <td className="p-3">{car.returnDate || "-"}</td>
-              <td className="p-3">
-                <span
-                  className={`px-4 py-2 rounded ${
-                    car.status === "Returned"
-                      ? "bg-green-100 text-green-700"
-                      : "bg-yellow-100 text-yellow-700"
-                  }`}
-                >
-                  {car.status}
-                </span>
-              </td>
-              <td className="p-3 text-center">
-                {car.status === "Booked" && (
-                  <button
-                    onClick={() => handleReturn(car.id)}
-                    className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
-                  >
-                    <FaCar className="mr-2" /> Return
-                  </button>
-                )}
-              </td>
+    <div className="p-6 bg-gray-100 min-h-screen">
+      <h2 className="text-2xl text-gray-700 md:text-3xl font-bold text-center mb-6 uppercase">
+        Manage Return Cars
+        <div className="w-24 h-1 bg-red-600 mt-2 mx-auto"></div>
+      </h2>
+      {loading && <p className="text-blue-500 mb-4">Processing...</p>}
+      {error && <p className="text-red-500 mb-4">{error}</p>}
+      <div className="overflow-x-auto">
+        <table className="min-w-full bg-white border border-gray-200 rounded-lg shadow-lg">
+          <thead className="bg-gray-200 text-gray-600">
+            <tr>
+              <th className="p-4 text-left" scope="col">
+                Customer
+              </th>
+              <th className="p-4 text-left" scope="col">
+                Car
+              </th>
+              <th className="p-4 text-left" scope="col">
+                Booking Date
+              </th>
+              <th className="p-4 text-left" scope="col">
+                Return Date
+              </th>
+              <th className="p-4 text-left" scope="col">
+                Status
+              </th>
+              <th className="p-4 text-center" scope="col">
+                Actions
+              </th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {returnCars.map((car) => (
+              <tr
+                key={car.id}
+                className={`transition-colors duration-300 ease-in-out ${
+                  car.status === "Returned"
+                    ? "bg-green-50"
+                    : car.status === "Booked"
+                    ? "bg-yellow-50"
+                    : "bg-white"
+                } hover:bg-gray-50`}
+              >
+                <td className="p-4 text-gray-800">{car.customer}</td>
+                <td className="p-4 text-gray-800">{car.car}</td>
+                <td className="p-4 text-gray-800">{car.bookingDate}</td>
+                <td className="p-4 text-gray-800">{car.returnDate || "-"}</td>
+                <td className="p-4">
+                  <span
+                    className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-semibold ${
+                      car.status === "Returned"
+                        ? "bg-green-100 text-green-700"
+                        : car.status === "Booked"
+                        ? "bg-yellow-100 text-yellow-700"
+                        : "bg-gray-100 text-gray-700"
+                    }`}
+                  >
+                    {car.status}
+                  </span>
+                </td>
+                <td className="p-4 text-center">
+                  {car.status === "Booked" ? (
+                    <button
+                      onClick={() => handleReturn(car.id)}
+                      className="inline-flex items-center px-4 py-2 bg-red-600 text-white rounded-lg shadow-md hover:bg-red-700 transition-colors"
+                    >
+                      <FaCar className="mr-2" /> Return
+                    </button>
+                  ) : (
+                    <span className="text-gray-500">N/A</span>
+                  )}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 };

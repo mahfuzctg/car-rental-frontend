@@ -1,183 +1,123 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
-import { useState } from "react";
-import { SubmitHandler, useForm } from "react-hook-form";
-import { IoEye, IoEyeOff } from "react-icons/io5";
+import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
-import { Button } from "../components/ui/UI/button";
-import { Input } from "../components/ui/UI/input";
-import { Label } from "../components/ui/UI/label";
 import { useLoginMutation } from "../redux/features/auth/authApi";
 import { setUser, TUser } from "../redux/features/auth/authSlice";
 import { useAppDispatch } from "../redux/hooks/hook";
+import { TErrorResponse } from "../types";
 import { verifyToken } from "../utils/token";
 
-type Inputs = {
+type TInitialValues = {
   email: string;
   password: string;
 };
 
-type ApiError = {
-  message: string;
-};
-
 const Login = () => {
-  const [isShowPassword, setIsShowPassword] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
-
-  const [login] = useLoginMutation();
+  const [values, setValues] = useState<TInitialValues>({
+    email: "",
+    password: "",
+  });
+  const [userInfo] = useLoginMutation();
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
 
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-  } = useForm<Inputs>();
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setValues((prevValues) => ({
+      ...prevValues,
+      [name]: value,
+    }));
+  };
 
-  const onSubmit: SubmitHandler<Inputs> = async (data) => {
-    const toastId = toast.loading("Signing in...");
-    setIsLoading(true);
-
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const toastId = toast.loading("Logging in");
     try {
-      const userInfo = {
-        email: data.email,
-        password: data.password,
-      };
+      const response = await userInfo(values).unwrap();
+      const user = verifyToken(response.token) as TUser;
+      user.name = response.data.name;
+      dispatch(setUser({ user: user, token: response.token }));
 
-      const res = await login(userInfo).unwrap();
-      const { __v, updatedAt, createdAt, ...userData } = res.data;
+      toast.success("Logged in", { id: toastId, duration: 2000 });
 
-      const user = verifyToken(res.token) as TUser;
-
-      if (user) {
-        dispatch(setUser({ user: userData, token: res.token }));
-        toast.success("Logged in successfully", {
-          id: toastId,
-          duration: 2000,
-        });
-
-        // Navigate based on user role
-        switch (user?.role) {
-          case "admin":
-            navigate("/admin/dashboard", { replace: true });
-            break;
-          case "user":
-            navigate("/user/dashboard", { replace: true });
-            break;
-          default:
-            navigate("/", { replace: true }); // Redirect to default or home if role is unknown
-            break;
-        }
+      // Redirect based on user role
+      if (user.role === "admin") {
+        navigate("/admin/dashboard");
+      } else if (user.role === "user") {
+        navigate("/user/dashboard");
       } else {
-        toast.error("Invalid credentials", {
-          id: toastId,
-          duration: 2000,
-        });
+        navigate("/");
       }
-    } catch (err) {
-      const error = err as { data?: ApiError };
-      toast.error(error?.data?.message || "An unknown error occurred", {
-        action: (
-          <Button
-            onClick={() => navigate("/password-recovery")}
-            className="text-orange-500"
-          >
-            Recover the password
-          </Button>
-        ),
+    } catch (error) {
+      console.error("error:", error);
+      const err = error as TErrorResponse;
+      toast.error(err.data.errorMessages[0].message || "Something went wrong", {
         id: toastId,
         duration: 2000,
       });
-    } finally {
-      setIsLoading(false);
     }
   };
 
   return (
-    <section className="bg-white min-h-screen flex items-center justify-center py-12">
-      <div className="rounded-xl shadow-lg p-8 w-full max-w-md">
-        <h2 className="text-2xl text-gray-700 md:text-2xl font-bold text-center mb-6 uppercase">
-          Sign In Now!
-          <div className="w-24 h-1 bg-red-600 mt-2 mx-auto"></div>
+    <div className="flex items-center justify-center min-h-screen bg-gradient-to-r from-red-500 via-gray-200 to-red-500">
+      <div className="w-full max-w-md p-8 bg-white shadow-lg rounded-lg">
+        <h2 className="text-xl uppercase text-gray-700 font-bold text-center mb-4">
+          Sign-in now!
+          <div className="w-16 h-1 bg-red-600 mt-1 mx-auto"></div>
         </h2>
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-          <div>
-            <Label htmlFor="email" className="block text-gray-700">
-              Email:
-            </Label>
-            <Input
-              className="mt-1 p-3 border border-gray-300 rounded-md w-full"
+        <form onSubmit={handleSubmit} className="space-y-6">
+          <div className="mb-4">
+            <label
+              htmlFor="email"
+              className="block text-gray-600 text-sm font-medium"
+            >
+              Email
+            </label>
+            <input
               type="email"
               id="email"
-              placeholder="Enter your email address"
-              {...register("email", { required: "Email is required" })}
+              name="email"
+              value={values.email}
+              onChange={handleChange}
+              className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-red-500"
+              required
             />
-            {errors?.email && (
-              <p className="text-red-600 text-sm mt-1">
-                {errors.email.message}
-              </p>
-            )}
           </div>
-
-          <div>
-            <Label htmlFor="password" className="block text-gray-700">
-              Password:
-            </Label>
-            <div className="relative">
-              <Input
-                className="mt-1 p-3 border border-gray-300 rounded-md w-full"
-                type={isShowPassword ? "text" : "password"}
-                id="password"
-                placeholder="Enter your password"
-                {...register("password", { required: "Password is required" })}
-              />
-              <span
-                onClick={() => setIsShowPassword(!isShowPassword)}
-                className="absolute inset-y-0 right-3 flex items-center cursor-pointer"
-              >
-                {isShowPassword ? <IoEye /> : <IoEyeOff />}
-              </span>
-            </div>
-            {errors?.password && (
-              <p className="text-red-600 text-sm mt-1">
-                {errors.password.message}
-              </p>
-            )}
+          <div className="mb-6">
+            <label
+              htmlFor="password"
+              className="block text-gray-600 text-sm font-medium"
+            >
+              Password
+            </label>
+            <input
+              type="password"
+              id="password"
+              name="password"
+              value={values.password}
+              onChange={handleChange}
+              className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-red-500"
+              required
+            />
           </div>
-
-          <Link to="/forget-password" className="text-red-500 hover:underline">
-            Forgot Password?
-          </Link>
-
-          <Button
+          <button
             type="submit"
-            className="w-full bg-red-600 hover:bg-red-600 text-white"
-            disabled={isLoading}
+            className="w-full py-2 px-4 bg-red-600 text-white font-semibold rounded-lg shadow-md hover:bg-red-700 transition duration-300"
           >
-            {isLoading ? "Signing In..." : "Sign In"}
-          </Button>
-          <div className="mt-4 text-center">
-            <p className="text-gray-600">
-              Don't have an account?{" "}
-              <Link to="/sign-up" className="text-red-600 font-semibold">
-                Sign Up Free!
-              </Link>
-            </p>
-            <p className="text-gray-600 mt-2">
-              Read our{" "}
-              <Link to="/privacy-policy" className="text-red-600">
-                Privacy Policy
-              </Link>{" "}
-              and{" "}
-              <Link to="/terms-and-condition" className="text-red-600">
-                Terms of Service
-              </Link>
-            </p>
-          </div>
+            Sign In
+          </button>
+          <p className="mt-4 text-center text-gray-600">
+            Don't have an account?{" "}
+            <Link
+              to="/sign-up"
+              className="text-red-600 font-semibold hover:underline"
+            >
+              Sign Up!
+            </Link>
+          </p>
         </form>
       </div>
-    </section>
+    </div>
   );
 };
 

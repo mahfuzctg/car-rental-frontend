@@ -148,10 +148,10 @@ const ManageCars: React.FC = () => {
             </CardHeader>
             <CardContent className="flex flex-col flex-grow p-4">
               <div className="flex flex-col flex-grow">
-                <span className="text-gray-800 text-xl font-semibold mb-2">
-                  ${car.pricePerHour} / hour
+                <span className="text-gray-700 text-xl font-semibold mb-2">
+                  ${car.pricePerHour} /hr
                 </span>
-                <h2 className="text-2xl font-bold mb-2">{car.name}</h2>
+                <h2 className="text-xl font-bold mb-2 ">{car.name}</h2>
                 <p className="text-gray-600 mb-4">{car.features}</p>
               </div>
               <div className="flex justify-between mt-4">

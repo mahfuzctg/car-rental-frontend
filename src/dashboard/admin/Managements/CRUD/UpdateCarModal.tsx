@@ -120,7 +120,7 @@ const UpdateCar = () => {
   return (
     <section className="max-w-4xl mx-auto p-8 bg-white shadow-lg rounded-lg border border-gray-200">
       <h2 className="text-xl text-gray-700 md:text-3xl font-bold text-center mb-6 uppercase">
-        update car!
+        Update Car
         <div className="w-24 h-1 bg-red-600 mt-2 mx-auto"></div>
       </h2>
       <form onSubmit={handleSubmit(onSubmit)}>
@@ -134,7 +134,7 @@ const UpdateCar = () => {
               {...register("name", { required: "Car name is required" })}
               type="text"
               placeholder="Enter car name"
-              defaultValue={car?.data?.name}
+              defaultValue={car?.data?.name || ""}
               className="mt-1 block w-full px-4 py-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
             />
             {errors.name && (
@@ -151,7 +151,7 @@ const UpdateCar = () => {
               {...register("model", { required: "Car model is required" })}
               type="text"
               placeholder="Enter car model"
-              defaultValue={car?.data?.model}
+              defaultValue={car?.data?.model || ""}
               className="mt-1 block w-full px-4 py-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
             />
             {errors.model && (
@@ -168,7 +168,7 @@ const UpdateCar = () => {
               {...register("year", { required: "Year is required" })}
               type="number"
               placeholder="Enter year of manufacture"
-              defaultValue={car?.data?.year}
+              defaultValue={car?.data?.year || ""}
               className="mt-1 block w-full px-4 py-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
             />
             {errors.year && (
@@ -185,7 +185,7 @@ const UpdateCar = () => {
               {...register("features", { required: "Features are required" })}
               type="text"
               placeholder="Enter car features"
-              defaultValue={car?.data?.features[0]}
+              defaultValue={car?.data?.features[0] || ""}
               className="mt-1 block w-full px-4 py-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
             />
             {errors.features && (
@@ -205,7 +205,7 @@ const UpdateCar = () => {
               type="number"
               step="0.01"
               placeholder="Enter price per hour"
-              defaultValue={car?.data?.pricePerHour}
+              defaultValue={car?.data?.pricePerHour || ""}
               className="mt-1 block w-full px-4 py-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
             />
             {errors.pricePerHour && (
@@ -224,7 +224,7 @@ const UpdateCar = () => {
               {...register("description")}
               placeholder="Enter car description"
               rows={4}
-              defaultValue={car?.data?.description}
+              defaultValue={car?.data?.description || ""}
               className="mt-1 block w-full px-4 py-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
             />
           </div>
@@ -238,29 +238,19 @@ const UpdateCar = () => {
               {...register("image")}
               type="file"
               accept="image/*"
-              className="mt-1 block w-full text-sm text-gray-500 file:py-2 file:px-4 file:border file:border-gray-300 file:rounded-md file:text-sm file:font-medium file:bg-gray-50 file:text-gray-700 hover:file:bg-gray-100"
+              className="mt-1 block w-full text-sm text-gray-500 file:py-2 file:px-4 file:border file:border-gray-300 file:rounded-md file:text-sm file:font-semibold file:bg-gray-100 hover:file:bg-gray-200"
             />
-            {car?.data?.image && (
-              <div className="mt-2">
-                <img
-                  src={car.data.image}
-                  alt="Car"
-                  className="w-32 h-32 object-cover rounded-md shadow-sm border border-gray-300"
-                />
-              </div>
-            )}
           </div>
 
           {/* Is Electric */}
-          <div className="mb-4 flex items-center">
-            <input
-              {...register("isElectric")}
-              type="checkbox"
-              className="mr-2"
-              defaultChecked={car?.data?.isElectric}
-            />
-            <label className="text-sm font-medium text-gray-700">
-              Electric Car
+          <div className="mb-4">
+            <label className="inline-flex items-center">
+              <input
+                {...register("isElectric")}
+                type="checkbox"
+                className="form-checkbox h-4 w-4 text-indigo-600 transition duration-150 ease-in-out"
+              />
+              <span className="ml-2 text-gray-700">Is Electric</span>
             </label>
           </div>
 
@@ -270,15 +260,12 @@ const UpdateCar = () => {
               Car Type
             </label>
             <input
-              {...register("carType", { required: "Car type is required" })}
+              {...register("carType")}
               type="text"
               placeholder="Enter car type"
-              defaultValue={car?.data?.carType}
+              defaultValue={car?.data?.carType || ""}
               className="mt-1 block w-full px-4 py-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
             />
-            {errors.carType && (
-              <p className="text-red-500 text-sm">{errors.carType.message}</p>
-            )}
           </div>
 
           {/* Location */}
@@ -287,15 +274,12 @@ const UpdateCar = () => {
               Location
             </label>
             <input
-              {...register("location", { required: "Location is required" })}
+              {...register("location")}
               type="text"
               placeholder="Enter car location"
-              defaultValue={car?.data?.location}
+              defaultValue={car?.data?.location || ""}
               className="mt-1 block w-full px-4 py-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
             />
-            {errors.location && (
-              <p className="text-red-500 text-sm">{errors.location.message}</p>
-            )}
           </div>
 
           {/* Date */}
@@ -304,15 +288,12 @@ const UpdateCar = () => {
               Date
             </label>
             <input
-              {...register("date", { required: "Date is required" })}
+              {...register("date")}
               type="date"
-              placeholder="Select date"
-              defaultValue={car?.data?.date}
+              placeholder="Enter date"
+              defaultValue={car?.data?.date || ""}
               className="mt-1 block w-full px-4 py-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
             />
-            {errors.date && (
-              <p className="text-red-500 text-sm">{errors.date.message}</p>
-            )}
           </div>
 
           {/* Color */}
@@ -321,15 +302,12 @@ const UpdateCar = () => {
               Color
             </label>
             <input
-              {...register("color", { required: "Color is required" })}
+              {...register("color")}
               type="text"
               placeholder="Enter car color"
-              defaultValue={car?.data?.color}
+              defaultValue={car?.data?.color || ""}
               className="mt-1 block w-full px-4 py-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
             />
-            {errors.color && (
-              <p className="text-red-500 text-sm">{errors.color.message}</p>
-            )}
           </div>
 
           {/* Seat Capacity */}
@@ -338,22 +316,14 @@ const UpdateCar = () => {
               Seat Capacity
             </label>
             <input
-              {...register("seatCapacity", {
-                required: "Seat capacity is required",
-              })}
+              {...register("seatCapacity")}
               type="number"
               placeholder="Enter seat capacity"
-              defaultValue={car?.data?.seatCapacity}
+              defaultValue={car?.data?.seatCapacity || ""}
               className="mt-1 block w-full px-4 py-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
             />
-            {errors.seatCapacity && (
-              <p className="text-red-500 text-sm">
-                {errors.seatCapacity.message}
-              </p>
-            )}
           </div>
         </div>
-
         <div className="flex  justify-center mt-8">
           <Button
             type="submit"

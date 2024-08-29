@@ -26,7 +26,7 @@ type TBookingForm = {
   date: string;
 };
 
-const apiKey = import.meta.env.VITE_IMAGEBB_API_KEY;
+const apiKey = "744cf569a978865f3474c3e180ffe096";
 const url = `https://api.imgbb.com/1/upload?key=${apiKey}`;
 
 const BookingForm = () => {

@@ -26,6 +26,7 @@ import BookingPage from "../pages/BookingPage";
 import CarDetails from "../pages/CarDetailsPage";
 import CarListing from "../pages/CarListing";
 import NotFoundPage from "../pages/NotFoundPage";
+import ProtectedRoute from "../Protected/ProtectedRoute";
 import HeroSection from "../Sections/HeroSection";
 
 export const router = createBrowserRouter([
@@ -52,9 +53,15 @@ export const router = createBrowserRouter([
   { path: "/reset-password", element: <ChangePassword /> },
 
   { path: "*", element: <NotFoundPage /> },
+
+  // Admin routes
   {
     path: "/admin",
-    element: <AdminLayout />,
+    element: (
+      <ProtectedRoute>
+        <AdminLayout />
+      </ProtectedRoute>
+    ),
     children: [
       { path: "dashboard", element: <AdminDashboard /> },
       { path: "overview", element: <DashboardOverview /> },
@@ -68,10 +75,15 @@ export const router = createBrowserRouter([
       { path: "*", element: <NotFoundPage /> },
     ],
   },
+
+  // User routes
   {
     path: "/user",
-    element: <UserLayout />,
-
+    element: (
+      <ProtectedRoute>
+        <UserLayout />
+      </ProtectedRoute>
+    ),
     children: [
       { path: "dashboard", element: <UserDashboard /> },
       { path: "overview", element: <Overview /> },

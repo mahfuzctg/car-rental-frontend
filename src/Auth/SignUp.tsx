@@ -1,7 +1,12 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable no-constant-binary-expression */
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { useState } from "react";
-import { Controller, SubmitHandler, useForm } from "react-hook-form";
+import {
+  Controller,
+  FieldErrors,
+  SubmitHandler,
+  useForm,
+} from "react-hook-form";
 import { IoEye, IoEyeOff } from "react-icons/io5";
 import { Link, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
@@ -25,7 +30,7 @@ type Inputs = {
   confirmPassword: string;
   phone: string;
   address: string;
-  role: string;
+  role?: string; // Optional, since default value is "user"
   terms?: boolean;
 };
 
@@ -45,6 +50,7 @@ const SignUp = () => {
     handleSubmit,
     formState: { errors },
     control,
+    watch,
   } = useForm<Inputs>();
 
   const onSubmit: SubmitHandler<Inputs> = async (data) => {
@@ -58,7 +64,7 @@ const SignUp = () => {
       password: data.password,
       phone: data.phone,
       address: data.address,
-      role: data.role,
+      role: data.role || "user", // Default role to "user"
     };
 
     try {
@@ -80,19 +86,19 @@ const SignUp = () => {
   };
 
   return (
-    <section className="bg-white min-h-screen flex items-center justify-center py-4">
-      <div className="rounded-xl shadow-lg p-6 w-full max-w-sm">
-        <h2 className="text-xl uppercase text-gray-700 font-bold text-center mb-4">
-          Sign Up now!
-          <div className="w-16 h-1 bg-red-600 mt-1 mx-auto"></div>
+    <section className="bg-gradient-to-r from-red-500 via-gray-200 to-red-500 min-h-screen flex items-center justify-center py-4">
+      <div className="bg-white shadow-lg rounded-xl p-8 w-full max-w-lg">
+        <h2 className="text-2xl font-semibold text-gray-800 text-center mb-6">
+          Sign Up
+          <div className="w-24 h-1 bg-red-600 mt-2 mx-auto rounded-full"></div>
         </h2>
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
           <div>
             <Label htmlFor="name" className="block text-gray-700">
               Name:
             </Label>
             <Input
-              className="mt-1 p-2 border border-gray-300 rounded-md w-full"
+              className="mt-2 p-3 border border-gray-300 rounded-lg w-full"
               type="text"
               id="name"
               placeholder="Enter your full name"
@@ -107,7 +113,7 @@ const SignUp = () => {
               Email:
             </Label>
             <Input
-              className="mt-1 p-2 border border-gray-300 rounded-md w-full"
+              className="mt-2 p-3 border border-gray-300 rounded-lg w-full"
               type="email"
               id="email"
               placeholder="Enter your email address"
@@ -125,7 +131,7 @@ const SignUp = () => {
             </Label>
             <div className="relative">
               <Input
-                className="mt-1 p-2 border border-gray-300 rounded-md w-full"
+                className="mt-2 p-3 border border-gray-300 rounded-lg w-full"
                 type={isShowPassword ? "text" : "password"}
                 id="password"
                 placeholder="Enter your password"
@@ -165,7 +171,7 @@ const SignUp = () => {
             </Label>
             <div className="relative">
               <Input
-                className="mt-1 p-2 border border-gray-300 rounded-md w-full"
+                className="mt-2 p-3 border border-gray-300 rounded-lg w-full"
                 type={isConfirmShowPassword ? "text" : "password"}
                 id="confirmPassword"
                 placeholder="Confirm your password"
@@ -204,7 +210,7 @@ const SignUp = () => {
               Phone:
             </Label>
             <Input
-              className="mt-1 p-2 border border-gray-300 rounded-md w-full"
+              className="mt-2 p-3 border border-gray-300 rounded-lg w-full"
               type="text"
               id="phone"
               placeholder="Enter your phone number"
@@ -221,7 +227,7 @@ const SignUp = () => {
               Address:
             </Label>
             <Input
-              className="mt-1 p-2 border border-gray-300 rounded-md w-full"
+              className="mt-2 p-3 border border-gray-300 rounded-lg w-full"
               type="text"
               id="address"
               placeholder="Enter your address"
@@ -233,74 +239,67 @@ const SignUp = () => {
               </p>
             )}
           </div>
-          <div>
-            <Label htmlFor="role" className="block text-gray-700">
-              Role:
-            </Label>
-            <Controller
-              control={control}
-              name="role"
-              rules={{ required: "Role is required" }}
-              render={({ field }) => (
-                <div className="mt-1 border border-gray-300 rounded-md w-full">
-                  <Select onValueChange={field.onChange} value={field.value}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select a Role" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectGroup>
-                        <SelectItem value="user">User</SelectItem>
-                        <SelectItem value="admin">Admin</SelectItem>
-                      </SelectGroup>
-                    </SelectContent>
-                  </Select>
-                </div>
-              )}
-            />
-            {errors?.role && (
-              <p className="text-red-500 text-sm mt-1">{errors.role.message}</p>
-            )}
-          </div>
-          {/* Conditional Terms Checkbox */}
-          {true && ( // Replace with actual condition if applicable
+          {/* Remove role selection, as it defaults to "user" */}
+          {false && ( // Remove this condition if it's not needed
             <div>
-              <div className="flex items-center mt-4">
-                <input
-                  id="terms"
-                  type="checkbox"
-                  {...register("terms", {
-                    required: "You must accept the terms and conditions",
-                  })}
-                  className="mr-2"
-                />
-                <Label htmlFor="terms" className="text-gray-700">
-                  I agree to the
-                  <Link to="/terms" className="text-red-600 ml-1">
-                    Terms and Conditions
-                  </Link>
-                </Label>
-              </div>
-              {errors?.terms && (
+              <Label htmlFor="role" className="block text-gray-700">
+                Role:
+              </Label>
+              <Controller
+                control={control}
+                name="role"
+                render={({ field }) => (
+                  <div className="mt-2">
+                    <Select {...field} defaultValue="user">
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select a role" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectGroup>
+                          <SelectItem value="admin">Admin</SelectItem>
+                          <SelectItem value="user">User</SelectItem>
+                        </SelectGroup>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                )}
+              />
+              {errors?.role && (
                 <p className="text-red-500 text-sm mt-1">
-                  {errors.terms.message}
+                  {(errors.role as FieldErrors<Inputs>["role"])?.message}
                 </p>
               )}
             </div>
           )}
+          <div className="flex items-center space-x-3">
+            <input
+              type="checkbox"
+              id="terms"
+              {...register("terms", { required: "You must accept the terms" })}
+            />
+            <Label htmlFor="terms" className="text-gray-700">
+              I accept the terms and conditions
+            </Label>
+            {errors?.terms && (
+              <p className="text-red-500 text-sm mt-1">
+                {errors.terms.message}
+              </p>
+            )}
+          </div>
           <Button
+            className="w-full py-3 bg-red-600 text-white hover:bg-red-700"
             type="submit"
-            className="w-full bg-red-600 text-white hover:bg-red-700 mt-4"
             disabled={isLoading}
           >
             {isLoading ? "Signing Up..." : "Sign Up"}
           </Button>
+          <p className="text-center text-gray-600">
+            Already have an account?{" "}
+            <Link to="/sign-in" className="text-red-600 hover:underline">
+              Sign In
+            </Link>
+          </p>
         </form>
-        <p className="text-gray-700 mt-4 text-center">
-          Already have an account?{" "}
-          <Link to="/sign-in" className="text-red-600 font-semibold">
-            Sign In
-          </Link>
-        </p>
       </div>
     </section>
   );

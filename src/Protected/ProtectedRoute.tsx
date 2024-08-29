@@ -1,39 +1,39 @@
-import React from "react";
-import { Navigate } from "react-router-dom";
+import { ReactNode, useEffect, useState } from "react";
+import { Navigate, useLocation } from "react-router-dom";
+import { toast } from "sonner";
+import {
+  logout,
+  selectCurrentToken,
+  selectCurrentUser,
+  TUser,
+} from "../redux/features/auth/authSlice";
+import { useAppDispatch, useAppSelector } from "../redux/hooks/hook";
+import { isTokenExpired } from "../utils/token";
 
-interface User {
-  isAuthenticated: boolean;
-  role: "admin" | "user" | undefined;
-}
+const PrivateRoute = ({ children }: { children: ReactNode }) => {
+  const dispatch = useAppDispatch();
+  const location = useLocation();
+  const pathname = location.pathname.split("/")[1];
+  const user = useAppSelector(selectCurrentUser) as TUser;
+  const token = useAppSelector(selectCurrentToken);
+  const [isRedirect, setIsRedirect] = useState(false);
 
-// Replace this with your actual authentication logic
-const useAuth = (): User | null => {
-  try {
-    const user = JSON.parse(localStorage.getItem("user") || "null");
-    return user && user.isAuthenticated ? user : null;
-  } catch (error) {
-    console.error("Error parsing user data:", error);
-    return null;
+  const isUserValid = pathname === user?.role;
+  const isExpired = token ? isTokenExpired(token) : true;
+
+  useEffect(() => {
+    if (!token || isExpired || !isUserValid) {
+      toast.error("Please sign in", { duration: 2000 });
+      dispatch(logout());
+      setIsRedirect(true);
+    }
+  }, [token, isExpired, isUserValid, dispatch]);
+
+  if (isRedirect) {
+    return <Navigate to="/sign-in" replace={true} />;
   }
+
+  return <>{children}</>;
 };
 
-interface ProtectedRouteProps {
-  children: JSX.Element;
-  role: "admin" | "user";
-}
-
-const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, role }) => {
-  const user = useAuth();
-
-  if (!user) {
-    return <Navigate to="/sign-in" replace />;
-  }
-
-  if (user.role !== role) {
-    return <Navigate to="/not-authorized" replace />;
-  }
-
-  return children;
-};
-
-export default ProtectedRoute;
+export default PrivateRoute;

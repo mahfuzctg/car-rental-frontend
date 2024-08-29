@@ -1,162 +1,257 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { Link } from "react-router-dom";
-import Swal from "sweetalert2";
-import { Button } from "../../../components/ui/UI/button";
+import { useEffect, useState } from "react";
+import { Edit, Users, XCircle } from "react-feather";
+import { ClipLoader } from "react-spinners";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "../../../components/ui/UI/table";
-import {
-  useDeleteUserMutation,
-  useGetAllUserQuery,
-  useUpdateRoleMutation,
-} from "../../../redux/features/user/userApi";
-import { TUser } from "../../../types/userTypes";
+  useGetAllUsersQuery,
+  useUpdateUserMutation,
+} from "../../../redux/features/user";
+
+const userRoleOptions = [
+  { value: "admin", label: "Admin" },
+  { value: "user", label: "User" },
+];
+
+const userStatusOptions = [
+  { value: "active", label: "Active" },
+  { value: "inactive", label: "Inactive" },
+];
+
+interface User {
+  _id: string;
+  name: string;
+  email: string;
+  phone: string;
+  role: string;
+  status: string;
+}
 
 const UserManagement = () => {
-  const { data: userData } = useGetAllUserQuery(undefined);
+  const {
+    data: userResponse = {},
+    isLoading,
+    isError,
+    error,
+  } = useGetAllUsersQuery({});
+  const users: User[] = Array.isArray(userResponse.data)
+    ? userResponse.data
+    : [];
+  const [updateUser, { isLoading: isUpdating }] = useUpdateUserMutation();
 
-  const [updateRole] = useUpdateRoleMutation();
-  const [deleteUser] = useDeleteUserMutation();
+  const [isUserUpdateModalOpen, setUserUpdateModalOpen] = useState(false);
+  const [userInfo, setUserInfo] = useState<User | null>(null);
+  const [role, setRole] = useState("");
+  const [status, setStatus] = useState("");
 
-  const handleRole = (id: string, role: string) => {
-    let newRole;
+  const [updateError, setUpdateError] = useState<string | null>(null);
+  const [updateSuccess, setUpdateSuccess] = useState<string | null>(null);
 
-    if (role === "admin") {
-      newRole = "user";
-    } else {
-      newRole = "admin";
+  useEffect(() => {
+    if (userInfo) {
+      setRole(userInfo.role);
+      setStatus(userInfo.status);
+    }
+  }, [userInfo]);
+
+  const handleUserUpdate = async () => {
+    setUpdateError(null);
+    setUpdateSuccess(null);
+
+    if (!role || !status) {
+      setUpdateError("Please select both role and status.");
+      return;
     }
 
-    const userInfo = {
-      id,
-      role: newRole,
-    };
-
-    Swal.fire({
-      title: "Are you sure?",
-      text: "You won't be able to revert this!",
-      icon: "warning",
-      showCancelButton: true,
-      confirmButtonColor: "#3085d6",
-      cancelButtonColor: "#d33",
-      confirmButtonText: "Yes, change the role!",
-    }).then(async (result) => {
-      if (result.isConfirmed) {
-        try {
-          const res = await updateRole(userInfo).unwrap();
-          if (res?.success) {
-            Swal.fire({
-              title: "Changed!",
-              text: res?.message,
-              icon: "success",
-            });
-          }
-        } catch (err: any) {
-          Swal.fire({
-            text: err?.data?.message || "Failed to change role",
-            icon: "error",
-            title: "Oops...",
-          });
+    if (userInfo) {
+      try {
+        await updateUser({ id: userInfo._id, data: { role, status } }).unwrap();
+        setUserUpdateModalOpen(false);
+        setUpdateSuccess("User updated successfully.");
+        toast.success("User updated successfully."); // Show success toast
+      } catch (error: any) {
+        const status = error?.status || 500;
+        if (status === 404) {
+          setUpdateError("User not found. Please check the user ID.");
+        } else if (status === 400) {
+          setUpdateError("Bad request. Please check the data you are sending.");
+        } else {
+          setUpdateError("Failed to update user. Please try again later.");
         }
+        toast.error(updateError); // Show error toast
       }
-    });
+    }
   };
 
-  const handleDelete = (id: string) => {
-    Swal.fire({
-      title: "Are you sure?",
-      text: "You won't be able to revert this!",
-      icon: "warning",
-      showCancelButton: true,
-      confirmButtonColor: "#3085d6",
-      cancelButtonColor: "#d33",
-      confirmButtonText: "Yes, delete it!",
-    }).then(async (result) => {
-      if (result.isConfirmed) {
-        try {
-          const res = await deleteUser(id).unwrap();
-          if (res?.success) {
-            Swal.fire({
-              title: "Deleted!",
-              text: res?.message,
-              icon: "success",
-            });
-          }
-        } catch (err: any) {
-          Swal.fire({
-            text: err?.data?.message || "Failed to delete user",
-            icon: "error",
-            title: "Oops...",
-          });
-        }
-      }
-    });
-  };
+  if (isLoading) {
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <ClipLoader size={50} color={"#123abc"} loading={isLoading} />
+      </div>
+    );
+  }
+
+  if (isError) {
+    console.error("Error loading users:", error);
+    return (
+      <div className="text-center p-8">
+        <p className="text-red-600">
+          Error loading users. Please try again later.
+        </p>
+        <pre>{JSON.stringify(error, null, 2)}</pre>
+      </div>
+    );
+  }
+
+  if (users.length === 0) {
+    return (
+      <p className="text-center text-gray-500">
+        No users available or unexpected data format.
+      </p>
+    );
+  }
 
   return (
-    <div className="lg:p-8 text-white max-w-screen-xl mx-auto my-8 px-3">
-      <Link to="/sign-up">
-        <Button className="bg-orange-500 hover:bg-orange-600">
-          Add A New User
-        </Button>
-      </Link>
-      <Table className="p-12 min-w-[700px] md:w-full">
-        <TableHeader>
-          <TableRow>
-            <TableHead>Name</TableHead>
-            <TableHead>Email</TableHead>
-            <TableHead>Phone</TableHead>
-            <TableHead className="text-right">Role</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {userData?.data?.map((user: TUser) => (
-            <TableRow key={user?._id}>
-              <TableCell className="text-sm min-w-[200px]">
-                {user?.name}
-              </TableCell>
-              <TableCell className="text-sm">{user?.email}</TableCell>
-              <TableCell className="text-sm">{user?.phone}</TableCell>
+    <>
+      <div className="p-8 bg-gray-50">
+        <div className="flex justify-between items-center mb-6">
+          <h2 className="text-2xl text-gray-700 md:text-3xl font-bold uppercase">
+            User Management
+          </h2>
+          <div className="flex items-center space-x-2 bg-red-600 text-white py-2 px-4 rounded-full">
+            <Users className="w-5 h-5" />
+            <span className="font-semibold">{users.length} Users</span>
+          </div>
+        </div>
+        <p className="text-gray-600 mb-8 text-center">
+          Manage customer and admin accounts. You can edit user roles and
+          statuses.
+        </p>
 
-              <TableCell className="text-right flex items-center gap-2">
-                <Button
-                  onClick={() => handleRole(user?._id, user?.role)}
-                  variant="outline"
-                  className="text-orange-500 hover:text-orange-600"
-                >
-                  Change to {user?.role === "admin" ? "user" : "admin"}
-                </Button>
-                <Button
-                  onClick={() => handleDelete(user?._id)}
-                  variant={"destructive"}
-                  className="hover:bg-red-500"
-                >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    strokeWidth={1.5}
-                    stroke="currentColor"
-                    className="size-5"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0"
-                    />
-                  </svg>
-                </Button>
-              </TableCell>
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
-    </div>
+        <div className="overflow-x-auto shadow-lg rounded-lg border border-gray-200">
+          <table className="min-w-full bg-white">
+            <thead className="text-gray-700">
+              <tr>
+                {["Name", "Email", "Phone", "Role", "Status", "Actions"].map(
+                  (header) => (
+                    <th
+                      key={header}
+                      className="px-6 py-3 text-left border-b-2 border-gray-300"
+                    >
+                      {header}
+                    </th>
+                  )
+                )}
+              </tr>
+            </thead>
+            <tbody>
+              {users.map((user) => (
+                <tr key={user._id} className="hover:bg-gray-50">
+                  <td className="px-6 py-4 border-b border-gray-200">
+                    {user.name}
+                  </td>
+                  <td className="px-6 py-4 border-b border-gray-200">
+                    {user.email}
+                  </td>
+                  <td className="px-6 py-4 border-b border-gray-200">
+                    {user.phone}
+                  </td>
+                  <td className="px-6 py-4 border-b border-gray-200">
+                    {user.role}
+                  </td>
+                  <td className="px-6 py-4 border-b border-gray-200">
+                    {user.status}
+                  </td>
+                  <td className="px-6 py-4 border-b">
+                    <button
+                      onClick={() => {
+                        setUserInfo(user);
+                        setUserUpdateModalOpen(true);
+                      }}
+                      className="text-red-600 hover:text-red-700 focus:outline-none"
+                    >
+                      <Edit className="w-5 h-5" />
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      {isUserUpdateModalOpen && userInfo && (
+        <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white p-8 rounded-lg shadow-lg w-96">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-2xl font-semibold text-gray-800">
+                Update User
+              </h2>
+              <button
+                onClick={() => setUserUpdateModalOpen(false)}
+                className="text-gray-500 hover:text-gray-700"
+              >
+                <XCircle className="w-6 h-6" />
+              </button>
+            </div>
+            {updateError && (
+              <div className="mb-4 text-red-600">{updateError}</div>
+            )}
+            {updateSuccess && (
+              <div className="mb-4 text-green-600">{updateSuccess}</div>
+            )}
+            <div className="mb-4">
+              <label htmlFor="role" className="block text-gray-700">
+                Role
+              </label>
+              <select
+                id="role"
+                value={role}
+                onChange={(e) => setRole(e.target.value)}
+                className="w-full mt-1 p-2 border border-gray-300 rounded"
+              >
+                {userRoleOptions.map((option) => (
+                  <option key={option.value} value={option.value}>
+                    {option.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div className="mb-4">
+              <label htmlFor="status" className="block text-gray-700">
+                Status
+              </label>
+              <select
+                id="status"
+                value={status}
+                onChange={(e) => setStatus(e.target.value)}
+                className="w-full mt-1 p-2 border border-gray-300 rounded"
+              >
+                {userStatusOptions.map((option) => (
+                  <option key={option.value} value={option.value}>
+                    {option.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <button
+              onClick={handleUserUpdate}
+              className="w-full py-2 bg-red-600 text-white rounded"
+              disabled={isUpdating}
+            >
+              {isUpdating ? (
+                <ClipLoader size={20} color={"#ffffff"} loading={isUpdating} />
+              ) : (
+                "Update User"
+              )}
+            </button>
+          </div>
+        </div>
+      )}
+
+      <ToastContainer />
+    </>
   );
 };
 

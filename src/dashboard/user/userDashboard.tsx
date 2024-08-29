@@ -2,25 +2,26 @@ import React, { useState } from "react";
 import {
   FaBars,
   FaBook,
-  FaCar,
   FaSignOutAlt,
+  FaTachometerAlt,
   FaTimes,
   FaUser,
 } from "react-icons/fa";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
+import logo from "../../assets/Logo/logo-2.png";
 import { logout } from "../../Auth/AuthSlice";
 import { useAppDispatch, useAppSelector } from "../../redux/hooks/hook";
-import logo from "/src/assets/Logo/logo-1.jpg";
 
 const UserDashboard: React.FC = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const dispatch = useAppDispatch();
   const user = useAppSelector((state) => state.auth.user);
   const [isProfileHovered, setIsProfileHovered] = useState(false);
   const [isSidebarVisible, setIsSidebarVisible] = useState(false);
 
   const handleNavigation = (path: string) => {
-    navigate(path);
+    navigate(`/user${path}`);
   };
 
   const handleLogout = () => {
@@ -86,19 +87,29 @@ const UserDashboard: React.FC = () => {
         <div className="flex flex-col items-start space-y-4">
           <button
             onClick={() => handleNavigation("/overview")}
-            className="flex items-center w-full px-4 py-2 text-gray-800 hover:bg-gray-100 rounded"
+            className={`flex items-center w-full px-4 py-2 hover:bg-gray-100 rounded ${
+              location.pathname === "/user/overview" ? "bg-gray-200" : ""
+            }`}
           >
-            <FaCar className="mr-2" /> Overview
+            <FaTachometerAlt className="mr-2" /> Overview
           </button>
           <button
             onClick={() => handleNavigation("/booking-management")}
-            className="flex items-center w-full px-4 py-2 text-gray-800 hover:bg-gray-100 rounded"
+            className={`flex items-center w-full px-4 py-2 hover:bg-gray-100 rounded ${
+              location.pathname === "/user/booking-management"
+                ? "bg-gray-200"
+                : ""
+            }`}
           >
             <FaBook className="mr-2" /> Booking Management
           </button>
           <button
             onClick={() => handleNavigation("/payment-management")}
-            className="flex items-center w-full px-4 py-2 text-gray-800 hover:bg-gray-100 rounded"
+            className={`flex items-center w-full px-4 py-2 hover:bg-gray-100 rounded ${
+              location.pathname === "/user/payment-management"
+                ? "bg-gray-200"
+                : ""
+            }`}
           >
             <FaUser className="mr-2" /> Payment Management
           </button>
@@ -114,11 +125,12 @@ const UserDashboard: React.FC = () => {
       </nav>
 
       {/* Main Content Area */}
-      <div className="flex-1 p-8 lg:ml-64">
-        <h1 className="text-3xl font-semibold mb-8">
-          {user?.role === "admin" ? "Admin" : "User"} Dashboard
-        </h1>
-        {/* The content for each route will be rendered here */}
+      <div className="flex-1 p-8 ">
+        <h2 className="text-2xl text-gray-700 md:text-3xl font-bold text-center mb-6 uppercase">
+          user dashboard
+          <div className="w-24 h-1 bg-red-600 mt-2 mx-auto"></div>
+        </h2>
+        {/* Insert Overview Component Here */}
       </div>
     </div>
   );

@@ -11,9 +11,9 @@ import {
   FaUser,
 } from "react-icons/fa";
 import { useLocation, useNavigate } from "react-router-dom";
+import logo from "../../assets/Logo/logo-2.png";
 import { logout } from "../../Auth/AuthSlice";
 import { useAppDispatch, useAppSelector } from "../../redux/hooks/hook";
-import logo from "/src/assets/Logo/logo-1.jpg";
 
 const AdminDashboard: React.FC = () => {
   const navigate = useNavigate();
@@ -52,19 +52,13 @@ const AdminDashboard: React.FC = () => {
           isSidebarVisible ? "translate-x-0" : "-translate-x-full"
         }`}
       >
-        <div className="flex flex-col items-center mb-10">
+        <div className="flex flex-col items-center ">
           <img
             src={logo}
             alt="Logo"
             className="h-16 w-16 rounded-full cursor-pointer"
             onClick={() => handleNavigation("/")}
           />
-          <span
-            className="text-xl font-semibold cursor-pointer mt-2"
-            onClick={() => handleNavigation("/")}
-          >
-            CarRental Admin
-          </span>
         </div>
 
         <div
@@ -154,8 +148,11 @@ const AdminDashboard: React.FC = () => {
         </button>
       </nav>
 
-      <div className="flex-1 p-8 lg:ml-64">
-        <h1 className="text-3xl font-semibold mb-8">Admin Dashboard</h1>
+      <div className="flex-1 p-8 ">
+        <h2 className="text-2xl text-gray-700 md:text-3xl font-bold text-center mb-6 uppercase">
+          admin dashboard
+          <div className="w-24 h-1 bg-red-600 mt-2 mx-auto"></div>
+        </h2>
         {/* Insert Overview Component Here */}
       </div>
     </div>
