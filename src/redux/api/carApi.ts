@@ -20,7 +20,33 @@ export const carApi = createApi({
       query: (id) => `/cars/${id}`,
       transformResponse: (response: ApiResponse<Car>) => response.data,
     }),
+    addCar: builder.mutation<void, FormData>({
+      query: (formData) => ({
+        url: "/cars",
+        method: "POST",
+        body: formData,
+      }),
+    }),
+    updateCar: builder.mutation<void, { id: string; carData: FormData }>({
+      query: ({ id, carData }) => ({
+        url: `/cars/${id}`,
+        method: "PUT",
+        body: carData,
+      }),
+    }),
+    deleteCar: builder.mutation<void, string>({
+      query: (id) => ({
+        url: `/cars/${id}`,
+        method: "DELETE",
+      }),
+    }),
   }),
 });
 
-export const { useGetAllCarsQuery, useGetCarByIdQuery } = carApi;
+export const {
+  useGetAllCarsQuery,
+  useGetCarByIdQuery,
+  useAddCarMutation,
+  useUpdateCarMutation,
+  useDeleteCarMutation,
+} = carApi;

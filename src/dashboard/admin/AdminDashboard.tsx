@@ -19,8 +19,6 @@ import Reports from "./Managements/Reports";
 import UserManagement from "./Managements/UserManagement";
 import logo from "/src/assets/Logo/logo-1.jpg";
 
-// Import pages
-
 const AdminDashboard: React.FC = () => {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
@@ -31,7 +29,7 @@ const AdminDashboard: React.FC = () => {
   const user = useAppSelector((state) => state.auth.user);
 
   const handleNavigation = (path: string) => {
-    navigate(path);
+    navigate(`/admin${path}`);
     setIsSidebarVisible(false); // Close sidebar on navigation
   };
 
@@ -147,11 +145,11 @@ const AdminDashboard: React.FC = () => {
       <div className="flex-1 p-8 lg:ml-64">
         <h1 className="text-3xl font-semibold mb-8">Admin Dashboard</h1>
         <Routes>
-          <Route path="/manage-cars" element={<ManageCars />} />
-          <Route path="/manage-bookings" element={<ManageBookings />} />
-          <Route path="/manage-return-cars" element={<ManageReturnCars />} />
-          <Route path="/user-management" element={<UserManagement />} />
-          <Route path="/reports" element={<Reports />} />
+          <Route path="manage-cars" element={<ManageCars />} />
+          <Route path="manage-bookings" element={<ManageBookings />} />
+          <Route path="manage-return-cars" element={<ManageReturnCars />} />
+          <Route path="user-management" element={<UserManagement />} />
+          <Route path="reports" element={<Reports />} />
         </Routes>
       </div>
     </div>
