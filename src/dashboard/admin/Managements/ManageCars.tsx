@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import React, { useState } from "react";
 import toast from "react-hot-toast";
 import Modal from "react-modal";
@@ -44,6 +45,9 @@ const ManageCars: React.FC = () => {
     image: null,
   });
 
+  // State to handle whether to show all cars or just a subset
+  const [showAll, setShowAll] = useState(false);
+
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setCarForm((prev) => ({
@@ -65,13 +69,16 @@ const ManageCars: React.FC = () => {
   const handleAddSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const formData = new FormData();
-    for (const key in carForm) {
+    Object.keys(carForm).forEach((key) => {
+      const value = carForm[key as keyof CarFormState];
       if (key === "features") {
-        formData.append(key, JSON.stringify(carForm[key]?.split(",") || []));
+        formData.append(key, JSON.stringify(value?.split(",") || []));
+      } else if (key === "image" && value) {
+        formData.append(key, value);
       } else {
-        formData.append(key, carForm[key] || "");
+        formData.append(key, value?.toString() || "");
       }
-    }
+    });
     try {
       await addCar(formData).unwrap();
       toast.success("Car added successfully");
@@ -85,13 +92,16 @@ const ManageCars: React.FC = () => {
   const handleUpdateSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const formData = new FormData();
-    for (const key in carForm) {
+    Object.keys(carForm).forEach((key) => {
+      const value = carForm[key as keyof CarFormState];
       if (key === "features") {
-        formData.append(key, JSON.stringify(carForm[key]?.split(",") || []));
+        formData.append(key, JSON.stringify(value?.split(",") || []));
+      } else if (key === "image" && value) {
+        formData.append(key, value);
       } else {
-        formData.append(key, carForm[key] || "");
+        formData.append(key, value?.toString() || "");
       }
-    }
+    });
     try {
       if (currentCar) {
         await updateCar({ id: currentCar._id, carData: formData }).unwrap();
@@ -140,6 +150,9 @@ const ManageCars: React.FC = () => {
     });
   };
 
+  // Show only a subset of cars based on showAll state
+  const displayedCars = showAll ? cars : cars.slice(0, 10);
+
   if (isLoading) return <p>Loading cars...</p>;
   if (error) return <p>Error loading cars</p>;
 
@@ -150,7 +163,7 @@ const ManageCars: React.FC = () => {
         Add New Car
       </Button>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mt-4">
-        {cars.map((car: Car) => (
+        {displayedCars.map((car) => (
           <Card key={car._id} className="shadow-lg">
             <CardHeader>
               <img
@@ -180,6 +193,11 @@ const ManageCars: React.FC = () => {
           </Card>
         ))}
       </div>
+      {!showAll && cars.length > 10 && (
+        <Button variant="" className="mt-4 " onClick={() => setShowAll(true)}>
+          Show More
+        </Button>
+      )}
 
       {/* Add New Car Modal */}
       <Modal
@@ -288,7 +306,7 @@ const ManageCars: React.FC = () => {
           />
           <Input type="file" name="image" onChange={handleFileChange} />
           <Button type="submit" variant="primary">
-            Update
+            Save
           </Button>
         </form>
       </Modal>

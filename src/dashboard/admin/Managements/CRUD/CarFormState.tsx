@@ -1,10 +1,12 @@
+/* eslint-disable react-hooks/rules-of-hooks */
 /* eslint-disable @typescript-eslint/no-unused-vars */
-interface CarFormState {
-  make: string;
-  model: string;
-  year: string;
-  features: string;
-  pricing: string;
-  image: File | null;
-  [key: string]: string | File | null;
-}
+import { useState } from "react";
+
+const [carForm, setCarForm] = useState<CarFormState>({
+  make: "",
+  model: "",
+  year: "",
+  features: "",
+  pricing: "",
+  image: null,
+});
