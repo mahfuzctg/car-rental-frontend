@@ -4,3 +4,26 @@ password123AB@#
 
 Admin@gmail.com
 password123AB@#
+
+
+
+
+{
+  "name": "mahfuz-admin",
+  "email": "adminmahfuz@gmail.com",
+  "role": "admin",  // role can be user or admin
+  "password": "password@A1",
+  "phone": "1234567890",
+  "address": "123 Main St, City, Country"
+ 
+}
+
+{
+  "name": "mahfuz-user",
+  "email": "mahfuzuser@gmail.com",
+  "role": "user",  // role can be user or admin
+  "password": "password@A1",
+  "phone": "1234567890",
+  "address": "123 Main St, City, Country"
+ 
+}

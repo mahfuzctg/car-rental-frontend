@@ -1,7 +1,17 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+
 import React, { useState } from "react";
 import toast from "react-hot-toast";
 import Modal from "react-modal";
-import "../../../Customs/ManageCars.css"; // Import your CSS file
+import { Button } from "../../../components/ui/UI/button";
+import {
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+} from "../../../components/ui/UI/card";
+import { Input } from "../../../components/ui/UI/input";
+import { cn } from "../../../lib/utils";
 import {
   useAddCarMutation,
   useDeleteCarMutation,
@@ -37,12 +47,10 @@ const ManageCars: React.FC = () => {
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    if (name in carForm) {
-      setCarForm((prev) => ({
-        ...prev,
-        [name]: value,
-      }));
-    }
+    setCarForm((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -62,7 +70,7 @@ const ManageCars: React.FC = () => {
       if (key === "features") {
         formData.append(key, JSON.stringify(carForm[key]?.split(",") || []));
       } else {
-        formData.append(key, carForm[key] || ""); // Handle possible null values
+        formData.append(key, carForm[key] || "");
       }
     }
     try {
@@ -77,6 +85,15 @@ const ManageCars: React.FC = () => {
       toast.error("Failed to save car");
     }
     setModalIsOpen(false);
+    setCarForm({
+      make: "",
+      model: "",
+      year: "",
+      features: "",
+      pricing: "",
+      image: null,
+    });
+    setCurrentCar(null);
   };
 
   const handleEdit = (car: Car) => {
@@ -107,61 +124,70 @@ const ManageCars: React.FC = () => {
   if (error) return <p>Error loading cars</p>;
 
   return (
-    <div className="manage-cars-container">
-      <h1>Manage Cars</h1>
-      <button className="add-car-button" onClick={() => setModalIsOpen(true)}>
+    <div className="container mx-auto p-4">
+      <h1 className="text-2xl font-bold mb-4">Manage Cars</h1>
+      <Button variant="primary" onClick={() => setModalIsOpen(true)}>
         Add New Car
-      </button>
-      <div className="car-list">
+      </Button>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mt-4">
         {cars.map((car: Car) => (
-          <div key={car._id} className="car-card">
-            <img src={car.image} alt={car.make} className="car-image" />
-            <div className="car-info">
-              <h2 className="car-title">
+          <Card key={car._id} className="shadow-lg">
+            <CardHeader>
+              <img
+                src={car.image}
+                alt={car.make}
+                className="h-48 w-full object-cover"
+              />
+            </CardHeader>
+            <CardContent>
+              <h2 className="text-xl font-semibold">
                 {car.make} {car.model} ({car.year})
               </h2>
-              <p className="car-features">{car.features.join(", ")}</p>
-              <p className="car-pricing">{car.pricing}</p>
-              <div className="car-actions">
-                <button className="edit-button" onClick={() => handleEdit(car)}>
-                  Edit
-                </button>
-                <button
-                  className="delete-button"
-                  onClick={() => handleDelete(car._id)}
-                >
-                  Delete
-                </button>
-              </div>
-            </div>
-          </div>
+              <p className="text-sm text-gray-600">{car.features.join(", ")}</p>
+              <p className="text-lg font-bold mt-2">${car.pricing}/hour</p>
+            </CardContent>
+            <CardFooter className="flex justify-between">
+              <Button variant="outline" onClick={() => handleEdit(car)}>
+                Edit
+              </Button>
+              <Button
+                variant="destructive"
+                onClick={() => handleDelete(car._id)}
+              >
+                Delete
+              </Button>
+            </CardFooter>
+          </Card>
         ))}
       </div>
       <Modal
         isOpen={modalIsOpen}
         onRequestClose={() => setModalIsOpen(false)}
-        className="modal"
-        overlayClassName="overlay"
+        className={cn(
+          "bg-white p-4 rounded-lg shadow-lg max-w-lg mx-auto mt-20",
+          "focus:outline-none"
+        )}
+        overlayClassName="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center"
       >
-        <h2>{currentCar ? "Update Car" : "Add New Car"}</h2>
-        <form onSubmit={handleSubmit} className="car-form">
-          <input
-            type="text"
+        <h2 className="text-2xl font-bold mb-4">
+          {currentCar ? "Update Car" : "Add New Car"}
+        </h2>
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <Input
             name="make"
             value={carForm.make}
             onChange={handleInputChange}
             placeholder="Make"
             required
           />
-          <input
-            type="text"
+          <Input
             name="model"
             value={carForm.model}
             onChange={handleInputChange}
             placeholder="Model"
             required
           />
-          <input
+          <Input
             type="number"
             name="year"
             value={carForm.year}
@@ -169,15 +195,14 @@ const ManageCars: React.FC = () => {
             placeholder="Year"
             required
           />
-          <input
-            type="text"
+          <Input
             name="features"
             value={carForm.features}
             onChange={handleInputChange}
             placeholder="Features (comma separated)"
             required
           />
-          <input
+          <Input
             type="number"
             name="pricing"
             value={carForm.pricing}
@@ -185,10 +210,10 @@ const ManageCars: React.FC = () => {
             placeholder="Pricing"
             required
           />
-          <input type="file" name="image" onChange={handleFileChange} />
-          <button type="submit" className="submit-button">
+          <Input type="file" name="image" onChange={handleFileChange} />
+          <Button type="submit" variant="primary">
             Save
-          </button>
+          </Button>
         </form>
       </Modal>
     </div>
