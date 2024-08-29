@@ -16,5 +16,13 @@ export const baseApi = createApi({
     },
   }),
   tagTypes: ["cars", "users"],
-  endpoints: () => ({}),
+  endpoints: (builder) => ({
+    getFeaturedCars: builder.query({
+      query: () => "/cars",
+      providesTags: ["cars"],
+    }),
+    // Add other endpoints as needed
+  }),
 });
+
+export const { useGetFeaturedCarsQuery } = baseApi;

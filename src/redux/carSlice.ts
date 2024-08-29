@@ -1,51 +1,54 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import axios from "axios";
 
-// Async thunk to fetch cars
-export const fetchCars = createAsyncThunk("cars/fetchCars", async () => {
-  const response = await axios.get("/api/cars"); // Replace with your API endpoint
-  return response.data;
-});
-
+// Define the initial state
 interface Car {
   id: number;
-  type: string;
   image: string;
-  price: number;
+  title: string;
   description: string;
+  price: string;
 }
 
-interface CarsState {
+interface CarState {
   cars: Car[];
-  loading: boolean;
+  status: "idle" | "loading" | "succeeded" | "failed";
   error: string | null;
 }
 
-const initialState: CarsState = {
+const initialState: CarState = {
   cars: [],
-  loading: false,
+  status: "idle",
   error: null,
 };
 
-const carsSlice = createSlice({
+// Async thunk to fetch cars
+export const fetchFeaturedCars = createAsyncThunk(
+  "cars/fetchFeaturedCars",
+  async () => {
+    const response = await axios.get("http://localhost:5000/api/cars");
+    return response.data.data;
+  }
+);
+
+const carSlice = createSlice({
   name: "cars",
   initialState,
   reducers: {},
   extraReducers: (builder) => {
     builder
-      .addCase(fetchCars.pending, (state) => {
-        state.loading = true;
-        state.error = null;
+      .addCase(fetchFeaturedCars.pending, (state) => {
+        state.status = "loading";
       })
-      .addCase(fetchCars.fulfilled, (state, action) => {
-        state.loading = false;
+      .addCase(fetchFeaturedCars.fulfilled, (state, action) => {
+        state.status = "succeeded";
         state.cars = action.payload;
       })
-      .addCase(fetchCars.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.error.message || "Failed to fetch cars";
+      .addCase(fetchFeaturedCars.rejected, (state, action) => {
+        state.status = "failed";
+        state.error = action.error.message || "Failed to load cars.";
       });
   },
 });
 
-export default carsSlice.reducer;
+export default carSlice.reducer;
