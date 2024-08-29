@@ -1,153 +1,115 @@
-import axios from "axios";
 import React, { useEffect, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
 
-interface Car {
-  _id: string;
-  name: string;
-  description: string;
-  color: string;
-  isElectric: boolean;
-  features: string[];
-  pricePerHour: number;
-  status: string;
-  isDeleted: boolean;
-  createdAt: string;
-  updatedAt: string;
-}
+import { useParams } from "react-router-dom";
+
+import ReactImageZoom from "react-image-zoom";
+import { useGetCarByIdQuery } from "../redux/api/carApi";
+import { Car } from "../types/carTypes";
 
 const CarDetails: React.FC = () => {
   const { id } = useParams<{ id: string }>();
+  const { data, isLoading, isError } = useGetCarByIdQuery(id!);
   const [car, setCar] = useState<Car | null>(null);
-  const [loading, setLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string | null>(null);
   const [additionalFeatures, setAdditionalFeatures] = useState({
     insurance: false,
     gps: false,
     childSeat: false,
   });
 
-  const navigate = useNavigate();
-
   useEffect(() => {
-    axios
-      .get(`http://localhost:5000/api/cars/${id}`)
-      .then((response) => {
-        setCar(response.data.data);
-        setLoading(false);
-      })
-      .catch((error) => {
-        setError("Failed to load car details.");
-        setLoading(false);
-      });
-  }, [id]);
+    if (data) {
+      setCar(data);
+    }
+  }, [data]);
 
-  const handleFeatureChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, checked } = e.target;
-    setAdditionalFeatures((prevFeatures) => ({
-      ...prevFeatures,
-      [name]: checked,
-    }));
-  };
-
-  const handleBookNow = () => {
-    navigate(`/booking/${car?._id}`, { state: { additionalFeatures } });
-  };
-
-  if (loading) {
+  if (isLoading) {
     return <p>Loading...</p>;
   }
 
-  if (error) {
-    return <p>{error}</p>;
+  if (isError) {
+    return <p>Failed to load car details.</p>;
   }
 
+  if (!car) {
+    return <p>No car found.</p>;
+  }
+
+  const zoomProps = {
+    img: car.imageUrl || "https://via.placeholder.com/800",
+    zoomWidth: 400,
+    height: 300,
+    zoomPosition: "original",
+  };
+
+  const handleFeatureChange = (feature: string) => {
+    setAdditionalFeatures((prev) => ({
+      ...prev,
+      [feature]: !prev[feature],
+    }));
+  };
+
   return (
-    <div className="car-details-page max-w-5xl mx-auto p-6">
-      {car && (
-        <>
-          <div className="car-images mb-6">
-            <img
-              src={`https://source.unsplash.com/random/800x400?car=${car.name}`}
-              alt={car.name}
-              className="w-full h-96 object-cover rounded-lg"
-            />
+    <div className="car-details p-4">
+      <h1 className="text-3xl font-bold mb-4">{car.name}</h1>
+      <div className="flex flex-col md:flex-row gap-6 mb-6">
+        {/* Image Zoom */}
+        <div className="flex-1">
+          <ReactImageZoom {...zoomProps} />
+        </div>
+
+        {/* Car Details */}
+        <div className="flex-1">
+          <p className="text-lg mb-4">{car.description}</p>
+          <p className="text-xl font-bold mb-4">
+            Price: ${car.pricePerHour} per hour
+          </p>
+
+          {/* Additional Features */}
+          <div className="mb-4">
+            <h2 className="text-xl font-semibold mb-2">Additional Features</h2>
+            <div className="space-y-2">
+              <label className="block">
+                <input
+                  type="checkbox"
+                  checked={additionalFeatures.insurance}
+                  onChange={() => handleFeatureChange("insurance")}
+                />
+                <span className="ml-2">Insurance</span>
+              </label>
+              <label className="block">
+                <input
+                  type="checkbox"
+                  checked={additionalFeatures.gps}
+                  onChange={() => handleFeatureChange("gps")}
+                />
+                <span className="ml-2">GPS</span>
+              </label>
+              <label className="block">
+                <input
+                  type="checkbox"
+                  checked={additionalFeatures.childSeat}
+                  onChange={() => handleFeatureChange("childSeat")}
+                />
+                <span className="ml-2">Child Seat</span>
+              </label>
+            </div>
           </div>
 
-          <div className="car-info">
-            <h1 className="text-3xl font-bold mb-4">{car.name}</h1>
-            <p className="text-lg text-gray-600 mb-4">{car.description}</p>
-
-            <div className="car-features mb-4">
-              <h2 className="text-2xl font-semibold mb-2">Features</h2>
-              <ul className="list-disc pl-5 text-gray-700">
-                {car.features.map((feature, index) => (
-                  <li key={index}>{feature}</li>
-                ))}
-              </ul>
-            </div>
-
-            <div className="car-pricing mb-4">
-              <p className="text-xl font-semibold">
-                Price per hour:{" "}
-                <span className="text-green-500">${car.pricePerHour}</span>
-              </p>
-              <p
-                className={`text-lg font-semibold ${
-                  car.status === "available" ? "text-green-600" : "text-red-600"
-                }`}
-              >
-                Status: {car.status}
-              </p>
-            </div>
-
-            <div className="additional-features mb-6">
-              <h2 className="text-2xl font-semibold mb-2">
-                Additional Features
-              </h2>
-              <div className="flex space-x-4">
-                <label className="flex items-center space-x-2">
-                  <input
-                    type="checkbox"
-                    name="insurance"
-                    checked={additionalFeatures.insurance}
-                    onChange={handleFeatureChange}
-                    className="form-checkbox"
-                  />
-                  <span>Insurance</span>
-                </label>
-                <label className="flex items-center space-x-2">
-                  <input
-                    type="checkbox"
-                    name="gps"
-                    checked={additionalFeatures.gps}
-                    onChange={handleFeatureChange}
-                    className="form-checkbox"
-                  />
-                  <span>GPS</span>
-                </label>
-                <label className="flex items-center space-x-2">
-                  <input
-                    type="checkbox"
-                    name="childSeat"
-                    checked={additionalFeatures.childSeat}
-                    onChange={handleFeatureChange}
-                    className="form-checkbox"
-                  />
-                  <span>Child Seat</span>
-                </label>
-              </div>
-            </div>
-
-            <button
-              onClick={handleBookNow}
-              className="mt-4 px-6 py-3 bg-blue-500 text-white rounded hover:bg-blue-700"
-            >
-              Book Now
-            </button>
+          {/* Customer Reviews */}
+          <div className="mb-6">
+            <h2 className="text-xl font-semibold mb-2">Customer Reviews</h2>
+            <p>No reviews yet. Be the first to review this car!</p>
           </div>
-        </>
-      )}
+
+          {/* Book Now Button */}
+          <a
+            href={`/book/${car._id}`}
+            className="inline-block px-6 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-700"
+          >
+            Book Now
+          </a>
+        </div>
+      </div>
     </div>
   );
 };

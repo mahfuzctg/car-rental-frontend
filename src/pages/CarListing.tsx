@@ -1,4 +1,7 @@
 import React, { useState } from "react";
+
+import { Oval } from "react-loader-spinner";
+import { Link } from "react-router-dom";
 import { Card } from "../components/ui/UI/card";
 import { useGetAllCarsQuery } from "../redux/api/carApi";
 import { Car } from "../types/carTypes";
@@ -17,11 +20,24 @@ const CarListing: React.FC = () => {
   const cars: Car[] = Array.isArray(data) ? data : [];
 
   if (isLoading) {
-    return <p>Loading...</p>;
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <Oval
+          height={80}
+          width={80}
+          color="#4fa94d"
+          visible={true}
+          ariaLabel="oval-loading"
+          secondaryColor="#4fa94d"
+          strokeWidth={2}
+          strokeWidthSecondary={2}
+        />
+      </div>
+    );
   }
 
   if (isError) {
-    return <p>Failed to load cars.</p>;
+    return <p className="text-center text-red-600">Failed to load cars.</p>;
   }
 
   // Filter cars based on filters
@@ -132,9 +148,14 @@ const CarListing: React.FC = () => {
               <p className="text-lg font-bold text-gray-800">
                 ${car.pricePerHour} per hour
               </p>
-              <button className="mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-700">
-                View Details
-              </button>
+              <div className="mt-5 text-center mx-auto w-full ">
+                <Link
+                  to={`/car/${car._id}`}
+                  className="mx-auto w-full shadow-md text-center px-8 py-2 bg-white text-gray-700 rounded hover:bg-gray-200"
+                >
+                  Details
+                </Link>
+              </div>
             </div>
           </Card>
         ))}
@@ -145,7 +166,7 @@ const CarListing: React.FC = () => {
         <div className="flex justify-center mt-4">
           <button
             onClick={loadMore}
-            className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-700"
+            className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-700"
             aria-label="Load more cars"
           >
             Show More
