@@ -12,15 +12,15 @@ export type TUser = {
 };
 
 type TAuthState = {
-  user: null | TUser;
-  token: null | string;
-  isAuthenticated: boolean; // Add this property
+  user: TUser | null;
+  token: string | null;
+  isAuthenticated: boolean;
 };
 
 const initialState: TAuthState = {
   user: null,
   token: null,
-  isAuthenticated: false, // Initialize it to false
+  isAuthenticated: false,
 };
 
 const authSlice = createSlice({
@@ -34,12 +34,12 @@ const authSlice = createSlice({
       const { user, token } = action.payload;
       state.user = user;
       state.token = token;
-      state.isAuthenticated = !!user && !!token; // Set authentication status based on user and token
+      state.isAuthenticated = !!user && !!token;
     },
     logout: (state) => {
       state.user = null;
       state.token = null;
-      state.isAuthenticated = false; // Set authentication status to false on logout
+      state.isAuthenticated = false;
     },
   },
 });
@@ -52,4 +52,4 @@ export default authSlice.reducer;
 export const selectCurrentToken = (state: RootState) => state.auth.token;
 export const selectCurrentUser = (state: RootState) => state.auth.user;
 export const selectIsAuthenticated = (state: RootState) =>
-  state.auth.isAuthenticated; // Add selector for isAuthenticated
+  (state.auth as unknown as TAuthState).isAuthenticated;

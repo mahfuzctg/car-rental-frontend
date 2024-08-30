@@ -1,11 +1,22 @@
+import { motion } from "framer-motion";
 import React, { useState } from "react";
 import { Oval } from "react-loader-spinner";
 import ListCard from "../components/Card/ListCard";
 import { useGetAllCarsQuery } from "../redux/features/car/carApi";
 import { TCar } from "../types/carTypes";
 
+const bounceTransition = {
+  duration: 0.6,
+  type: "spring",
+  stiffness: 300,
+  damping: 10,
+};
+
+const fadeTransition = {
+  duration: 0.5,
+};
+
 const CarListing: React.FC = () => {
-  const { data, isLoading, isError } = useGetAllCarsQuery();
   const [filters, setFilters] = useState({
     type: "",
     minPrice: 0,
@@ -14,6 +25,13 @@ const CarListing: React.FC = () => {
   });
   const [visibleCount, setVisibleCount] = useState(10);
   const [showLess, setShowLess] = useState(false);
+
+  const { data, isLoading, isError } = useGetAllCarsQuery({
+    searchValue: filters.search,
+    carType: filters.type,
+    minPrice: filters.minPrice,
+    maxPrice: filters.maxPrice,
+  });
 
   const cars: TCar[] = data?.data || [];
 
@@ -48,7 +66,12 @@ const CarListing: React.FC = () => {
       (filters.type ? car.model === filters.type : true) &&
       (filters.search
         ? car.name.toLowerCase().includes(filters.search.toLowerCase()) ||
-          car.features.toLowerCase().includes(filters.search.toLowerCase())
+          (Array.isArray(car.features)
+            ? car.features
+                .join(" ")
+                .toLowerCase()
+                .includes(filters.search.toLowerCase())
+            : car.features.toLowerCase().includes(filters.search.toLowerCase()))
         : true)
   );
 
@@ -62,10 +85,20 @@ const CarListing: React.FC = () => {
   return (
     <div className="p-4">
       {/* Filter Controls */}
-      <div className="filters mb-4 p-4  rounded-md ">
+      <motion.div
+        className="filters mb-4 p-4 rounded-md"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={fadeTransition}
+      >
         <div className="flex flex-col md:flex-row gap-4 mb-4">
           {/* Search Field */}
-          <div className="flex-1">
+          <motion.div
+            className="flex-1"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ ...fadeTransition, delay: 0.2 }}
+          >
             <label className="block text-gray-700 font-semibold mb-2">
               Search for cars:
               <input
@@ -75,13 +108,18 @@ const CarListing: React.FC = () => {
                 onChange={(e) =>
                   setFilters({ ...filters, search: e.target.value })
                 }
-                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-green-500 focus:border-green-500 sm:text-sm"
+                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-red-500 focus:border-red-500 sm:text-sm transition-transform duration-300 ease-in-out transform hover:scale-105"
               />
             </label>
-          </div>
+          </motion.div>
 
           {/* Type Filter */}
-          <div className="flex-1">
+          <motion.div
+            className="flex-1"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ ...fadeTransition, delay: 0.4 }}
+          >
             <label className="block text-gray-700 font-semibold mb-2">
               Car Type:
               <select
@@ -89,7 +127,7 @@ const CarListing: React.FC = () => {
                 onChange={(e) =>
                   setFilters({ ...filters, type: e.target.value })
                 }
-                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-green-500 focus:border-green-500 sm:text-sm"
+                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-red-500 focus:border-red-500 sm:text-sm transition-transform duration-300 ease-in-out transform hover:scale-105"
               >
                 <option value="">All Types</option>
                 <option value="SUV">SUV</option>
@@ -97,11 +135,16 @@ const CarListing: React.FC = () => {
                 <option value="Hybrid">Hybrid</option>
               </select>
             </label>
-          </div>
+          </motion.div>
         </div>
 
         <div className="flex flex-col md:flex-row gap-4">
-          <div className="flex-1">
+          <motion.div
+            className="flex-1"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ ...fadeTransition, delay: 0.6 }}
+          >
             <label className="block text-gray-700 font-semibold mb-2">
               Price Range:
               <div className="flex gap-2 mt-1">
@@ -112,7 +155,7 @@ const CarListing: React.FC = () => {
                   onChange={(e) =>
                     setFilters({ ...filters, minPrice: Number(e.target.value) })
                   }
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-green-500 focus:border-green-500 sm:text-sm"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-red-500 focus:border-red-500 sm:text-sm transition-transform duration-300 ease-in-out transform hover:scale-105"
                 />
                 <span>-</span>
                 <input
@@ -122,48 +165,78 @@ const CarListing: React.FC = () => {
                   onChange={(e) =>
                     setFilters({ ...filters, maxPrice: Number(e.target.value) })
                   }
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-green-500 focus:border-green-500 sm:text-sm"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-red-500 focus:border-red-500 sm:text-sm transition-transform duration-300 ease-in-out transform hover:scale-105"
                 />
               </div>
             </label>
-          </div>
+          </motion.div>
         </div>
-      </div>
+      </motion.div>
 
       {/* Featured Cars Section */}
-      <div className="mb-6">
-        <h2 className="text-xl font-semibold text-gray-800 mb-4">
-          Featured Cars
+      <motion.div
+        className="mb-6"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={fadeTransition}
+      >
+        <h2 className="text-2xl md:text-3xl text-gray-700 font-bold text-center mb-6 uppercase">
+          All Cars
+          <div className="w-24 h-1 bg-red-600 mt-2 mx-auto"></div>
         </h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
           {filteredCars.slice(0, 6).map((car) => (
-            <ListCard key={car._id} car={car} cardType="booking" />
+            <motion.div
+              key={car._id}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ ...fadeTransition, delay: 0.2 }}
+            >
+              <ListCard car={car} cardType="booking" />
+            </motion.div>
           ))}
         </div>
-      </div>
+      </motion.div>
 
       {/* Car Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+      <motion.div
+        className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={fadeTransition}
+      >
         {carsToDisplay.length > 0 ? (
           carsToDisplay.map((car) => (
-            <ListCard key={car._id} car={car} cardType="booking" />
+            <motion.div
+              key={car._id}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ ...fadeTransition, delay: 0.4 }}
+            >
+              <ListCard car={car} cardType="booking" />
+            </motion.div>
           ))
         ) : (
           <p className="text-center text-gray-600 col-span-full">
             No cars available for the selected filters.
           </p>
         )}
-      </div>
+      </motion.div>
 
       {/* Show More/Less Button */}
-      <div className="text-center mt-4">
+      <motion.div
+        className="text-center mt-4"
+        initial={{ opacity: 0, scale: 0.9 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ ...bounceTransition, delay: 0.6 }}
+      >
         <button
           onClick={toggleVisibility}
-          className="bg-red-600 text-white px-4 py-2 rounded-md shadow-sm hover:bg-red-700 transition duration-300"
+          className="bg-red-600 text-white px-4 py-2 rounded-md shadow-sm hover:bg-red-700 transition-colors"
         >
           {showLess ? "Show Less" : "Show More"}
         </button>
-      </div>
+      </motion.div>
     </div>
   );
 };

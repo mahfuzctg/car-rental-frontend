@@ -8,10 +8,10 @@ const FeaturedSection: React.FC = () => {
   const { data: carData, isLoading } = useGetAllCarsQuery(undefined);
 
   return (
-    <section className="pt-16 pb-24 md:py-24 container">
+    <section className="pt-16 pb-24 md:py-24 px-2 md:px-0">
       {/* title and description */}
       <div className="text-center max-w-2xl mx-auto mb-8 space-y-2">
-        <h2 className="text-2xl md:text-3xl  font-bold text-center mb-6 uppercase">
+        <h2 className="text-2xl md:text-3xl text-gray-700 font-bold text-center mb-6 uppercase">
           Premier Car
           <div className="w-24 h-1 bg-red-600 mt-2 mx-auto"></div>
         </h2>
@@ -23,7 +23,7 @@ const FeaturedSection: React.FC = () => {
         </p>
       </div>
       {/* items */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+      <div className="grid   grid-cols-1 p-1 md:p-4 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {isLoading ? (
           <div className="flex justify-center items-center h-48">
             <p className="text-gray-500">Loading...</p>

@@ -1,9 +1,8 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { useState } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
-import { Link, useNavigate } from "react-router-dom";
-
 import { IoEye, IoEyeOff } from "react-icons/io5";
+import { Link, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { Button } from "../components/ui/UI/button";
 import { Input } from "../components/ui/UI/input";
@@ -18,9 +17,13 @@ type Inputs = {
   password: string;
 };
 
+type ApiError = {
+  message: string;
+};
+
 const Login = () => {
   const [isShowPassword, setIsShowPassword] = useState(false);
-  const [isLoading, setIsLoading] = useState(false); // Add this state
+  const [isLoading, setIsLoading] = useState(false);
 
   const [login] = useLoginMutation();
   const dispatch = useAppDispatch();
@@ -34,7 +37,7 @@ const Login = () => {
 
   const onSubmit: SubmitHandler<Inputs> = async (data) => {
     const toastId = toast.loading("Signing in...");
-    setIsLoading(true); // Set loading state to true
+    setIsLoading(true);
 
     try {
       const userInfo = {
@@ -54,7 +57,18 @@ const Login = () => {
           duration: 2000,
         });
 
-        navigate(`/${user?.role}/dashboard`, { replace: true });
+        // Navigate based on user role
+        switch (user?.role) {
+          case "admin":
+            navigate("/admin/dashboard", { replace: true });
+            break;
+          case "user":
+            navigate("/user/dashboard", { replace: true });
+            break;
+          default:
+            navigate("/", { replace: true }); // Redirect to default or home if role is unknown
+            break;
+        }
       } else {
         toast.error("Invalid credentials", {
           id: toastId,
@@ -62,7 +76,8 @@ const Login = () => {
         });
       }
     } catch (err) {
-      toast.error(err?.data?.message, {
+      const error = err as { data?: ApiError };
+      toast.error(error?.data?.message || "An unknown error occurred", {
         action: (
           <Button
             onClick={() => navigate("/password-recovery")}
@@ -75,15 +90,16 @@ const Login = () => {
         duration: 2000,
       });
     } finally {
-      setIsLoading(false); // Set loading state to false
+      setIsLoading(false);
     }
   };
 
   return (
     <section className="bg-white min-h-screen flex items-center justify-center py-12">
       <div className="rounded-xl shadow-lg p-8 w-full max-w-md">
-        <h2 className="text-gray-800 text-3xl font-bold text-center mb-8">
-          Sign In to Your Account
+        <h2 className="text-2xl text-gray-700 md:text-2xl font-bold text-center mb-6 uppercase">
+          Sign In Now!
+          <div className="w-24 h-1 bg-red-600 mt-2 mx-auto"></div>
         </h2>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
           <div>
@@ -137,9 +153,9 @@ const Login = () => {
           <Button
             type="submit"
             className="w-full bg-red-600 hover:bg-red-600 text-white"
-            disabled={isLoading} // Disable button while loading
+            disabled={isLoading}
           >
-            {isLoading ? "Signing In..." : "Sign In"} {/* Update button text */}
+            {isLoading ? "Signing In..." : "Sign In"}
           </Button>
           <div className="mt-4 text-center">
             <p className="text-gray-600">

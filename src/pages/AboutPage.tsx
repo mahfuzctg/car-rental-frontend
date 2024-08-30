@@ -1,7 +1,7 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+import { motion } from "framer-motion";
 import React from "react";
 import {
-  FaBullseye,
-  FaCalendarAlt,
   FaCar,
   FaCheck,
   FaCog,
@@ -14,6 +14,11 @@ import {
   FaThumbsUp,
 } from "react-icons/fa";
 import "../Customs/style.css"; // Ensure this path is correct
+import CompanyHistory from "../Sections/CompanyHistory";
+import ContactInformation from "../Sections/Contact";
+import OurFleet from "../Sections/OurFleet";
+import OurTeam from "../Sections/OurTeaM";
+import ValuesCommitment from "../Sections/ValuesCommitment";
 
 // Define your team members here
 const teamMembers = [
@@ -101,10 +106,15 @@ const AboutUsSection: React.FC = () => {
   return (
     <div>
       {/* Full Width Banner */}
-      <section className="w-full bg-[#ffffff]">
-        <div className="grid grid-cols-1 md:grid-cols-2">
+      <section className="w-full -mt-6  bg-[#ffffff]">
+        <motion.div
+          className="grid grid-cols-1 md:grid-cols-2"
+          initial={{ opacity: 0, y: 50 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8 }}
+        >
           {/* First Section */}
-          <div className="bg-[#ffffff]  p-6 flex flex-col justify-between order-2 md:order-1">
+          <div className="bg-[#ffffff] p-6  flex flex-col justify-between order-2 md:order-1">
             <h2 className="text-3xl font-bold mb-4 uppercase text-center md:text-left">
               About <span className="text-red-600">Company</span>
             </h2>
@@ -124,8 +134,13 @@ const AboutUsSection: React.FC = () => {
               popularised in the with the release of Letraset sheets containing
               Lorem Ipsum.
             </p>
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 gap-6 mt-6">
-              <div className="flex items-start space-x-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 gap-6 ">
+              <motion.div
+                className="flex items-start space-x-3"
+                initial={{ opacity: 0, x: -50 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.5 }}
+              >
                 <div className="text-red-600 w-16 h-16 rounded-full flex items-center justify-center text-4xl mr-4">
                   <FaCog />
                 </div>
@@ -133,8 +148,13 @@ const AboutUsSection: React.FC = () => {
                   <h3 className="font-bold">WE'RE EXPERTS</h3>
                   <p>There are many variations of passages of Lorem Ipsum</p>
                 </div>
-              </div>
-              <div className="flex items-start space-x-3">
+              </motion.div>
+              <motion.div
+                className="flex items-start space-x-3"
+                initial={{ opacity: 0, x: -50 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.5 }}
+              >
                 <div className="text-red-600 w-16 h-16 rounded-full flex items-center justify-center text-4xl mr-4">
                   <FaSmile />
                 </div>
@@ -142,8 +162,13 @@ const AboutUsSection: React.FC = () => {
                   <h3 className="font-bold">WE'RE FRIENDLY</h3>
                   <p>There are many variations of passages of Lorem Ipsum</p>
                 </div>
-              </div>
-              <div className="flex items-start space-x-3">
+              </motion.div>
+              <motion.div
+                className="flex items-start space-x-3"
+                initial={{ opacity: 0, x: -50 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.5 }}
+              >
                 <div className="text-red-600 w-16 h-16 rounded-full flex items-center justify-center text-4xl mr-4">
                   <FaCheck />
                 </div>
@@ -151,8 +176,13 @@ const AboutUsSection: React.FC = () => {
                   <h3 className="font-bold">WE'RE ACCURATE</h3>
                   <p>There are many variations of passages of Lorem Ipsum</p>
                 </div>
-              </div>
-              <div className="flex items-start space-x-3">
+              </motion.div>
+              <motion.div
+                className="flex items-start space-x-3"
+                initial={{ opacity: 0, x: -50 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.5 }}
+              >
                 <div className="text-red-600 w-16 h-16 rounded-full flex items-center justify-center text-4xl mr-4">
                   <FaThumbsUp />
                 </div>
@@ -160,7 +190,7 @@ const AboutUsSection: React.FC = () => {
                   <h3 className="font-bold">WE'RE TRUSTED</h3>
                   <p>There are many variations of passages of Lorem Ipsum</p>
                 </div>
-              </div>
+              </motion.div>
             </div>
           </div>
           {/* Second Section */}
@@ -172,41 +202,19 @@ const AboutUsSection: React.FC = () => {
               minHeight: "300px", // Ensure a minimum height for small devices
             }}
           />
-        </div>
+        </motion.div>
       </section>
 
       {/* Company History Section */}
-      <section className="py-16 px-4 bg-gray-100">
-        <div className="container mx-auto">
-          <h2 className="text-3xl font-bold text-center mb-8">
-            Company History
-          </h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            <div className="bg-white p-6 rounded-lg shadow-lg">
-              <div className="flex items-center mb-4">
-                <FaCalendarAlt className="text-blue-600 text-3xl mr-4" />
-                <h3 className="text-2xl font-semibold">Founding Year</h3>
-              </div>
-              <p className="text-gray-700">
-                Founded in [Year], our company began with a vision to innovate
-                and excel in the industry. We started as a small team with a big
-                dream.
-              </p>
-            </div>
-            <div className="bg-white p-6 rounded-lg shadow-lg">
-              <div className="flex items-center mb-4">
-                <FaBullseye className="text-green-600 text-3xl mr-4" />
-                <h3 className="text-2xl font-semibold">Milestones</h3>
-              </div>
-              <p className="text-gray-700">
-                Over the years, we have achieved significant milestones,
-                including expansion into new markets and the launch of
-                groundbreaking products.
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
+      <CompanyHistory />
+      {/* Our Team */}
+      <OurTeam />
+      {/* Our Fleet */}
+      <OurFleet />
+      {/* Values & Commitment */}
+      <ValuesCommitment />
+      {/* Contact Information */}
+      <ContactInformation />
     </div>
   );
 };

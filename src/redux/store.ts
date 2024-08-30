@@ -5,14 +5,15 @@ import bookingReducer from "./features/booking/bookingSlice";
 import carReducer from "./features/car/carSlice";
 
 import { persistReducer, persistStore } from "redux-persist";
-
 import storage from "redux-persist/lib/storage";
 
+// Configuration for Redux-Persist
 const persistConfig = {
   key: "auth",
   storage,
 };
 
+// Wrap the authReducer with persistReducer
 const persistedAuthReducer = persistReducer(persistConfig, authReducer);
 
 export const store = configureStore({
@@ -22,12 +23,14 @@ export const store = configureStore({
     car: carReducer,
     booking: bookingReducer,
   },
-  middleware: (getDefaultMiddlewares) =>
-    getDefaultMiddlewares().concat(baseApi.middleware),
+  middleware: (getDefaultMiddleware) =>
+    getDefaultMiddleware({
+      serializableCheck: false, // Turn off the serializable check if necessary
+    }).concat(baseApi.middleware),
 });
 
 // Infer the `RootState` and `AppDispatch` types from the store itself
 export type RootState = ReturnType<typeof store.getState>;
-// Inferred type: {posts: PostsState, comments: CommentsState, users: UsersState}
 export type AppDispatch = typeof store.dispatch;
+
 export const persistor = persistStore(store);

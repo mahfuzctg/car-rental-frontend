@@ -1,6 +1,8 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { createSlice } from "@reduxjs/toolkit";
 
 type TBooking = {
+  userEmail: string;
   gps: any;
   GPS: boolean | null;
   car: string | null;
@@ -17,6 +19,8 @@ const initialState: TBooking = {
   creditCard: null,
   drivingLicense: null,
   passport: null,
+  gps: undefined,
+  userEmail: "",
 };
 
 const bookingSlice = createSlice({

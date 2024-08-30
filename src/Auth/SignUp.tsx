@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable no-constant-binary-expression */
 import { useState } from "react";
 import { Controller, SubmitHandler, useForm } from "react-hook-form";
 import { IoEye, IoEyeOff } from "react-icons/io5";
@@ -24,7 +26,11 @@ type Inputs = {
   phone: string;
   address: string;
   role: string;
-  terms?: boolean; // Optional if you want to include the terms checkbox
+  terms?: boolean;
+};
+
+type ErrorResponseData = {
+  message: string;
 };
 
 const SignUp = () => {
@@ -60,8 +66,13 @@ const SignUp = () => {
       if (res?.data?.success) {
         toast.success("Registered Successfully!");
         navigate("/sign-in");
-      } else if (res?.error?.data?.success === false) {
-        toast.error(res?.error?.data?.message);
+      } else if (res?.error) {
+        if (res.error && "data" in res.error) {
+          const errorData = res.error.data as ErrorResponseData;
+          toast.error(errorData.message || "An error occurred");
+        } else {
+          toast.error("An error occurred");
+        }
       }
     } catch (error) {
       toast.error("An error occurred during registration");
@@ -69,18 +80,19 @@ const SignUp = () => {
   };
 
   return (
-    <section className="bg-white min-h-screen flex items-center justify-center py-12">
-      <div className="rounded-xl shadow-lg p-8 w-full max-w-md">
-        <h2 className="text-gray-800 text-3xl font-bold text-center mb-8">
-          Create a New Account
+    <section className="bg-white min-h-screen flex items-center justify-center py-4">
+      <div className="rounded-xl shadow-lg p-6 w-full max-w-sm">
+        <h2 className="text-xl uppercase text-gray-700 font-bold text-center mb-4">
+          Sign Up now!
+          <div className="w-16 h-1 bg-red-600 mt-1 mx-auto"></div>
         </h2>
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           <div>
             <Label htmlFor="name" className="block text-gray-700">
               Name:
             </Label>
             <Input
-              className="mt-1 p-3 border border-gray-300 rounded-md w-full"
+              className="mt-1 p-2 border border-gray-300 rounded-md w-full"
               type="text"
               id="name"
               placeholder="Enter your full name"
@@ -95,7 +107,7 @@ const SignUp = () => {
               Email:
             </Label>
             <Input
-              className="mt-1 p-3 border border-gray-300 rounded-md w-full"
+              className="mt-1 p-2 border border-gray-300 rounded-md w-full"
               type="email"
               id="email"
               placeholder="Enter your email address"
@@ -113,7 +125,7 @@ const SignUp = () => {
             </Label>
             <div className="relative">
               <Input
-                className="mt-1 p-3 border border-gray-300 rounded-md w-full"
+                className="mt-1 p-2 border border-gray-300 rounded-md w-full"
                 type={isShowPassword ? "text" : "password"}
                 id="password"
                 placeholder="Enter your password"
@@ -153,7 +165,7 @@ const SignUp = () => {
             </Label>
             <div className="relative">
               <Input
-                className="mt-1 p-3 border border-gray-300 rounded-md w-full"
+                className="mt-1 p-2 border border-gray-300 rounded-md w-full"
                 type={isConfirmShowPassword ? "text" : "password"}
                 id="confirmPassword"
                 placeholder="Confirm your password"
@@ -192,7 +204,7 @@ const SignUp = () => {
               Phone:
             </Label>
             <Input
-              className="mt-1 p-3 border border-gray-300 rounded-md w-full"
+              className="mt-1 p-2 border border-gray-300 rounded-md w-full"
               type="text"
               id="phone"
               placeholder="Enter your phone number"
@@ -209,7 +221,7 @@ const SignUp = () => {
               Address:
             </Label>
             <Input
-              className="mt-1 p-3 border border-gray-300 rounded-md w-full"
+              className="mt-1 p-2 border border-gray-300 rounded-md w-full"
               type="text"
               id="address"
               placeholder="Enter your address"
@@ -226,46 +238,45 @@ const SignUp = () => {
               Role:
             </Label>
             <Controller
-              name="role"
               control={control}
+              name="role"
               rules={{ required: "Role is required" }}
               render={({ field }) => (
-                <Select
-                  onValueChange={field.onChange}
-                  value={field.value}
-                  className="mt-1 border border-gray-300 rounded-md w-full"
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select a Role" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectGroup>
-                      <SelectItem value="user">User</SelectItem>
-                      <SelectItem value="admin">Admin</SelectItem>
-                    </SelectGroup>
-                  </SelectContent>
-                </Select>
+                <div className="mt-1 border border-gray-300 rounded-md w-full">
+                  <Select onValueChange={field.onChange} value={field.value}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select a Role" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectGroup>
+                        <SelectItem value="user">User</SelectItem>
+                        <SelectItem value="admin">Admin</SelectItem>
+                      </SelectGroup>
+                    </SelectContent>
+                  </Select>
+                </div>
               )}
             />
             {errors?.role && (
               <p className="text-red-500 text-sm mt-1">{errors.role.message}</p>
             )}
           </div>
-          {false && ( // Optional terms checkbox
+          {/* Conditional Terms Checkbox */}
+          {true && ( // Replace with actual condition if applicable
             <div>
-              <div className="flex items-center space-x-2">
+              <div className="flex items-center mt-4">
                 <input
                   id="terms"
-                  className="w-4 h-4 rounded focus:ring-0"
                   type="checkbox"
                   {...register("terms", {
                     required: "You must accept the terms and conditions",
                   })}
+                  className="mr-2"
                 />
                 <Label htmlFor="terms" className="text-gray-700">
-                  I accept the{" "}
-                  <Link to="/terms" className="text-blue-500">
-                    terms and conditions
+                  I agree to the
+                  <Link to="/terms" className="text-red-600 ml-1">
+                    Terms and Conditions
                   </Link>
                 </Label>
               </div>
@@ -278,12 +289,18 @@ const SignUp = () => {
           )}
           <Button
             type="submit"
-            className="w-full py-3 px-4 bg-red-600 hover:bg-red-700 text-white rounded-md"
+            className="w-full bg-red-600 text-white hover:bg-red-700 mt-4"
             disabled={isLoading}
           >
             {isLoading ? "Signing Up..." : "Sign Up"}
           </Button>
         </form>
+        <p className="text-gray-700 mt-4 text-center">
+          Already have an account?{" "}
+          <Link to="/sign-in" className="text-red-600 font-semibold">
+            Sign In
+          </Link>
+        </p>
       </div>
     </section>
   );

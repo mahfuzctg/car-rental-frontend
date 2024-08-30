@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { MouseEvent, useState } from "react";
 import { IoIosWarning, IoMdCheckmarkCircleOutline } from "react-icons/io";
 import { useNavigate, useParams } from "react-router-dom";
 import { Rating } from "react-simple-star-rating";
@@ -17,20 +17,26 @@ import { setOptions } from "../redux/features/car/carSlice";
 import { useAppDispatch } from "../redux/hooks/hook";
 
 const CarDetails = () => {
-  const { id } = useParams();
-  const { data: carData, isLoading } = useGetSingleCarQuery(id);
+  const { id } = useParams<{ id: string }>();
+  const { data: carData, isLoading, error } = useGetSingleCarQuery(id || "");
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
 
-  const [position, setPosition] = useState({ x: 0, y: 0 });
+  const [position, setPosition] = useState<{ x: number; y: number }>({
+    x: 0,
+    y: 0,
+  });
   const [showMagnifier, setShowMagnifier] = useState(false);
-  const [cursorPosition, setCursorPosition] = useState({ x: 0, y: 0 });
+  const [cursorPosition, setCursorPosition] = useState<{
+    x: number;
+    y: number;
+  }>({ x: 0, y: 0 });
 
-  const [insurance, setInsurance] = useState("");
-  const [GPS, setGPS] = useState(false);
-  const [childSeat, setChildSeat] = useState(false);
+  const [insurance, setInsurance] = useState<string>("");
+  const [GPS, setGPS] = useState<boolean>(false);
+  const [childSeat, setChildSeat] = useState<boolean>(false);
 
-  const handleMouseHover = (e: React.MouseEvent<HTMLDivElement>) => {
+  const handleMouseHover = (e: MouseEvent<HTMLDivElement>) => {
     const { left, top, width, height } =
       e.currentTarget.getBoundingClientRect();
     const x = ((e.pageX - left - window.scrollX) / width) * 100;
@@ -52,6 +58,9 @@ const CarDetails = () => {
     dispatch(setOptions(bookingData));
     navigate(`/booking`);
   };
+
+  if (isLoading) return <div>Loading...</div>;
+  if (error) return <div>Error loading car details</div>;
 
   return (
     <section className="max-w-screen-xl mx-auto my-16 px-4 lg:px-8 flex flex-col lg:flex-row gap-12">
@@ -94,7 +103,7 @@ const CarDetails = () => {
         <div className="p-6 rounded-lg border border-gray-200">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-2">
-              <Rating className="size-6" ratingValue={3} />
+              <Rating className="size-6" initialValue={3} />
               <span className="text-gray-600 text-sm">3 Reviews</span>
             </div>
             <div className="text-gray-600 text-sm flex items-center">
@@ -217,15 +226,12 @@ const CarDetails = () => {
               </div>
             </div>
 
-            <div className="rounded-lg">
-              <Button
-                onClick={() => handleBooking()}
-                disabled={carData?.data?.status !== "available"}
-                className="w-full bg-red-600 hover:bg-red-700 text-white mt-4"
-              >
-                Book Now
-              </Button>
-            </div>
+            <Button
+              onClick={handleBooking}
+              className="w-full  bg-red-600 text-white hover:bg-red-700 font-semibold rounded-lg"
+            >
+              Book Now
+            </Button>
           </div>
         </div>
       </div>

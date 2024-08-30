@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { FaRegHourglass } from "react-icons/fa";
 import { Link } from "react-router-dom";
 import { TCar } from "../../types/carTypes";
@@ -17,7 +18,7 @@ const ListCard = ({ car, cardType }: TCardData) => {
   }
 
   return (
-    <div className="h-full bg-white rounded-lg shadow-lg p-4 hover:shadow-xl transition-shadow duration-300 flex flex-col">
+    <div className="h-full bg-white rounded-lg shadow-lg p-1 md:p-4 hover:shadow-xl transition-shadow duration-300 flex flex-col">
       <div className="flex-grow mb-4">
         <div className="w-full h-[200px] overflow-hidden rounded-lg">
           <img

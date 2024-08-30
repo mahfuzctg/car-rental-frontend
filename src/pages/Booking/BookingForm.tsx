@@ -18,7 +18,7 @@ import {
 import { setBooking } from "../../redux/features/booking/bookingSlice";
 
 type TBookingForm = {
-  passport: FileList;
+  passport?: FileList;
   drivingLicense: string;
   creditCard: string;
   GPS: string;
@@ -51,31 +51,39 @@ const BookingForm = () => {
     setLoading(true);
 
     try {
-      const response = await fetch(url, {
-        method: "POST",
-        body: formData,
-      });
+      let passportUrl = "";
+      if (data.passport && data.passport[0]) {
+        const response = await fetch(url, {
+          method: "POST",
+          body: formData,
+        });
 
-      const imgData = await response.json();
+        const imgData = await response.json();
 
-      if (!response.ok) {
-        throw new Error(imgData.error.message || "Something went wrong");
+        if (!response.ok) {
+          throw new Error(imgData.error.message || "Something went wrong");
+        }
+
+        passportUrl = imgData.data?.url || "";
       }
 
       const bookingData = {
-        passport: imgData.data?.url || "",
+        passport: passportUrl,
         drivingLicense: data.drivingLicense,
         creditCard: data.creditCard,
         GPS: data.GPS === "true",
         childSeat: data.childSeat === "true",
         car: carId,
+        date: data.date,
       };
 
       dispatch(setBooking(bookingData));
       navigate(`/booking-confirmation/${carId}`);
       toast.success("Booking successful!");
-    } catch (error) {
-      toast.error(`Booking failed: ${error.message}`);
+    } catch (error: unknown) {
+      const errorMessage =
+        error instanceof Error ? error.message : "An unknown error occurred";
+      toast.error(`Booking failed: ${errorMessage}`);
     } finally {
       setLoading(false);
     }
@@ -84,14 +92,15 @@ const BookingForm = () => {
   return (
     <section className="max-w-screen-xl mx-auto min-h-screen flex items-center justify-center px-3 py-8">
       <div className="bg-white shadow-lg p-8 rounded-xl border border-gray-200">
-        <h3 className="text-2xl font-semibold text-gray-800 text-center mb-6">
-          Book Your Car Now!
-        </h3>
+        <h2 className="text-2xl text-gray-700 md:text-3xl font-bold text-center mb-6 uppercase">
+          Book Your Car!
+          <div className="w-24 h-1 bg-red-600 mt-2 mx-auto"></div>
+        </h2>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
           <div className="grid gap-6 grid-cols-1 md:grid-cols-2">
-            {/* NID/passport */}
+            {/* Passport */}
             <div className="flex flex-col">
-              <Label htmlFor="passport">NID/Passport:</Label>
+              <Label htmlFor="passport">NID/Passport (optional):</Label>
               <Input
                 className="border-gray-300 shadow-sm focus:border-red-600 focus:ring-red-600 md:w-80"
                 type="file"
@@ -101,7 +110,7 @@ const BookingForm = () => {
               />
               {errors.passport && (
                 <p className="text-red-500 text-sm mt-1">
-                  NID/Passport is required
+                  NID/Passport is required if provided
                 </p>
               )}
             </div>
@@ -154,28 +163,26 @@ const BookingForm = () => {
             {/* GPS */}
             <div className="flex flex-col">
               <Label htmlFor="GPS">GPS:</Label>
-              <Controller
-                name="GPS"
-                control={control}
-                rules={{ required: true }}
-                render={({ field }) => (
-                  <Select
-                    onValueChange={field.onChange}
-                    value={field.value}
-                    className="border-gray-300 shadow-sm focus:border-red-600 focus:ring-red-600 md:w-80"
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select GPS Option" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectGroup>
-                        <SelectItem value="false">No</SelectItem>
-                        <SelectItem value="true">Yes</SelectItem>
-                      </SelectGroup>
-                    </SelectContent>
-                  </Select>
-                )}
-              />
+              <div className="border-gray-300 shadow-sm focus-within:border-red-600 focus-within:ring-red-600 md:w-80">
+                <Controller
+                  name="GPS"
+                  control={control}
+                  rules={{ required: true }}
+                  render={({ field }) => (
+                    <Select onValueChange={field.onChange} value={field.value}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select GPS Option" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectGroup>
+                          <SelectItem value="false">No</SelectItem>
+                          <SelectItem value="true">Yes</SelectItem>
+                        </SelectGroup>
+                      </SelectContent>
+                    </Select>
+                  )}
+                />
+              </div>
               {errors.GPS && (
                 <p className="text-red-500 text-sm mt-1">GPS is required</p>
               )}
@@ -183,28 +190,26 @@ const BookingForm = () => {
             {/* Child Seat */}
             <div className="flex flex-col">
               <Label htmlFor="childSeat">Child Seat:</Label>
-              <Controller
-                name="childSeat"
-                control={control}
-                rules={{ required: true }}
-                render={({ field }) => (
-                  <Select
-                    onValueChange={field.onChange}
-                    value={field.value}
-                    className="border-gray-300 shadow-sm focus:border-red-600 focus:ring-red-600 md:w-80"
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select Child Seat Option" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectGroup>
-                        <SelectItem value="false">No</SelectItem>
-                        <SelectItem value="true">Yes</SelectItem>
-                      </SelectGroup>
-                    </SelectContent>
-                  </Select>
-                )}
-              />
+              <div className="border-gray-300 shadow-sm focus-within:border-red-600 focus-within:ring-red-600 md:w-80">
+                <Controller
+                  name="childSeat"
+                  control={control}
+                  rules={{ required: true }}
+                  render={({ field }) => (
+                    <Select onValueChange={field.onChange} value={field.value}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select Child Seat Option" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectGroup>
+                          <SelectItem value="false">No</SelectItem>
+                          <SelectItem value="true">Yes</SelectItem>
+                        </SelectGroup>
+                      </SelectContent>
+                    </Select>
+                  )}
+                />
+              </div>
               {errors.childSeat && (
                 <p className="text-red-500 text-sm mt-1">
                   Child Seat is required
@@ -212,13 +217,15 @@ const BookingForm = () => {
               )}
             </div>
           </div>
-          <Button
-            type="submit"
-            disabled={loading}
-            className="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded mt-6"
-          >
-            {loading ? "Processing..." : "Book Now"}
-          </Button>
+          <div className="flex justify-center">
+            <Button
+              type="submit"
+              className="w-full md:w-1/2 bg-red-600 text-white hover:bg-red-700"
+              disabled={loading}
+            >
+              {loading ? "Booking..." : "Book Now"}
+            </Button>
+          </div>
         </form>
       </div>
       <ToastContainer />

@@ -12,10 +12,11 @@ const carApi = baseApi.injectEndpoints({
         if (query?.carType) {
           params.append("carType", query.carType);
         }
-        if (query?.minPrice !== undefined && !isNaN(query.minPrice)) {
+        if (query?.minPrice) {
           params.append("minPrice", query.minPrice);
         }
-        if (query?.maxPrice !== undefined && !isNaN(query.maxPrice)) {
+
+        if (query?.maxPrice) {
           params.append("maxPrice", query.maxPrice);
         }
 
@@ -41,6 +42,7 @@ const carApi = baseApi.injectEndpoints({
       }),
       invalidatesTags: ["cars"],
     }),
+
     updateCar: builder.mutation({
       query: (carData) => ({
         url: `/cars/${carData.id}`,
@@ -49,6 +51,7 @@ const carApi = baseApi.injectEndpoints({
       }),
       invalidatesTags: ["cars"],
     }),
+
     deleteCar: builder.mutation({
       query: (id) => ({
         url: `/cars/${id}`,

@@ -41,8 +41,9 @@ const CustomerTestimonials: React.FC = () => {
   return (
     <section className="w-full my-10 py-10 bg-white overflow-hidden">
       <div className="container mx-auto">
-        <h2 className="text-2xl md:text-3xl font-bold text-center mb-4">
+        <h2 className="text-2xl text-gray-700 md:text-3xl font-bold text-center mb-6 uppercase">
           Customer Testimonials
+          <div className="w-24 h-1 bg-red-600 mt-2 mx-auto"></div>
         </h2>
         <p className="text-center text-gray-600 mb-8">
           Hear from our satisfied customers who have experienced exceptional

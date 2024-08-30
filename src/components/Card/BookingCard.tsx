@@ -18,7 +18,7 @@ const BookingCard = ({ car, cardType }: TCardData) => {
   }
 
   return (
-    <div className="h-full bg-white rounded-lg shadow-lg p-4 hover:shadow-xl transition-shadow duration-300 flex flex-col">
+    <div className="h-full bg-white p-1 md:p-4 rounded-lg shadow-lg  hover:shadow-xl transition-shadow duration-300 flex flex-col">
       <div className="flex-grow mb-4">
         <div className="w-full h-[200px] overflow-hidden rounded-lg">
           <img

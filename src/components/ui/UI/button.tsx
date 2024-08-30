@@ -18,6 +18,7 @@ interface ButtonProps {
   type?: "button" | "submit" | "reset"; // Button type
   className?: string; // Additional CSS classes
   disabled?: boolean; // Optional disabled state
+  loading?: boolean; // Added loading state
   children?: React.ReactNode; // Content inside the button
 }
 
@@ -28,6 +29,7 @@ const Button: React.FC<ButtonProps> = ({
   type = "button", // Default type
   className,
   disabled = false, // Default to not disabled
+  loading = false, // Default to not loading
   children,
 }) => {
   // Map variant to CSS classes
@@ -47,9 +49,23 @@ const Button: React.FC<ButtonProps> = ({
       type={type}
       onClick={onClick}
       className={`${variantClass} px-4 py-2 rounded ${className}`}
-      disabled={disabled} // Apply disabled attribute
+      disabled={disabled || loading} // Apply disabled attribute if loading
     >
-      {children} {/* Render children inside the button */}
+      {loading ? (
+        <div className="flex items-center justify-center">
+          <svg
+            className="animate-spin h-5 w-5 mr-3 text-white"
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 24 24"
+          >
+            <path fill="none" d="M0 0h24v24H0z" />
+            <path d="M12 4V2l-4 4 4 4V6c3.31 0 6 2.69 6 6s-2.69 6-6 6V6h-2v12c3.31 0 6-2.69 6-6s-2.69-6-6-6z" />
+          </svg>
+          <span>Loading...</span>
+        </div>
+      ) : (
+        children // Render children inside the button
+      )}
     </button>
   );
 };

@@ -25,7 +25,7 @@ const Navbar: React.FC = () => {
   return (
     <div className="relative">
       {/* Navbar for Small Devices */}
-      <nav className="fixed top-0 left-0 w-full bg-white text-gray-800 md:hidden z-50 flex items-center justify-between p-4 border-b border-gray-200">
+      <nav className="fixed top-0 left-0 w-full bg-white text-gray-700 md:hidden z-50 flex items-center justify-between p-4 border-b border-gray-200">
         <div className="flex items-center ">
           <img
             src="https://i.postimg.cc/g0d35Rbd/minimalist-car-logo-design-red-black-wings-check-mark-develop-conveys-energy-excitement-high-perform.webp"
@@ -42,7 +42,7 @@ const Navbar: React.FC = () => {
         </div>
         <div className="flex items-center space-x-4">
           <Link to="/profile" className="hover:text-red-600">
-            <FaUser className="text-gray-800 text-xl" />
+            <FaUser className="text-gray-700 text-xl" />
           </Link>
           <button
             onClick={() => setIsMenuOpen(!isMenuOpen)}
@@ -66,7 +66,7 @@ const Navbar: React.FC = () => {
           <FaTimes />
         </button>
         <div className="flex flex-col items-start p-4 space-y-4 mt-16">
-          {["/", "/about", "/bookings", "/cars", "/sign-in"].map(
+          {["/", "/about", "/booking", "/cars", "/sign-in"].map(
             (path, index) => (
               <button
                 key={index}

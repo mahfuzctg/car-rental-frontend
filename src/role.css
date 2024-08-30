@@ -16,9 +16,9 @@
   "address": "123 Main St, City, Country"
  
 } */
-/* path: "/admin",
+/*  path: "/user",
     element: (
-      <ProtectedRoute role="admin">
-        <AdminLayout />
+      <ProtectedRoute role="user">
+        <UserLayout />
       </ProtectedRoute>
     ), */

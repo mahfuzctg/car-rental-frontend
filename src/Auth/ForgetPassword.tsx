@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { Button } from "../components/ui/UI/button";
@@ -31,6 +32,22 @@ const ForgetPassword = () => {
     }
   };
 
+  // Helper function to extract error message
+  const getErrorMessage = () => {
+    if (error) {
+      if ("data" in error && error.data) {
+        // FetchBaseQueryError has `data` that may contain error information
+        return (
+          (error.data as any)?.message || "An error occurred. Please try again."
+        );
+      } else if ("message" in error) {
+        // SerializedError has a `message` property
+        return error.message || "An error occurred. Please try again.";
+      }
+    }
+    return "An error occurred. Please try again.";
+  };
+
   return (
     <section className="max-w-screen-xl mx-auto px-3 lg:px-0 min-h-screen flex items-center justify-center py-8">
       {isLinkSent ? (
@@ -62,9 +79,7 @@ const ForgetPassword = () => {
             {isLoading ? "Loading..." : "Submit"}
           </Button>
           {isError && (
-            <p className="text-red-500 text-sm">
-              {error?.message || "An error occurred. Please try again."}
-            </p>
+            <p className="text-red-500 text-sm">{getErrorMessage()}</p>
           )}
         </form>
       )}

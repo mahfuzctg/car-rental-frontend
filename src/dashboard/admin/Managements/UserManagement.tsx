@@ -1,5 +1,4 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
-
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Link } from "react-router-dom";
 import Swal from "sweetalert2";
 import { Button } from "../../../components/ui/UI/button";
@@ -22,7 +21,6 @@ const UserManagement = () => {
   const { data: userData } = useGetAllUserQuery(undefined);
 
   const [updateRole] = useUpdateRoleMutation();
-
   const [deleteUser] = useDeleteUserMutation();
 
   const handleRole = (id: string, role: string) => {
@@ -39,8 +37,6 @@ const UserManagement = () => {
       role: newRole,
     };
 
-    console.log(role);
-
     Swal.fire({
       title: "Are you sure?",
       text: "You won't be able to revert this!",
@@ -49,12 +45,10 @@ const UserManagement = () => {
       confirmButtonColor: "#3085d6",
       cancelButtonColor: "#d33",
       confirmButtonText: "Yes, change the role!",
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    }).then(async (result: any) => {
+    }).then(async (result) => {
       if (result.isConfirmed) {
         try {
           const res = await updateRole(userInfo).unwrap();
-          console.log(res);
           if (res?.success) {
             Swal.fire({
               title: "Changed!",
@@ -62,9 +56,9 @@ const UserManagement = () => {
               icon: "success",
             });
           }
-        } catch (err) {
+        } catch (err: any) {
           Swal.fire({
-            text: "Failed to change role",
+            text: err?.data?.message || "Failed to change role",
             icon: "error",
             title: "Oops...",
           });
@@ -82,8 +76,7 @@ const UserManagement = () => {
       confirmButtonColor: "#3085d6",
       cancelButtonColor: "#d33",
       confirmButtonText: "Yes, delete it!",
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    }).then(async (result: any) => {
+    }).then(async (result) => {
       if (result.isConfirmed) {
         try {
           const res = await deleteUser(id).unwrap();
@@ -94,9 +87,9 @@ const UserManagement = () => {
               icon: "success",
             });
           }
-        } catch (err) {
+        } catch (err: any) {
           Swal.fire({
-            text: err?.message,
+            text: err?.data?.message || "Failed to delete user",
             icon: "error",
             title: "Oops...",
           });
@@ -130,7 +123,7 @@ const UserManagement = () => {
               <TableCell className="text-sm">{user?.email}</TableCell>
               <TableCell className="text-sm">{user?.phone}</TableCell>
 
-              <TableCell className="text-right  flex items-center gap-2 ">
+              <TableCell className="text-right flex items-center gap-2">
                 <Button
                   onClick={() => handleRole(user?._id, user?.role)}
                   variant="outline"

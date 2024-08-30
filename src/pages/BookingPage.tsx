@@ -1,8 +1,8 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
+import { animated, useSpring } from "@react-spring/web";
 import { useState } from "react";
 import { SubmitHandler } from "react-hook-form";
 import CarCard from "../components/Card/BookingCard";
-
 import { useGetAllCarsQuery } from "../redux/features/car/carApi";
 import { TCar } from "../types/carTypes";
 
@@ -26,10 +26,31 @@ const BookingPage = () => {
     maxPrice,
   });
 
+  // Animation for filters
+  const filterAnimation = useSpring({
+    opacity: 1,
+    from: { opacity: 0 },
+    reset: true,
+    config: { duration: 500 },
+  });
+
+  // Animation for car cards
+  const cardAnimation = useSpring({
+    opacity: 1,
+    transform: "translateY(0)",
+    from: { opacity: 0, transform: "translateY(20px)" },
+    reset: true,
+    config: { duration: 500 },
+    delay: 200, // Delay for card animation
+  });
+
   return (
-    <section className="min-h-screen max-w-screen-xl mx-auto my-8 px-3 lg:px-0">
+    <section className="min-h-screen max-w-screen-xl mx-auto  px-3 lg:px-0">
       {/* Filter Controls */}
-      <div className="filters mb-4 p-4 bg-gray-100 rounded-md shadow-sm">
+      <animated.div
+        style={filterAnimation}
+        className="filters mb-4 p-4 rounded-md shadow-sm"
+      >
         <div className="flex flex-col md:flex-row gap-4 mb-4">
           {/* Search Field */}
           <div className="flex-1">
@@ -40,7 +61,7 @@ const BookingPage = () => {
                 placeholder="Search by name or features"
                 value={searchValue}
                 onChange={(e) => setSearchValue(e.target.value)}
-                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-red-500 focus:border-red-500 sm:text-sm"
               />
             </label>
           </div>
@@ -52,7 +73,7 @@ const BookingPage = () => {
               <select
                 value={carType}
                 onChange={(e) => setCarType(e.target.value)}
-                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-red-500 focus:border-red-500 sm:text-sm"
               >
                 <option value="">All Types</option>
                 <option value="SUV">SUV</option>
@@ -65,7 +86,7 @@ const BookingPage = () => {
           </div>
         </div>
 
-        <div className="flex flex-col md:flex-row gap-4">
+        <div className="flex  flex-col md:flex-row gap-4">
           {/* Price Range */}
           <div className="flex-1">
             <label className="block text-gray-700 font-semibold mb-2">
@@ -76,7 +97,7 @@ const BookingPage = () => {
                   placeholder="Min Price"
                   value={minPrice}
                   onChange={(e) => setMinPrice(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-red-500 focus:border-red-500 sm:text-sm"
                 />
                 <span>-</span>
                 <input
@@ -84,22 +105,24 @@ const BookingPage = () => {
                   placeholder="Max Price"
                   value={maxPrice}
                   onChange={(e) => setMaxPrice(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-red-500 focus:border-red-500 sm:text-sm"
                 />
               </div>
             </label>
           </div>
         </div>
-      </div>
+      </animated.div>
 
       {/* Booking content */}
-
-      {/* Booking content */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 my-12">
+      <h2 className="text-xl md:text-3xl text-gray-700 font-bold text-center mb-6 uppercase">
+        Book your car now!
+        <div className="w-24 h-1 bg-red-600 mt-2 mx-auto"></div>
+      </h2>
+      <div className="grid  grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:mx-6 my-12">
         {carData?.data?.map((car: TCar) => (
-          <div key={car._id}>
+          <animated.div key={car._id} style={cardAnimation}>
             <CarCard car={car} cardType="booking" />
-          </div>
+          </animated.div>
         ))}
       </div>
     </section>

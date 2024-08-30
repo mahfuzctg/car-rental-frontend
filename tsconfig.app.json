@@ -1,28 +1,16 @@
 {
   "compilerOptions": {
-    "useDefineForClassFields": true,
-    "lib": ["ES2020", "DOM", "DOM.Iterable"],
-
-    "skipLibCheck": true,
+    "module": "esnext", // Update to "esnext" or "es2020" to support import.meta
+    "target": "esnext", // Update to "esnext" for the latest JavaScript features
+    "jsx": "react-jsx", // or "react" depending on your React version
+    "moduleResolution": "node",
+    "rootDir": "./src",
+    "outDir": "./dist",
     "esModuleInterop": true,
-    "module": "commonjs",
-    "target": "es6",
-
-    // "noImplicitAny": false,
-
-    /* Bundler mode */
-    "moduleResolution": "bundler",
-    "allowImportingTsExtensions": true,
-    "isolatedModules": true,
-    "moduleDetection": "force",
-    "noEmit": true,
-    "jsx": "react-jsx",
-
-    /* Linting */
+    "forceConsistentCasingInFileNames": true,
     "strict": true,
-    "noUnusedLocals": true,
-    "noUnusedParameters": true,
-    "noFallthroughCasesInSwitch": true
+    "skipLibCheck": true
   },
-  "include": ["src", "tailwind.config.js"]
+  "include": ["src"],
+  "exclude": ["node_modules"]
 }

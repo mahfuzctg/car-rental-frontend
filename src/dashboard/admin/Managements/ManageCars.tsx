@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import React, { useEffect, useState } from "react";
 import toast, { Toaster } from "react-hot-toast";
@@ -7,7 +8,7 @@ import {
   AiOutlineEdit,
 } from "react-icons/ai";
 import { FaCar } from "react-icons/fa";
-import { Oval } from "react-loader-spinner"; // Import Oval spinner
+import { Oval } from "react-loader-spinner";
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "../../../components/ui/UI/button";
 import { Card, CardContent, CardHeader } from "../../../components/ui/UI/card";
@@ -17,10 +18,20 @@ import {
   useGetAllCarsQuery,
 } from "../../../redux/features/car/carApi";
 
+interface Car {
+  _id: string;
+  name: string;
+  image?: string;
+  pricePerHour: number;
+  features: string;
+}
+
 const ManageCars: React.FC = () => {
   const navigate = useNavigate();
   const [showAll, setShowAll] = useState(false);
-  const { data: response, isLoading, error } = useGetAllCarsQuery();
+
+  // Fetch cars and manage loading and error states
+  const { data: response, isLoading, error } = useGetAllCarsQuery({});
   const [deleteCar] = useDeleteCarMutation();
   const cars = response?.data || [];
   const [totalCars, setTotalCars] = useState(cars.length);
@@ -31,7 +42,8 @@ const ManageCars: React.FC = () => {
     }
   }, [cars]);
 
-  const handleDelete = async (id: string) => {
+  // Function to handle car deletion
+  const handleDelete = async (_id: string) => {
     toast.custom(
       (t) => (
         <div
@@ -51,11 +63,11 @@ const ManageCars: React.FC = () => {
                 toast.dismiss(t.id);
                 const loadingToastId = toast.loading("Confirming deletion...");
                 try {
-                  await deleteCar(id).unwrap();
+                  await deleteCar(_id).unwrap();
                   toast.success("Car deleted successfully", {
                     id: loadingToastId,
                   });
-                  setTotalCars((prev) => prev - 1);
+                  setTotalCars((prev: number) => prev - 1);
                 } catch (err) {
                   toast.error("Failed to delete car", { id: loadingToastId });
                 }
@@ -77,6 +89,7 @@ const ManageCars: React.FC = () => {
     );
   };
 
+  // Display a subset of cars based on `showAll` state
   const displayedCars = cars.slice(0, showAll ? cars.length : 12);
 
   if (isLoading) {
@@ -103,20 +116,17 @@ const ManageCars: React.FC = () => {
   return (
     <div className="container mx-auto p-4">
       <div className="flex items-center justify-between mb-6">
-        <h1 className="heading-custom flex-grow">
-          Manage <span>Cars</span>
-        </h1>
+        <h2 className="text-2xl text-gray-700 md:text-3xl font-bold text-center mb-6 uppercase">
+          Manage cars
+          <div className="w-24 h-1 bg-red-600 mt-2 mx-auto"></div>
+        </h2>
         <div className="flex items-center space-x-4">
           <FaCar className="text-3xl text-red-600" />
           <span className="text-xl font-semibold text-gray-700">
             Total Cars: {totalCars}
           </span>
           <Link to="/admin/create-car">
-            <Button
-              onClick={() => navigate("/admin/create-car")}
-              variant="primary"
-              className="ml-auto"
-            >
+            <Button className="bg-red-600 text-white hover:bg-red-700 rounded-lg px-4 py-2">
               Add New Car
             </Button>
           </Link>
@@ -124,10 +134,10 @@ const ManageCars: React.FC = () => {
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8 mt-4">
-        {displayedCars.map((car) => (
+        {displayedCars.map((car: Car) => (
           <Card
-            key={car.id}
-            className="flex flex-col card-shad rounded-lg overflow-hidden bg-white border border-gray-200"
+            key={car._id}
+            className="flex flex-col  rounded-lg overflow-hidden bg-white border border-gray-200"
           >
             <CardHeader className="relative h-2/5">
               <img
@@ -146,9 +156,8 @@ const ManageCars: React.FC = () => {
               </div>
               <div className="flex justify-between mt-4">
                 <Button
-                  onClick={() => navigate(`/admin/update-car/${car?._id}`)}
-                  variant="secondary"
-                  className="flex items-center"
+                  onClick={() => navigate(`/admin/update-car/${car._id}`)}
+                  className="flex items-center bg-white text-red-600 outline-3"
                 >
                   <AiOutlineEdit className="mr-2" /> Edit
                 </Button>
@@ -169,7 +178,7 @@ const ManageCars: React.FC = () => {
         <div className="flex justify-center mt-6">
           <button
             onClick={() => setShowAll(true)}
-            className="bg-blue-500 text-white rounded-lg px-4 py-2"
+            className="bg-red-600 text-white hover:bg-red-700 rounded-lg px-4 py-2"
           >
             Show All
           </button>
