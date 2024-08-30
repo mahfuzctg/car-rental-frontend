@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-
 import { Oval } from "react-loader-spinner";
 import { Link } from "react-router-dom";
 import { Card } from "../components/ui/UI/card";
@@ -136,26 +135,29 @@ const CarListing: React.FC = () => {
       {/* Car Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
         {carsToDisplay.map((car) => (
-          <Card key={car._id} className="shadow-lg rounded-lg overflow-hidden">
+          <Card
+            key={car._id}
+            className="shadow-lg rounded-lg overflow-hidden flex flex-col"
+          >
             <img
               src={car.imageUrl || "https://via.placeholder.com/200"}
               alt={car.name}
               className="w-full h-48 object-cover"
             />
-            <div className="p-4">
+            <div className="p-4 flex-1">
               <h3 className="text-xl font-semibold mb-2">{car.name}</h3>
               <p className="text-gray-600 mb-4">{car.description}</p>
-              <p className="text-lg font-bold text-gray-800">
+              <p className="text-lg font-bold text-gray-800 mb-4">
                 ${car.pricePerHour} per hour
               </p>
-              <div className="mt-5 text-center mx-auto w-full ">
-                <Link
-                  to={`/car/${car._id}`}
-                  className="mx-auto w-full shadow-md text-center px-8 py-2 bg-white text-gray-700 rounded hover:bg-gray-200"
-                >
-                  Details
-                </Link>
-              </div>
+            </div>
+            <div className="p-4">
+              <Link
+                to={`/car/${car._id}`}
+                className="block w-full text-center px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
+              >
+                Details
+              </Link>
             </div>
           </Card>
         ))}

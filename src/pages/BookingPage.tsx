@@ -1,12 +1,14 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
-/* eslint-disable @typescript-eslint/no-explicit-any */
-import axios from "axios"; // or use your preferred data fetching method
+import { CardElement, Elements } from "@stripe/react-stripe-js";
+import { loadStripe } from "@stripe/stripe-js";
+import axios from "axios";
 import React, { useEffect, useState } from "react";
 import toast, { Toaster } from "react-hot-toast";
 import { useParams } from "react-router-dom";
 import { Button } from "../components/ui/UI/button";
 import { Input } from "../components/ui/UI/input";
-import { Select } from "../components/ui/UI/select";
+
+// Load Stripe
+const stripePromise = loadStripe("YOUR_STRIPE_PUBLIC_KEY");
 
 const BookingPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -26,7 +28,7 @@ const BookingPage: React.FC = () => {
         setCarDetails(response.data);
         setLoading(false);
       } catch (error) {
-        toast.error("Failed to fetch car details");
+        toast.error("Failed to fetch car details. Please try again later.");
         setLoading(false);
       }
     };
@@ -50,98 +52,135 @@ const BookingPage: React.FC = () => {
     }));
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSubmit = async (event: React.FormEvent) => {
+    event.preventDefault();
+
+    if (!bookingData.name || !bookingData.email || !bookingData.phone) {
+      toast.error("Please fill in all required fields.");
+      return;
+    }
+
+    if (!stripe || !elements) {
+      toast.error("Stripe.js has not yet loaded.");
+      return;
+    }
+
+    const { error, paymentMethod } = await stripe.createPaymentMethod({
+      type: "card",
+      card: elements.getElement(CardElement) as any,
+      billing_details: {
+        name: bookingData.name,
+        email: bookingData.email,
+        phone: bookingData.phone,
+      },
+    });
+
+    if (error) {
+      toast.error(error.message || "Failed to create payment method.");
+      return;
+    }
+
     try {
-      // Assume we send booking data to an API endpoint
       await axios.post(`/api/bookings`, {
         ...bookingData,
         carId: id,
+        paymentMethodId: paymentMethod.id,
       });
       toast.success("Booking successful!");
     } catch (error) {
-      toast.error("Failed to complete booking");
+      toast.error("Failed to complete booking. Please try again.");
     }
   };
 
-  if (loading) return <p>Loading car details...</p>;
-  if (!carDetails) return <p>Car not found</p>;
+  if (loading)
+    return <p className="text-center text-gray-600">Loading car details...</p>;
+  if (!carDetails)
+    return <p className="text-center text-red-600">Car not found</p>;
 
-  // Default to empty array if features are undefined
+  // Ensure features is always an array
   const features = carDetails.features || [];
 
   return (
-    <div className="booking-page p-4 max-w-3xl mx-auto bg-white shadow-md rounded-md">
-      <h1 className="text-3xl font-bold mb-4">Booking Page</h1>
-      <div className="mb-6">
-        <h2 className="text-2xl font-semibold mb-2">Car Details</h2>
-        <div className="border p-4 rounded-md bg-gray-100">
-          <img
-            src={carDetails.image}
-            alt={carDetails.make}
-            className="w-full h-64 object-cover mb-4 rounded-md"
-          />
-          <h3 className="text-xl font-bold">
-            {carDetails.make} {carDetails.model} ({carDetails.year})
-          </h3>
-          <p className="text-lg text-gray-700">
-            Price: ${carDetails.pricing}/hour
-          </p>
-          <p className="text-sm text-gray-600">
-            Features: {features.join(", ")}
-          </p>
+    <div className="booking-page p-6 max-w-6xl mx-auto bg-white shadow-lg rounded-lg">
+      <h1 className="text-4xl font-extrabold mb-6 text-gray-900 text-center">
+        Booking Page
+      </h1>
+      <div className="flex flex-col lg:flex-row gap-8">
+        {/* Car Details */}
+        <div className="lg:w-1/2 flex flex-col gap-6">
+          <h2 className="text-3xl font-semibold mb-4 text-gray-900">
+            Car Details
+          </h2>
+          <div className="border p-6 rounded-lg bg-gray-50 shadow-md">
+            <img
+              src={carDetails.image}
+              alt={carDetails.make}
+              className="w-full h-48 object-cover mb-4 rounded-lg"
+            />
+            <h3 className="text-2xl font-bold mb-2 text-gray-800">
+              {carDetails.make} {carDetails.model} ({carDetails.year})
+            </h3>
+            <p className="text-lg font-semibold text-gray-800 mb-2">
+              ${carDetails.pricePerHour}/hour
+            </p>
+            <p className="text-md text-gray-600">
+              Features: {features.length > 0 ? features.join(", ") : "None"}
+            </p>
+          </div>
+        </div>
+        {/* Booking Form */}
+        <div className="lg:w-1/2 flex flex-col gap-6">
+          <h2 className="text-3xl font-semibold mb-4 text-gray-900">
+            Booking Form
+          </h2>
+          <Elements stripe={stripePromise}>
+            <form onSubmit={handleSubmit} className="space-y-6">
+              <Input
+                label="Name"
+                placeholder="Enter your name"
+                name="name"
+                value={bookingData.name}
+                onChange={handleInputChange}
+                required
+                className="focus:ring-green-500"
+              />
+              <Input
+                label="Email"
+                placeholder="Enter your email"
+                name="email"
+                type="email"
+                value={bookingData.email}
+                onChange={handleInputChange}
+                required
+                className="focus:ring-green-500"
+              />
+              <Input
+                label="Phone"
+                placeholder="Enter your phone number"
+                name="phone"
+                value={bookingData.phone}
+                onChange={handleInputChange}
+                required
+                className="focus:ring-green-500"
+              />
+              <div className="form-group">
+                <label
+                  htmlFor="paymentMethod"
+                  className="block text-sm font-medium text-gray-700 mb-2"
+                >
+                  Payment Method
+                </label>
+                <CardElement className="border p-4 rounded-lg" />
+              </div>
+              <div className="flex justify-end">
+                <Button type="submit" variant="primary" className="px-6 py-3">
+                  Confirm Booking
+                </Button>
+              </div>
+            </form>
+          </Elements>
         </div>
       </div>
-      <h2 className="text-2xl font-semibold mb-4">Booking Form</h2>
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <Input
-          label="Name"
-          placeholder="Name"
-          name="name"
-          value={bookingData.name}
-          onChange={handleInputChange}
-          required
-        />
-        <Input
-          label="Email"
-          placeholder="Email"
-          name="email"
-          type="email"
-          value={bookingData.email}
-          onChange={handleInputChange}
-          required
-        />
-        <Input
-          label="Phone"
-          placeholder="Phone Number"
-          name="phone"
-          value={bookingData.phone}
-          onChange={handleInputChange}
-          required
-        />
-        <div className="form-group">
-          <label
-            htmlFor="paymentMethod"
-            className="block text-sm font-medium text-gray-700"
-          >
-            Payment Method
-          </label>
-          <Select
-            name="paymentMethod"
-            value={bookingData.paymentMethod}
-            onChange={handleSelectChange}
-          >
-            <option value="Credit Card">Credit Card</option>
-            <option value="PayPal">PayPal</option>
-            <option value="Bank Transfer">Bank Transfer</option>
-          </Select>
-        </div>
-        <div className="flex justify-end">
-          <Button type="submit" variant="primary">
-            Confirm Booking
-          </Button>
-        </div>
-      </form>
       <Toaster position="top-right" />
     </div>
   );

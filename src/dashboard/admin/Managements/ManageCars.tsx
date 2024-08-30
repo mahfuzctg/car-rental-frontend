@@ -50,9 +50,7 @@ const ManageCars: React.FC = () => {
     image: null,
   });
 
-  // State to handle whether to show all cars or just a subset
   const [showAll, setShowAll] = useState(false);
-  // State to handle the total car count
   const [totalCars, setTotalCars] = useState(cars.length);
 
   useEffect(() => {
@@ -93,7 +91,7 @@ const ManageCars: React.FC = () => {
     try {
       await addCar(formData).unwrap();
       toast.success("Car added successfully");
-      setTotalCars((prev) => prev + 1); // Update total car count
+      setTotalCars((prev) => prev + 1);
     } catch (err) {
       toast.error("Failed to add car");
     }
@@ -137,7 +135,7 @@ const ManageCars: React.FC = () => {
       status: car.status || "available",
       features: car.features ? car.features.join(", ") : "",
       pricePerHour: car.pricePerHour ? car.pricePerHour.toString() : "",
-      image: null, // Reset image on edit
+      image: null,
     });
     setUpdateModalIsOpen(true);
   };
@@ -157,14 +155,14 @@ const ManageCars: React.FC = () => {
           <div className="mt-2 flex justify-end space-x-2">
             <button
               onClick={async () => {
-                toast.dismiss(t.id); // Dismiss the confirmation toast
+                toast.dismiss(t.id);
                 const loadingToast = toast.loading("Confirming deletion...");
                 try {
                   await deleteCar(id).unwrap();
                   toast.success("Car deleted successfully", {
                     id: loadingToast,
                   });
-                  setTotalCars((prev) => prev - 1); // Update total car count
+                  setTotalCars((prev) => prev - 1);
                 } catch (err) {
                   toast.error("Failed to delete car", { id: loadingToast });
                 }
@@ -183,7 +181,7 @@ const ManageCars: React.FC = () => {
         </div>
       ),
       {
-        duration: 2000, // Duration in milliseconds (2 seconds)
+        duration: 2000,
       }
     );
   };
@@ -208,38 +206,59 @@ const ManageCars: React.FC = () => {
 
   return (
     <div className="container mx-auto p-4">
-      <h1 className="text-2xl font-bold mb-4 text-center">Manage Cars</h1>
+      <h1 className="text-3xl font-bold mb-6 text-center text-gray-800">
+        Manage Cars
+      </h1>
       <div className="flex items-center mb-4">
-        <FaCar className="text-2xl mr-2" />
-        <span className="text-xl font-semibold">Total Cars: {totalCars}</span>
+        <FaCar className="text-3xl mr-3 text-gray-600" />
+        <span className="text-xl font-semibold text-gray-700">
+          Total Cars: {totalCars}
+        </span>
       </div>
-      <Button variant="primary" onClick={() => setAddModalIsOpen(true)}>
+      <Button
+        variant="primary"
+        onClick={() => setAddModalIsOpen(true)}
+        className="mb-4"
+      >
         Add New Car
       </Button>
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mt-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 mt-4">
         {displayedCars.map((car) => (
-          <Card key={car._id} className="shadow-lg">
-            <CardHeader>
+          <Card
+            key={car._id}
+            className="shadow-lg rounded-lg overflow-hidden bg-white border border-gray-200"
+          >
+            <CardHeader className="relative">
               <img
-                src={car.image}
+                src={car.image || "/default-image.jpg"}
                 alt={car.name}
-                className="h-48 w-full object-cover"
+                className="h-40 w-full object-cover"
               />
             </CardHeader>
-            <CardContent>
-              <h2 className="text-xl font-semibold">
-                {car.name} ({car.color})
+            <CardContent className="p-4">
+              <h2 className="text-xl font-semibold text-gray-800">
+                {car.name}
               </h2>
-              <p className="text-sm text-gray-600">{car.description}</p>
-              <p className="text-sm text-gray-600">{car.features.join(", ")}</p>
-              <p className="text-lg font-bold mt-2">${car.pricePerHour}/hour</p>
+              <p className="text-sm text-gray-600 mt-1">{car.description}</p>
+              <p className="text-sm text-gray-600 mt-2">Color: {car.color}</p>
+              <p className="text-sm text-gray-600 mt-2">
+                Features: {car.features.join(", ")}
+              </p>
+              <p className="text-lg font-bold mt-2 text-gray-800">
+                ${car.pricePerHour}/hour
+              </p>
             </CardContent>
-            <CardFooter className="flex justify-between">
-              <Button variant="outline" onClick={() => handleEdit(car)}>
+            <CardFooter className="flex justify-between items-center p-4 bg-gray-100">
+              <Button
+                variant="secondary"
+                className="text-blue-500 border-blue-500 hover:bg-blue-50"
+                onClick={() => handleEdit(car)}
+              >
                 Edit
               </Button>
               <Button
-                variant="destructive"
+                variant="secondary"
+                className="text-red-500 border-red-500 hover:bg-red-50"
                 onClick={() => handleDelete(car._id)}
               >
                 Delete
