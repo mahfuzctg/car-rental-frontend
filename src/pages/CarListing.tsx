@@ -10,7 +10,7 @@ const CarListing: React.FC = () => {
   const { data, isLoading, isError } = useGetAllCarsQuery();
   const [filters, setFilters] = useState({
     type: "",
-    minPrice: 0,
+    minPrice: "0",
     maxPrice: 10000,
     search: "",
   });

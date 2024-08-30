@@ -172,7 +172,7 @@ const Navbar: React.FC = () => {
       </nav>
 
       {/* Main Content */}
-      <div className="mt-14 md:mt-0 md:ml-[20%] md:w-[80%] mx-auto p-4">
+      <div className="mt-14  md:mt-0 md:ml-[20%] md:w-[80%] mx-auto p-4">
         {/* This is where the content will be rendered based on the route */}
         <Outlet />
       </div>

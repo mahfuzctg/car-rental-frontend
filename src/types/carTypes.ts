@@ -1,3 +1,5 @@
+import { ReactNode } from "react";
+
 export interface Car {
   image: string | undefined;
   year: ReactNode;

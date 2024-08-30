@@ -27,3 +27,10 @@ password123AB@#
   "address": "123 Main St, City, Country"
  
 }
+
+
+
+REACT_APP_NODE_ENV=development
+REACT_APP_API_URL=https://assignment3-phi-fawn.vercel.app
+REACT_APP_JWT_ACCESS_SECRET=72849ac5327e85131a038bcd2156f283064936cdcb4f742e81f5eaeb2a26de47
+REACT_APP_TOKEN=

@@ -12,6 +12,13 @@ export const carApi = createApi({
   reducerPath: "carApi",
   baseQuery: fetchBaseQuery({
     baseUrl: "https://assignment3-phi-fawn.vercel.app/api",
+    prepareHeaders: (headers) => {
+      const token = localStorage.getItem("accessToken"); // Assuming you're storing the token in localStorage
+      if (token) {
+        headers.set("Authorization", `Bearer ${token}`);
+      }
+      return headers;
+    },
   }),
   endpoints: (builder) => ({
     getAllCars: builder.query<Car[], void>({
