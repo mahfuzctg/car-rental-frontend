@@ -1,56 +1,55 @@
-import { Slot } from "@radix-ui/react-slot";
-import { cva, type VariantProps } from "class-variance-authority";
-import * as React from "react";
-import { cn } from "../../../lib/utils";
+import React from "react";
 
-const buttonVariants = cva(
-  "inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50",
-  {
-    variants: {
-      variant: {
-        default: "bg-primary text-primary-foreground hover:bg-primary/90",
-        destructive:
-          "bg-destructive text-destructive-foreground hover:bg-destructive/90",
-        outline:
-          "border border-input bg-background hover:bg-accent hover:text-accent-foreground",
-        secondary:
-          "bg-secondary text-secondary-foreground hover:bg-secondary/80",
-        ghost: "hover:bg-accent hover:text-accent-foreground",
-        link: "text-primary underline-offset-4 hover:underline",
-        primary: "bg-primary text-primary-foreground hover:bg-primary/90", // Added primary variant
-      },
-      size: {
-        default: "h-10 px-4 py-2",
-        sm: "h-9 rounded-md px-3",
-        lg: "h-11 rounded-md px-8",
-        icon: "h-10 w-10",
-      },
-    },
-    defaultVariants: {
-      variant: "default",
-      size: "default",
-    },
-  }
-);
+// Define the possible variants for the Button component
+type ButtonVariant =
+  | "link"
+  | "default"
+  | "destructive"
+  | "outline"
+  | "secondary"
+  | "ghost"
+  | "primary";
 
-export interface ButtonProps
-  extends React.ButtonHTMLAttributes<HTMLButtonElement>,
-    VariantProps<typeof buttonVariants> {
-  asChild?: boolean;
+// Define the props for the Button component
+interface ButtonProps {
+  variant?: ButtonVariant; // Optional variant prop
+  onClick?: () => void; // Optional click handler
+  type?: "button" | "submit" | "reset"; // Button type
+  className?: string; // Additional CSS classes
+  disabled?: boolean; // Optional disabled state
+  children?: React.ReactNode; // Content inside the button
 }
 
-const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ className, variant, size, asChild = false, ...props }, ref) => {
-    const Comp = asChild ? Slot : "button";
-    return (
-      <Comp
-        className={cn(buttonVariants({ variant, size, className }))}
-        ref={ref}
-        {...props}
-      />
-    );
-  }
-);
-Button.displayName = "Button";
+// Button component definition
+const Button: React.FC<ButtonProps> = ({
+  variant = "default", // Default variant
+  onClick,
+  type = "button", // Default type
+  className,
+  disabled = false, // Default to not disabled
+  children,
+}) => {
+  // Map variant to CSS classes
+  const variantClass = {
+    link: "text-blue-500 underline",
+    default: "bg-gray-300 text-black",
+    destructive: "bg-red-500 text-white",
+    outline: "border border-gray-300 text-gray-700",
+    secondary: "bg-gray-500 text-white",
+    ghost: "bg-transparent text-gray-700",
+    primary: "bg-blue-500 text-white",
+  }[variant];
 
-export { Button, buttonVariants };
+  return (
+    <button
+      type={type}
+      onClick={onClick}
+      className={`${variantClass} px-4 py-2 rounded ${className}`}
+      disabled={disabled} // Apply disabled attribute
+    >
+      {children} {/* Render children inside the button */}
+    </button>
+  );
+};
+
+export { Button };

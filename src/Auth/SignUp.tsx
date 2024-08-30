@@ -1,16 +1,12 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
+import { Label } from "@radix-ui/react-label";
 import { useState } from "react";
 import { Controller, SubmitHandler, useForm } from "react-hook-form";
-import { Link, useNavigate } from "react-router-dom";
-
 import { IoEye, IoEyeOff } from "react-icons/io5";
-
-import { Label } from "@radix-ui/react-label";
+import { Link, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
-// import Logo from "../assets/Logo/logo-1.jpg";
 import { Button } from "../components/ui/UI/button";
 import { Input } from "../components/ui/UI/input";
-
 import {
   Select,
   SelectContent,
@@ -30,6 +26,7 @@ type Inputs = {
   role: string;
   terms: boolean;
 };
+
 const SignUp = () => {
   const [signUp, { isLoading }] = useSignUpMutation();
   const [isShowPassword, setIsShowPassword] = useState(false);
@@ -43,9 +40,10 @@ const SignUp = () => {
     formState: { errors },
     control,
   } = useForm<Inputs>();
+
   const onSubmit: SubmitHandler<Inputs> = async (data) => {
     if (data.password !== data.confirmPassword) {
-      return toast.error("Password and Confirm Password does not match");
+      return toast.error("Password and Confirm Password do not match");
     }
 
     const userData = {
@@ -56,13 +54,33 @@ const SignUp = () => {
       role: data.role,
     };
 
-    const res = await signUp(userData);
+    try {
+      const res = await signUp(userData);
 
-    if (res?.data?.success) {
-      toast.success("Registered Successfully!");
-      navigate("/login");
-    } else if (res?.error?.data?.success === false) {
-      toast.error(res?.error?.data?.message);
+      // Type assertions and guards
+      if ("data" in res) {
+        // Handle successful response
+        if (res.data.success) {
+          toast.success("Registered Successfully!");
+          navigate("/login");
+        } else {
+          toast.error(res.data.message || "An unexpected error occurred");
+        }
+      } else if ("error" in res) {
+        // Handle error response
+        if (res.error && "data" in res.error) {
+          const errorMessage =
+            (res.error as { data: { message?: string } }).data?.message ||
+            "An unexpected error occurred";
+          toast.error(errorMessage);
+        } else {
+          toast.error("An unexpected error occurred");
+        }
+      } else {
+        toast.error("An unexpected error occurred");
+      }
+    } catch (error) {
+      toast.error("An unexpected error occurred");
     }
   };
 
@@ -75,9 +93,9 @@ const SignUp = () => {
         </h2>
         <form
           onSubmit={handleSubmit(onSubmit)}
-          className="space-y-4 w-full max-w-[370xp]"
+          className="space-y-4 w-full max-w-[370px]"
         >
-          <div className="">
+          <div>
             <div className="grid w-full items-center gap-1.5">
               <Label htmlFor="name">Name:</Label>
               <Input
@@ -143,6 +161,7 @@ const SignUp = () => {
               </p>
             )}
           </div>
+
           {/* Confirm password */}
           <div>
             <div className="grid w-full items-center gap-1.5 relative">
@@ -181,6 +200,7 @@ const SignUp = () => {
               </p>
             )}
           </div>
+
           <div>
             <div className="grid w-full items-center gap-1.5">
               <Label htmlFor="phone">Phone:</Label>
@@ -225,7 +245,7 @@ const SignUp = () => {
             <div className="flex items-center space-x-2">
               <input
                 id="terms"
-                className="w-4 h-4 rounded  focus:ring-0"
+                className="w-4 h-4 rounded focus:ring-0"
                 type="checkbox"
                 required
                 {...register("terms", { required: true })}
@@ -244,35 +264,25 @@ const SignUp = () => {
               </label>
             </div>
             {errors?.terms && (
-              <p className="text-red-600 text-sm mt-2">
-                Terms & Conditions is required
-              </p>
+              <p className="text-red-600 text-sm">You must accept the terms</p>
             )}
           </div>
+
           <Button
             type="submit"
-            className="w-full bg-green-500 hover:bg-orange-600"
+            variant="default"
+            className="w-full mt-4 py-4"
+            disabled={isLoading}
           >
-            Sign Up
+            {isLoading ? "Signing Up..." : "Sign Up"}
           </Button>
-          <div>
-            <p className="text-gray-700 text-start font-semibold">
-              Already have an account?{" "}
-              <Link to="/login" className="text-green-500 font-semibold">
-                Sign In now!
-              </Link>
-            </p>
-            <p>
-              Read our{" "}
-              <Link to="/privacy-policy" className="text-orange-500">
-                Privacy Policy
-              </Link>{" "}
-              and{" "}
-              <Link to="/terms-and-condition" className="text-orange-500">
-                Terms of Service
-              </Link>
-            </p>
-          </div>
+
+          <p className="text-sm text-center mt-4">
+            Already have an account?{" "}
+            <Link to="/login" className="text-orange-600 font-semibold">
+              Login
+            </Link>
+          </p>
         </form>
       </div>
     </section>

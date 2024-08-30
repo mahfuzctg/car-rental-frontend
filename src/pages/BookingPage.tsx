@@ -140,7 +140,7 @@ const BookingForm: React.FC<{ id: string }> = ({ id }) => {
             onClick={handleBkashPayment}
             variant="secondary"
             className="w-full py-3"
-            style={{ backgroundColor: "#D11F53", color: "#FFFFFF" }}
+            // style={{ backgroundColor: "#D11F53", color: "#FFFFFF" }}
           >
             Pay with Bkash
           </Button>
