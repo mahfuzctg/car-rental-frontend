@@ -114,3 +114,19 @@
 .car-form button:hover {
   background-color: #45a049;
 }
+
+/* modal styles */
+.modal {
+  overlay: {
+    backgroundcolor: rgba(0, 0, 0, 0.5);
+  }
+}
+
+.small-modal {
+  width: 400px; /* Adjust the width as needed */
+  max-width: 90vw; /* Ensure it is responsive */
+  margin: auto; /* Center the modal */
+  padding: 20px; /* Add some padding inside the modal */
+  border-radius: 8px; /* Rounded corners */
+  background: white; /* Background color */
+}

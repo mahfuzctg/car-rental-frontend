@@ -138,43 +138,49 @@ const ManageCars: React.FC = () => {
   };
 
   const handleDelete = async (id: string) => {
-    const confirmDelete = toast.custom((t) => (
-      <div className={`toast ${t.visible ? "animate-enter" : "animate-leave"}`}>
-        <div className="flex items-center">
-          <AiOutlineCheckCircle className="text-green-500" />
-          <p className="ml-2">Are you sure you want to delete this car?</p>
+    // Show a custom confirmation toast
+    const confirmDeleteToast = toast.custom(
+      (t) => (
+        <div
+          className={`toast ${t.visible ? "animate-enter" : "animate-leave"}`}
+        >
+          <div className="flex items-center">
+            <AiOutlineCheckCircle className="text-green-500" />
+            <p className="ml-2">Are you sure you want to delete this car?</p>
+          </div>
+          <div className="mt-2 flex justify-end space-x-2">
+            <button
+              onClick={async () => {
+                toast.dismiss(t.id); // Dismiss the confirmation toast
+                // Show loading toast
+                const loadingToast = toast.loading("Confirming deletion...");
+                try {
+                  await deleteCar(id).unwrap();
+                  toast.success("Car deleted successfully", {
+                    id: loadingToast,
+                  });
+                  setTotalCars((prev) => prev - 1); // Update total car count
+                } catch (err) {
+                  toast.error("Failed to delete car", { id: loadingToast });
+                }
+              }}
+              className="bg-green-500 text-white px-4 py-2 rounded"
+            >
+              Yes
+            </button>
+            <button
+              onClick={() => toast.dismiss(t.id)}
+              className="bg-red-500 text-white px-4 py-2 rounded"
+            >
+              No
+            </button>
+          </div>
         </div>
-        <div className="mt-2 flex justify-end space-x-2">
-          <button
-            onClick={async () => {
-              toast.dismiss(t.id);
-              try {
-                await deleteCar(id).unwrap();
-                toast.success("Car deleted successfully");
-                setTotalCars((prev) => prev - 1); // Update total car count
-              } catch (err) {
-                toast.error("Failed to delete car");
-              }
-            }}
-            className="bg-green-500 text-white px-4 py-2 rounded"
-          >
-            Yes
-          </button>
-          <button
-            onClick={() => toast.dismiss(t.id)}
-            className="bg-red-500 text-white px-4 py-2 rounded"
-          >
-            No
-          </button>
-        </div>
-      </div>
-    ));
-
-    toast.promise(confirmDelete, {
-      loading: "Confirming deletion...",
-      success: "Deletion confirmed",
-      error: "Failed to confirm",
-    });
+      ),
+      {
+        duration: 2000, // Duration in milliseconds (2 seconds)
+      }
+    );
   };
 
   const resetForm = () => {
@@ -189,7 +195,7 @@ const ManageCars: React.FC = () => {
   };
 
   // Show only a subset of cars based on showAll state
-  const displayedCars = showAll ? cars : cars.slice(0, 10);
+  const displayedCars = showAll ? cars : cars.slice(0, 12);
 
   if (isLoading) return <p>Loading cars...</p>;
   if (error) return <p>Error loading cars</p>;
@@ -242,6 +248,7 @@ const ManageCars: React.FC = () => {
       )}
 
       {/* Add New Car Modal */}
+
       <Modal
         isOpen={addModalIsOpen}
         onRequestClose={() => setAddModalIsOpen(false)}
@@ -318,62 +325,75 @@ const ManageCars: React.FC = () => {
         overlayClassName="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center"
       >
         <h2 className="text-2xl font-bold mb-4">Update Car</h2>
-        <form onSubmit={handleUpdateSubmit} className="space-y-4">
-          <Input
-            type="text"
-            name="make"
-            value={carForm.make}
-            onChange={handleInputChange}
-            placeholder="Make"
-            required
-          />
-          <Input
-            type="text"
-            name="model"
-            value={carForm.model}
-            onChange={handleInputChange}
-            placeholder="Model"
-            required
-          />
-          <Input
-            type="number"
-            name="year"
-            value={carForm.year}
-            onChange={handleInputChange}
-            placeholder="Year"
-            required
-          />
-          <Input
-            type="text"
-            name="features"
-            value={carForm.features}
-            onChange={handleInputChange}
-            placeholder="Features (comma separated)"
-          />
-          <Input
-            type="number"
-            name="pricing"
-            value={carForm.pricing}
-            onChange={handleInputChange}
-            placeholder="Pricing"
-            required
-          />
-          <Input
-            type="file"
-            name="image"
-            onChange={handleFileChange}
-            accept="image/*"
-          />
-          <div className="flex justify-end space-x-2 mt-4">
-            <Button type="button" onClick={() => setUpdateModalIsOpen(false)}>
+        <form onSubmit={handleUpdateSubmit}>
+          <div className="mb-4">
+            <label className="block text-gray-700">Make</label>
+            <Input
+              type="text"
+              name="make"
+              value={carForm.make}
+              onChange={handleInputChange}
+              required
+            />
+          </div>
+          <div className="mb-4">
+            <label className="block text-gray-700">Model</label>
+            <Input
+              type="text"
+              name="model"
+              value={carForm.model}
+              onChange={handleInputChange}
+              required
+            />
+          </div>
+          <div className="mb-4">
+            <label className="block text-gray-700">Year</label>
+            <Input
+              type="number"
+              name="year"
+              value={carForm.year}
+              onChange={handleInputChange}
+              required
+            />
+          </div>
+          <div className="mb-4">
+            <label className="block text-gray-700">Features</label>
+            <Input
+              type="text"
+              name="features"
+              value={carForm.features}
+              onChange={handleInputChange}
+            />
+          </div>
+          <div className="mb-4">
+            <label className="block text-gray-700">Pricing</label>
+            <Input
+              type="number"
+              name="pricing"
+              value={carForm.pricing}
+              onChange={handleInputChange}
+              required
+            />
+          </div>
+          <div className="mb-4">
+            <label className="block text-gray-700">Image</label>
+            <Input type="file" name="image" onChange={handleFileChange} />
+          </div>
+          <div className="flex justify-end">
+            <Button
+              variant="secondary"
+              onClick={() => setUpdateModalIsOpen(false)}
+            >
               Cancel
             </Button>
-            <Button type="submit">Update Car</Button>
+            <Button type="submit" className="ml-2">
+              Update Car
+            </Button>
           </div>
         </form>
       </Modal>
 
-      <Toaster position="top-right" />
+      <Toaster />
     </div>
   );
 };
