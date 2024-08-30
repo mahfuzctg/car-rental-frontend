@@ -48,6 +48,8 @@ const CarDetails: React.FC = () => {
     }));
   };
 
+  const isAvailable = car.status === "available";
+
   return (
     <div className="car-details p-6 max-w-4xl mx-auto bg-white shadow-lg rounded-lg">
       <h1 className="text-4xl font-bold mb-6 text-gray-900">{car.name}</h1>
@@ -60,9 +62,36 @@ const CarDetails: React.FC = () => {
         {/* Car Details */}
         <div className="flex-1">
           <p className="text-lg mb-4 text-gray-700">{car.description}</p>
+          <p className="text-lg mb-4 text-gray-700">
+            <strong>Color:</strong> {car.color}
+          </p>
+          <p className="text-lg mb-4 text-gray-700">
+            <strong>Electric:</strong> {car.isElectric ? "Yes" : "No"}
+          </p>
           <p className="text-xl font-bold mb-4 text-gray-800">
             Price: ${car.pricePerHour} per hour
           </p>
+
+          {/* Availability Status */}
+          <p
+            className={`text-lg font-semibold mb-4 ${
+              isAvailable ? "text-green-600" : "text-red-600"
+            }`}
+          >
+            Status: {car.status.charAt(0).toUpperCase() + car.status.slice(1)}
+          </p>
+
+          {/* Features */}
+          <div className="mb-6">
+            <h2 className="text-2xl font-semibold mb-4 text-gray-900">
+              Features
+            </h2>
+            <ul className="list-disc pl-5 text-gray-700">
+              {car.features.map((feature, index) => (
+                <li key={index}>{feature}</li>
+              ))}
+            </ul>
+          </div>
 
           {/* Additional Features */}
           <div className="mb-6">
@@ -112,10 +141,15 @@ const CarDetails: React.FC = () => {
 
           {/* Book Now Button */}
           <a
-            href={`/book/${car._id}`}
-            className="inline-block px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+            href={isAvailable ? `/book/${car._id}` : "#"}
+            className={`inline-block px-6 py-3 rounded-lg transition-colors ${
+              isAvailable
+                ? "bg-blue-600 text-white hover:bg-blue-700"
+                : "bg-red-500 text-white cursor-not-allowed"
+            }`}
+            aria-disabled={!isAvailable}
           >
-            Book Now
+            {isAvailable ? "Book Now" : "Cannot Book"}
           </a>
         </div>
       </div>
