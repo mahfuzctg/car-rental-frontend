@@ -3,6 +3,8 @@ import { loadStripe } from "@stripe/stripe-js";
 import axios from "axios";
 import React, { useEffect, useState } from "react";
 import toast, { Toaster } from "react-hot-toast";
+import { BsBank } from "react-icons/bs"; // Bkash Icon
+import { FaCcStripe } from "react-icons/fa"; // Stripe Icon
 import { useParams } from "react-router-dom";
 import { Button } from "../components/ui/UI/button";
 import { Input } from "../components/ui/UI/input";
@@ -52,7 +54,7 @@ const BookingPage: React.FC = () => {
     }));
   };
 
-  const handleSubmit = async (event: React.FormEvent) => {
+  const handleStripeSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
 
     if (!bookingData.name || !bookingData.email || !bookingData.phone) {
@@ -89,6 +91,17 @@ const BookingPage: React.FC = () => {
       toast.success("Booking successful!");
     } catch (error) {
       toast.error("Failed to complete booking. Please try again.");
+    }
+  };
+
+  const handleBkashPayment = async () => {
+    try {
+      const response = await axios.post("/create-bkash-payment", {
+        amount: 5000, // Example amount in BDT
+      });
+      window.location.href = response.data.paymentUrl; // Redirect to Bkash payment page
+    } catch (error) {
+      toast.error("Failed to initiate Bkash payment. Please try again.");
     }
   };
 
@@ -134,7 +147,7 @@ const BookingPage: React.FC = () => {
             Booking Form
           </h2>
           <Elements stripe={stripePromise}>
-            <form onSubmit={handleSubmit} className="space-y-6">
+            <form onSubmit={handleStripeSubmit} className="space-y-6">
               <Input
                 label="Name"
                 placeholder="Enter your name"
@@ -163,18 +176,38 @@ const BookingPage: React.FC = () => {
                 required
                 className="focus:ring-green-500"
               />
-              <div className="form-group">
-                <label
-                  htmlFor="paymentMethod"
-                  className="block text-sm font-medium text-gray-700 mb-2"
-                >
-                  Payment Method
-                </label>
-                <CardElement className="border p-4 rounded-lg" />
+              <div className="flex gap-4 mb-6">
+                <div className="flex-1 border p-4 rounded-lg">
+                  <h3 className="text-lg font-medium text-gray-800 mb-2 flex items-center">
+                    <FaCcStripe className="mr-2 text-blue-500" />
+                    Stripe
+                  </h3>
+                  <CardElement className="border p-4 rounded-lg" />
+                </div>
+                <div className="flex-1 border p-4 rounded-lg">
+                  <h3 className="text-lg font-medium text-gray-800 mb-2 flex items-center">
+                    <BsBank
+                      className="mr-2"
+                      style={{ color: "#D11F53", fontSize: "1.5rem" }} // Adjust size as needed
+                    />
+                    <span style={{ color: "#D11F53", fontWeight: "bold" }}>
+                      Bkash
+                    </span>
+                  </h3>
+                  <Button
+                    type="button"
+                    onClick={handleBkashPayment}
+                    variant="secondary"
+                    className="w-full py-3"
+                    style={{ backgroundColor: "#D11F53", color: "#FFFFFF" }}
+                  >
+                    Pay with Bkash
+                  </Button>
+                </div>
               </div>
               <div className="flex justify-end">
                 <Button type="submit" variant="primary" className="px-6 py-3">
-                  Confirm Booking
+                  Confirm Booking with Stripe
                 </Button>
               </div>
             </form>
