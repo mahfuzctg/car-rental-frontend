@@ -1,6 +1,8 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import React, { useState } from "react";
-import toast from "react-hot-toast";
+import React, { useEffect, useState } from "react";
+import toast, { Toaster } from "react-hot-toast";
+import { AiOutlineCheckCircle } from "react-icons/ai";
+import { FaCar } from "react-icons/fa";
 import Modal from "react-modal";
 import { Button } from "../../../components/ui/UI/button";
 import {
@@ -47,6 +49,12 @@ const ManageCars: React.FC = () => {
 
   // State to handle whether to show all cars or just a subset
   const [showAll, setShowAll] = useState(false);
+  // State to handle the total car count
+  const [totalCars, setTotalCars] = useState(cars.length);
+
+  useEffect(() => {
+    setTotalCars(cars.length);
+  }, [cars]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -82,6 +90,7 @@ const ManageCars: React.FC = () => {
     try {
       await addCar(formData).unwrap();
       toast.success("Car added successfully");
+      setTotalCars((prev) => prev + 1); // Update total car count
     } catch (err) {
       toast.error("Failed to add car");
     }
@@ -129,14 +138,43 @@ const ManageCars: React.FC = () => {
   };
 
   const handleDelete = async (id: string) => {
-    if (window.confirm("Are you sure you want to delete this car?")) {
-      try {
-        await deleteCar(id).unwrap();
-        toast.success("Car deleted successfully");
-      } catch (err) {
-        toast.error("Failed to delete car");
-      }
-    }
+    const confirmDelete = toast.custom((t) => (
+      <div className={`toast ${t.visible ? "animate-enter" : "animate-leave"}`}>
+        <div className="flex items-center">
+          <AiOutlineCheckCircle className="text-green-500" />
+          <p className="ml-2">Are you sure you want to delete this car?</p>
+        </div>
+        <div className="mt-2 flex justify-end space-x-2">
+          <button
+            onClick={async () => {
+              toast.dismiss(t.id);
+              try {
+                await deleteCar(id).unwrap();
+                toast.success("Car deleted successfully");
+                setTotalCars((prev) => prev - 1); // Update total car count
+              } catch (err) {
+                toast.error("Failed to delete car");
+              }
+            }}
+            className="bg-green-500 text-white px-4 py-2 rounded"
+          >
+            Yes
+          </button>
+          <button
+            onClick={() => toast.dismiss(t.id)}
+            className="bg-red-500 text-white px-4 py-2 rounded"
+          >
+            No
+          </button>
+        </div>
+      </div>
+    ));
+
+    toast.promise(confirmDelete, {
+      loading: "Confirming deletion...",
+      success: "Deletion confirmed",
+      error: "Failed to confirm",
+    });
   };
 
   const resetForm = () => {
@@ -159,6 +197,10 @@ const ManageCars: React.FC = () => {
   return (
     <div className="container mx-auto p-4">
       <h1 className="text-2xl font-bold mb-4 text-center">Manage Cars</h1>
+      <div className="flex items-center mb-4">
+        <FaCar className="text-2xl mr-2" />
+        <span className="text-xl font-semibold">Total Cars: {totalCars}</span>
+      </div>
       <Button variant="primary" onClick={() => setAddModalIsOpen(true)}>
         Add New Car
       </Button>
@@ -194,7 +236,7 @@ const ManageCars: React.FC = () => {
         ))}
       </div>
       {!showAll && cars.length > 10 && (
-        <Button variant="" className="mt-4 " onClick={() => setShowAll(true)}>
+        <Button variant="" className="mt-4" onClick={() => setShowAll(true)}>
           Show More
         </Button>
       )}
@@ -212,6 +254,7 @@ const ManageCars: React.FC = () => {
         <h2 className="text-2xl font-bold mb-4">Add New Car</h2>
         <form onSubmit={handleAddSubmit} className="space-y-4">
           <Input
+            type="text"
             name="make"
             value={carForm.make}
             onChange={handleInputChange}
@@ -219,6 +262,7 @@ const ManageCars: React.FC = () => {
             required
           />
           <Input
+            type="text"
             name="model"
             value={carForm.model}
             onChange={handleInputChange}
@@ -234,11 +278,11 @@ const ManageCars: React.FC = () => {
             required
           />
           <Input
+            type="text"
             name="features"
             value={carForm.features}
             onChange={handleInputChange}
             placeholder="Features (comma separated)"
-            required
           />
           <Input
             type="number"
@@ -248,10 +292,18 @@ const ManageCars: React.FC = () => {
             placeholder="Pricing"
             required
           />
-          <Input type="file" name="image" onChange={handleFileChange} />
-          <Button type="submit" variant="primary">
-            Save
-          </Button>
+          <Input
+            type="file"
+            name="image"
+            onChange={handleFileChange}
+            accept="image/*"
+          />
+          <div className="flex justify-end space-x-2 mt-4">
+            <Button type="button" onClick={() => setAddModalIsOpen(false)}>
+              Cancel
+            </Button>
+            <Button type="submit">Add Car</Button>
+          </div>
         </form>
       </Modal>
 
@@ -268,6 +320,7 @@ const ManageCars: React.FC = () => {
         <h2 className="text-2xl font-bold mb-4">Update Car</h2>
         <form onSubmit={handleUpdateSubmit} className="space-y-4">
           <Input
+            type="text"
             name="make"
             value={carForm.make}
             onChange={handleInputChange}
@@ -275,6 +328,7 @@ const ManageCars: React.FC = () => {
             required
           />
           <Input
+            type="text"
             name="model"
             value={carForm.model}
             onChange={handleInputChange}
@@ -290,11 +344,11 @@ const ManageCars: React.FC = () => {
             required
           />
           <Input
+            type="text"
             name="features"
             value={carForm.features}
             onChange={handleInputChange}
             placeholder="Features (comma separated)"
-            required
           />
           <Input
             type="number"
@@ -304,12 +358,22 @@ const ManageCars: React.FC = () => {
             placeholder="Pricing"
             required
           />
-          <Input type="file" name="image" onChange={handleFileChange} />
-          <Button type="submit" variant="primary">
-            Save
-          </Button>
+          <Input
+            type="file"
+            name="image"
+            onChange={handleFileChange}
+            accept="image/*"
+          />
+          <div className="flex justify-end space-x-2 mt-4">
+            <Button type="button" onClick={() => setUpdateModalIsOpen(false)}>
+              Cancel
+            </Button>
+            <Button type="submit">Update Car</Button>
+          </div>
         </form>
       </Modal>
+
+      <Toaster position="top-right" />
     </div>
   );
 };

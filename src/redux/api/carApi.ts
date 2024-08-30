@@ -10,7 +10,9 @@ interface ApiResponse<T> {
 
 export const carApi = createApi({
   reducerPath: "carApi",
-  baseQuery: fetchBaseQuery({ baseUrl: "http://localhost:5000/api" }),
+  baseQuery: fetchBaseQuery({
+    baseUrl: "https://assignment3-phi-fawn.vercel.app/api",
+  }),
   endpoints: (builder) => ({
     getAllCars: builder.query<Car[], void>({
       query: () => "/cars",
