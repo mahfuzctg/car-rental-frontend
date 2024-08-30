@@ -12,7 +12,6 @@ import {
   CardHeader,
 } from "../../../components/ui/UI/card";
 import { Input } from "../../../components/ui/UI/input";
-import { cn } from "../../../lib/utils";
 import {
   useAddCarMutation,
   useDeleteCarMutation,
@@ -22,11 +21,13 @@ import {
 import { Car } from "../../../types/carTypes";
 
 interface CarFormState {
-  make: string;
-  model: string;
-  year: string;
+  name: string;
+  description: string;
+  color: string;
+  isElectric: boolean;
+  status: string;
   features: string;
-  pricing: string;
+  pricePerHour: string;
   image: File | null;
 }
 
@@ -39,11 +40,13 @@ const ManageCars: React.FC = () => {
   const [updateModalIsOpen, setUpdateModalIsOpen] = useState(false);
   const [currentCar, setCurrentCar] = useState<Car | null>(null);
   const [carForm, setCarForm] = useState<CarFormState>({
-    make: "",
-    model: "",
-    year: "",
+    name: "",
+    description: "",
+    color: "",
+    isElectric: false,
+    status: "available",
     features: "",
-    pricing: "",
+    pricePerHour: "",
     image: null,
   });
 
@@ -57,10 +60,10 @@ const ManageCars: React.FC = () => {
   }, [cars]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
+    const { name, value, type, checked } = e.target;
     setCarForm((prev) => ({
       ...prev,
-      [name]: value,
+      [name]: type === "checkbox" ? checked : value,
     }));
   };
 
@@ -127,22 +130,25 @@ const ManageCars: React.FC = () => {
   const handleEdit = (car: Car) => {
     setCurrentCar(car);
     setCarForm({
-      make: car.make,
-      model: car.model,
-      year: car.year.toString(),
-      features: car.features.join(", "),
-      pricing: car.pricing.toString(),
-      image: null,
+      name: car.name || "",
+      description: car.description || "",
+      color: car.color || "",
+      isElectric: car.isElectric || false,
+      status: car.status || "available",
+      features: car.features ? car.features.join(", ") : "",
+      pricePerHour: car.pricePerHour ? car.pricePerHour.toString() : "",
+      image: null, // Reset image on edit
     });
     setUpdateModalIsOpen(true);
   };
 
   const handleDelete = async (id: string) => {
-    // Show a custom confirmation toast
     const confirmDeleteToast = toast.custom(
       (t) => (
         <div
-          className={`toast ${t.visible ? "animate-enter" : "animate-leave"}`}
+          className={`flex flex-col p-4 rounded-lg shadow-lg ${
+            t.visible ? "animate-enter" : "animate-leave"
+          } bg-white border border-gray-300`}
         >
           <div className="flex items-center">
             <AiOutlineCheckCircle className="text-green-500" />
@@ -152,7 +158,6 @@ const ManageCars: React.FC = () => {
             <button
               onClick={async () => {
                 toast.dismiss(t.id); // Dismiss the confirmation toast
-                // Show loading toast
                 const loadingToast = toast.loading("Confirming deletion...");
                 try {
                   await deleteCar(id).unwrap();
@@ -185,16 +190,17 @@ const ManageCars: React.FC = () => {
 
   const resetForm = () => {
     setCarForm({
-      make: "",
-      model: "",
-      year: "",
+      name: "",
+      description: "",
+      color: "",
+      isElectric: false,
+      status: "available",
       features: "",
-      pricing: "",
+      pricePerHour: "",
       image: null,
     });
   };
 
-  // Show only a subset of cars based on showAll state
   const displayedCars = showAll ? cars : cars.slice(0, 12);
 
   if (isLoading) return <p>Loading cars...</p>;
@@ -216,16 +222,17 @@ const ManageCars: React.FC = () => {
             <CardHeader>
               <img
                 src={car.image}
-                alt={car.make}
+                alt={car.name}
                 className="h-48 w-full object-cover"
               />
             </CardHeader>
             <CardContent>
               <h2 className="text-xl font-semibold">
-                {car.make} {car.model} ({car.year})
+                {car.name} ({car.color})
               </h2>
+              <p className="text-sm text-gray-600">{car.description}</p>
               <p className="text-sm text-gray-600">{car.features.join(", ")}</p>
-              <p className="text-lg font-bold mt-2">${car.pricing}/hour</p>
+              <p className="text-lg font-bold mt-2">${car.pricePerHour}/hour</p>
             </CardContent>
             <CardFooter className="flex justify-between">
               <Button variant="outline" onClick={() => handleEdit(car)}>
@@ -241,76 +248,104 @@ const ManageCars: React.FC = () => {
           </Card>
         ))}
       </div>
-      {!showAll && cars.length > 10 && (
-        <Button variant="" className="mt-4" onClick={() => setShowAll(true)}>
-          Show More
-        </Button>
-      )}
+      <Button
+        variant="secondary"
+        className="mt-4"
+        onClick={() => setShowAll(!showAll)}
+      >
+        {showAll ? "Show Less" : "Show All"}
+      </Button>
 
-      {/* Add New Car Modal */}
-
+      {/* Add Car Modal */}
       <Modal
         isOpen={addModalIsOpen}
         onRequestClose={() => setAddModalIsOpen(false)}
-        className={cn(
-          "bg-white p-4 rounded-lg shadow-lg max-w-lg mx-auto mt-20",
-          "focus:outline-none"
-        )}
-        overlayClassName="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center"
       >
-        <h2 className="text-2xl font-bold mb-4">Add New Car</h2>
-        <form onSubmit={handleAddSubmit} className="space-y-4">
-          <Input
-            type="text"
-            name="make"
-            value={carForm.make}
-            onChange={handleInputChange}
-            placeholder="Make"
-            required
-          />
-          <Input
-            type="text"
-            name="model"
-            value={carForm.model}
-            onChange={handleInputChange}
-            placeholder="Model"
-            required
-          />
-          <Input
-            type="number"
-            name="year"
-            value={carForm.year}
-            onChange={handleInputChange}
-            placeholder="Year"
-            required
-          />
-          <Input
-            type="text"
-            name="features"
-            value={carForm.features}
-            onChange={handleInputChange}
-            placeholder="Features (comma separated)"
-          />
-          <Input
-            type="number"
-            name="pricing"
-            value={carForm.pricing}
-            onChange={handleInputChange}
-            placeholder="Pricing"
-            required
-          />
-          <Input
-            type="file"
-            name="image"
-            onChange={handleFileChange}
-            accept="image/*"
-          />
-          <div className="flex justify-end space-x-2 mt-4">
-            <Button type="button" onClick={() => setAddModalIsOpen(false)}>
-              Cancel
-            </Button>
-            <Button type="submit">Add Car</Button>
+        <h2 className="text-xl font-bold mb-4">Add New Car</h2>
+        <form onSubmit={handleAddSubmit} encType="multipart/form-data">
+          <div className="mb-4">
+            <label className="block text-sm font-semibold">Name</label>
+            <Input
+              type="text"
+              name="name"
+              value={carForm.name}
+              onChange={handleInputChange}
+              required
+            />
           </div>
+          <div className="mb-4">
+            <label className="block text-sm font-semibold">Description</label>
+            <Input
+              type="text"
+              name="description"
+              value={carForm.description}
+              onChange={handleInputChange}
+              required
+            />
+          </div>
+          <div className="mb-4">
+            <label className="block text-sm font-semibold">Color</label>
+            <Input
+              type="text"
+              name="color"
+              value={carForm.color}
+              onChange={handleInputChange}
+              required
+            />
+          </div>
+          <div className="mb-4">
+            <label className="block text-sm font-semibold">Is Electric</label>
+            <Input
+              type="checkbox"
+              name="isElectric"
+              checked={carForm.isElectric}
+              onChange={handleInputChange}
+            />
+          </div>
+          <div className="mb-4">
+            <label className="block text-sm font-semibold">Status</label>
+            <select
+              name="status"
+              value={carForm.status}
+              onChange={handleInputChange}
+              className="w-full px-2 py-1 border border-gray-300 rounded"
+            >
+              <option value="available">Available</option>
+              <option value="unavailable">Unavailable</option>
+              <option value="under maintenance">Under Maintenance</option>
+            </select>
+          </div>
+          <div className="mb-4">
+            <label className="block text-sm font-semibold">
+              Features (comma separated)
+            </label>
+            <Input
+              type="text"
+              name="features"
+              value={carForm.features}
+              onChange={handleInputChange}
+              required
+            />
+          </div>
+          <div className="mb-4">
+            <label className="block text-sm font-semibold">
+              Price Per Hour
+            </label>
+            <Input
+              type="number"
+              name="pricePerHour"
+              value={carForm.pricePerHour}
+              onChange={handleInputChange}
+              required
+            />
+          </div>
+          <div className="mb-4">
+            <label className="block text-sm font-semibold">Image</label>
+            <input type="file" name="image" onChange={handleFileChange} />
+          </div>
+          <Button type="submit" variant="primary">
+            Add Car
+          </Button>
         </form>
       </Modal>
 
@@ -318,78 +353,92 @@ const ManageCars: React.FC = () => {
       <Modal
         isOpen={updateModalIsOpen}
         onRequestClose={() => setUpdateModalIsOpen(false)}
-        className={cn(
-          "bg-white p-4 rounded-lg shadow-lg max-w-lg mx-auto mt-20",
-          "focus:outline-none"
-        )}
-        overlayClassName="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center"
       >
-        <h2 className="text-2xl font-bold mb-4">Update Car</h2>
-        <form onSubmit={handleUpdateSubmit}>
+        <h2 className="text-xl font-bold mb-4">Update Car</h2>
+        <form onSubmit={handleUpdateSubmit} encType="multipart/form-data">
           <div className="mb-4">
-            <label className="block text-gray-700">Make</label>
+            <label className="block text-sm font-semibold">Name</label>
             <Input
               type="text"
-              name="make"
-              value={carForm.make}
+              name="name"
+              value={carForm.name}
               onChange={handleInputChange}
               required
             />
           </div>
           <div className="mb-4">
-            <label className="block text-gray-700">Model</label>
+            <label className="block text-sm font-semibold">Description</label>
             <Input
               type="text"
-              name="model"
-              value={carForm.model}
+              name="description"
+              value={carForm.description}
               onChange={handleInputChange}
               required
             />
           </div>
           <div className="mb-4">
-            <label className="block text-gray-700">Year</label>
+            <label className="block text-sm font-semibold">Color</label>
             <Input
-              type="number"
-              name="year"
-              value={carForm.year}
+              type="text"
+              name="color"
+              value={carForm.color}
               onChange={handleInputChange}
               required
             />
           </div>
           <div className="mb-4">
-            <label className="block text-gray-700">Features</label>
+            <label className="block text-sm font-semibold">Is Electric</label>
+            <Input
+              type="checkbox"
+              name="isElectric"
+              checked={carForm.isElectric}
+              onChange={handleInputChange}
+            />
+          </div>
+          <div className="mb-4">
+            <label className="block text-sm font-semibold">Status</label>
+            <select
+              name="status"
+              value={carForm.status}
+              onChange={handleInputChange}
+              className="w-full px-2 py-1 border border-gray-300 rounded"
+            >
+              <option value="available">Available</option>
+              <option value="unavailable">Unavailable</option>
+              <option value="under maintenance">Under Maintenance</option>
+            </select>
+          </div>
+          <div className="mb-4">
+            <label className="block text-sm font-semibold">
+              Features (comma separated)
+            </label>
             <Input
               type="text"
               name="features"
               value={carForm.features}
               onChange={handleInputChange}
+              required
             />
           </div>
           <div className="mb-4">
-            <label className="block text-gray-700">Pricing</label>
+            <label className="block text-sm font-semibold">
+              Price Per Hour
+            </label>
             <Input
               type="number"
-              name="pricing"
-              value={carForm.pricing}
+              name="pricePerHour"
+              value={carForm.pricePerHour}
               onChange={handleInputChange}
               required
             />
           </div>
           <div className="mb-4">
-            <label className="block text-gray-700">Image</label>
-            <Input type="file" name="image" onChange={handleFileChange} />
+            <label className="block text-sm font-semibold">Image</label>
+            <input type="file" name="image" onChange={handleFileChange} />
           </div>
-          <div className="flex justify-end">
-            <Button
-              variant="secondary"
-              onClick={() => setUpdateModalIsOpen(false)}
-            >
-              Cancel
-            </Button>
-            <Button type="submit" className="ml-2">
-              Update Car
-            </Button>
-          </div>
+          <Button type="submit" variant="primary">
+            Update Car
+          </Button>
         </form>
       </Modal>
 

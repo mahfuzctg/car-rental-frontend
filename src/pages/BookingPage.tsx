@@ -96,7 +96,7 @@ const BookingPage: React.FC = () => {
       <form onSubmit={handleSubmit} className="space-y-4">
         <Input
           label="Name"
-          placeholder="Email"
+          placeholder="Name"
           name="name"
           value={bookingData.name}
           onChange={handleInputChange}
