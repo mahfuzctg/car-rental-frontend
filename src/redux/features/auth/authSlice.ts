@@ -3,6 +3,8 @@ import { createSlice } from "@reduxjs/toolkit";
 import { RootState } from "../../store";
 
 export type TUser = {
+  address: string | number | readonly string[] | undefined;
+  image: string | undefined;
   admin: any;
   name?: string;
   phone?: string;

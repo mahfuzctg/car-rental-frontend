@@ -6,7 +6,7 @@ import SignIn from "../Auth/SignIn";
 import SignUp from "../Auth/SignUp";
 import AdminDashboard from "../dashboard/admin/AdminDashboard";
 import CreateCar from "../dashboard/admin/Managements/CRUD/CreateCar";
-import UpdateCar from "../dashboard/admin/Managements/CRUD/UpdateCarModal";
+
 import DashboardOverview from "../dashboard/admin/Managements/DashboardOverview";
 import ManageBookings from "../dashboard/admin/Managements/ManageBookings";
 import ManageCars from "../dashboard/admin/Managements/ManageCars";
@@ -20,7 +20,7 @@ import UserDashboard from "../dashboard/user/userDashboard";
 import AdminLayout from "../Layout/AdminLayout";
 import UserLayout from "../Layout/UserLayout";
 import AboutPage from "../pages/AboutPage";
-import BookingConfirmation from "../pages/Booking/BookingConfirm";
+
 import BookingForm from "../pages/Booking/BookingForm";
 import BookingPage from "../pages/BookingPage";
 import CarDetails from "../pages/CarDetailsPage";
@@ -40,7 +40,6 @@ export const router = createBrowserRouter([
       { path: "booking-form/:id", element: <BookingForm /> },
       {
         path: "booking-confirmation/:id",
-        element: <BookingConfirmation />,
       },
       { path: "cars", element: <CarListing /> },
       { path: "car/:id", element: <CarDetails /> },
@@ -67,7 +66,7 @@ export const router = createBrowserRouter([
       { path: "overview", element: <DashboardOverview /> },
       { path: "manage-cars", element: <ManageCars /> },
       { path: "create-car", element: <CreateCar /> },
-      { path: "update-car/:id", element: <UpdateCar /> },
+      // { path: "update-car/:id", element: <UpdateCar /> },
       { path: "manage-bookings", element: <ManageBookings /> },
       { path: "manage-return-cars", element: <ManageReturnCars /> },
       { path: "manage-users", element: <UserManagement /> },

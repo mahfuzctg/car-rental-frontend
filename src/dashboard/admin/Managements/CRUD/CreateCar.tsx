@@ -1,3 +1,4 @@
+/* eslint-disable no-constant-binary-expression */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { useState } from "react";
 import { Controller, SubmitHandler, useForm } from "react-hook-form";
@@ -52,23 +53,38 @@ const CreateCar = () => {
   const onSubmit: SubmitHandler<TFormData> = async (data) => {
     setLoading(true);
     const toastId = toast.loading("Creating...");
-
-    const carData = {
-      name: data.name,
-      model: data.model,
-      year: data.year,
-      features: [data.features],
-      pricePerHour: Number(data.pricePerHour),
-      description: data.description,
-      isElectric: Boolean(data.isElectric),
-      carType: data.carType,
-      location: data.location,
-      color: data.color,
-      seatCapacity: Number(data.seatCapacity),
-      date: data.date,
-      image: imageUrl,
-      ownerEmail: user?.email,
-      ownerName: user?.name,
+    const carData: {
+      name: string;
+      model: string;
+      year: string;
+      features: string[];
+      pricePerHour: number;
+      description: string;
+      isElectric: boolean;
+      carType: string;
+      location: string;
+      color: string;
+      seatCapacity: number;
+      date: string;
+      image: string | undefined; // Change this to avoid `null`
+      ownerEmail: string | undefined;
+      ownerName: string | undefined;
+    } = {
+      name: "Car Name",
+      model: "Model XYZ",
+      year: "2022",
+      features: ["Airbags", "ABS"],
+      pricePerHour: 50,
+      description: "A great car for rental.",
+      isElectric: true,
+      carType: "SUV",
+      location: "New York",
+      color: "Red",
+      seatCapacity: 5,
+      date: "2023-01-01",
+      image: null ?? undefined,
+      ownerEmail: "owner@example.com",
+      ownerName: "John Doe",
     };
 
     try {

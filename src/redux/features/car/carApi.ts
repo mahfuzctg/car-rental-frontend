@@ -1,71 +1,67 @@
+import { TCar } from "../../../dashboard/admin/Managements/CRUD/Modal/CreateCarModal";
 import { baseApi } from "../../api/baseApi";
 
-const carApi = baseApi.injectEndpoints({
+const productApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
-    getAllCars: builder.query({
-      query: (query) => {
-        const params = new URLSearchParams();
-
-        if (query?.searchValue) {
-          params.append("searchValue", query.searchValue);
-        }
-        if (query?.carType) {
-          params.append("carType", query.carType);
-        }
-        if (query?.minPrice) {
-          params.append("minPrice", query.minPrice);
-        }
-
-        if (query?.maxPrice) {
-          params.append("maxPrice", query.maxPrice);
-        }
-
-        return {
-          url: `/cars?${params.toString()}`,
-          method: "GET",
-        };
-      },
-      providesTags: ["cars"],
-    }),
-    getSingleCar: builder.query({
-      query: (id) => ({
-        url: `/cars/${id}`,
-        method: "GET",
-      }),
-      providesTags: ["cars"],
-    }),
     createCar: builder.mutation({
-      query: (carData) => ({
+      query: (car: TCar) => ({
         url: "/cars",
         method: "POST",
-        body: carData,
+        body: car,
       }),
-      invalidatesTags: ["cars"],
+      invalidatesTags: ["Cars"],
     }),
 
-    updateCar: builder.mutation({
-      query: (carData) => ({
-        url: `/cars/${carData.id}`,
-        method: "PUT",
-        body: carData.data,
+    getAllCars: builder.query({
+      query: (query) => ({
+        url: "/cars",
+        method: "GET",
+        params: query,
       }),
-      invalidatesTags: ["cars"],
+      providesTags: ["Cars"],
+    }),
+
+    getSingleCar: builder.query({
+      query: (carId: string) => ({
+        url: `/cars/${carId}`,
+        method: "GET",
+      }),
+      providesTags: ["Single-car"],
     }),
 
     deleteCar: builder.mutation({
-      query: (id) => ({
-        url: `/cars/${id}`,
+      query: (carId: string) => ({
+        url: `/cars/${carId}`,
         method: "DELETE",
       }),
-      invalidatesTags: ["cars"],
+      invalidatesTags: ["Cars"],
+    }),
+
+    updateCar: builder.mutation({
+      query: ({ carId, payload }: { carId: string; payload: TCar }) => ({
+        url: `/cars/${carId}`,
+        method: "PUT",
+        body: payload,
+      }),
+      invalidatesTags: ["Cars", "Single-car"],
+    }),
+
+    returnCar: builder.mutation({
+      query: (payload: { bookingId: string }) => ({
+        url: `/api/cars/return`,
+        method: "PUT",
+        body: payload,
+      }),
+      invalidatesTags: ["Cars", "Bookings"],
     }),
   }),
 });
 
 export const {
-  useGetAllCarsQuery,
-  useGetSingleCarQuery,
   useCreateCarMutation,
+  useGetAllCarsQuery,
   useUpdateCarMutation,
   useDeleteCarMutation,
-} = carApi;
+  useGetSingleCarQuery,
+  useReturnCarMutation,
+} = productApi;

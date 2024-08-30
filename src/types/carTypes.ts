@@ -1,6 +1,7 @@
 import { Key } from "react";
 
 export type TCar = {
+  images: [] | "";
   id: Key | null | undefined;
   price: number;
   type: string;
@@ -9,9 +10,9 @@ export type TCar = {
   name: string;
   model: string;
   year: string;
-  image: string;
+  image: string | null; // Allow `null` here
   location: string;
-  ownerEmail: string;
+  ownerEmail: string | undefined;
   ownerName: string;
   description: string;
   color: string;

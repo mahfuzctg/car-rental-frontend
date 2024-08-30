@@ -26,6 +26,7 @@
     "@types/react-redux": "^7.1.33",
     "@types/react-router-dom": "^5.3.3",
     "@types/react-star-rating-component": "^1.4.4",
+    "@types/react-toastify": "^4.0.2",
     "autoprefixer": "^10.4.20",
     "axios": "^1.7.5",
     "chart.js": "^4.4.4",

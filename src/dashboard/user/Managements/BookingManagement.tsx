@@ -1,428 +1,297 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
-import { Dialog, Transition } from "@headlessui/react";
-import React, { Fragment, useEffect, useState } from "react";
-import { MdCancel, MdCheck, MdDelete, MdEdit } from "react-icons/md";
+import { useState } from "react";
+import { ClipLoader } from "react-spinners";
 
-interface Booking {
-  id: number;
-  car: string;
-  date: string;
-  status: string; // "Pending", "Approved", "Cancelled"
-}
+import { FcCancel } from "react-icons/fc";
+import { RiEditCircleLine } from "react-icons/ri";
+import { toast } from "sonner";
+import {
+  useCancelBookingMutation,
+  useGetUserBookingsQuery,
+  useUpdateBookingMutation,
+} from "../../../redux/features/booking/bookingApi";
 
-const BookingManagement: React.FC = () => {
-  const [bookings, setBookings] = useState<Booking[]>([]);
-  const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
-  const [actionType, setActionType] = useState<"modify" | "cancel" | null>(
-    null
-  );
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+import { BsArrowUpRightSquareFill } from "react-icons/bs";
 
-  useEffect(() => {
-    const fetchBookings = async () => {
-      setLoading(true);
-      try {
-        const response = await fetch(
-          `https://assignment3-phi-fawn.vercel.app/api/bookings`
-        );
-        if (!response.ok) {
-          throw new Error("Failed to fetch bookings");
-        }
-        const data = await response.json();
-        setBookings(data);
-      } catch (error) {
-        console.error("Error fetching bookings:", error);
-        setError("Failed to load bookings.");
-      } finally {
-        setLoading(false);
-      }
-    };
+import { SiPayoneer } from "react-icons/si";
+import { TBooking } from "../../../types/bookingTypes";
+import PaymentModal from "../../admin/Managements/CRUD/Modal/PaymentModal";
+import UpdateBookingModal from "../../admin/Managements/CRUD/Modal/UpdateBooking";
 
-    fetchBookings();
-  }, []);
+export default function MyBooking() {
+  const [openUpdateModal, setOpenUpdateModal] = useState<boolean>(false);
+  const [openPayModal, setOpenPayModal] = useState<boolean>(false);
+  const { data, isLoading: bookingsLoading } =
+    useGetUserBookingsQuery(undefined);
+  const [updateBooking, { isLoading: updateLoading }] =
+    useUpdateBookingMutation();
+  const [cancelBooking] = useCancelBookingMutation();
+  const [updateBookingId, setUpdateBookingId] = useState("");
 
-  const handleOpenModal = (booking: Booking, type: "modify" | "cancel") => {
-    setSelectedBooking(booking);
-    setActionType(type);
-    setIsModalOpen(true);
-  };
+  const bookings: TBooking[] = data?.data || [];
 
-  const handleCloseModal = () => {
-    setIsModalOpen(false);
-    setSelectedBooking(null);
-    setActionType(null);
-  };
+  // send return request booking
+  const sendReturnReq = async (bookingId: string) => {
+    const currentTime = new Date();
+    const hours = String(currentTime.getHours()).padStart(2, "0");
+    const minutes = String(currentTime.getMinutes()).padStart(2, "0");
+    const formattedTime = `${hours}:${minutes}`;
 
-  const handleOpenConfirmModal = () => {
-    setIsConfirmModalOpen(true);
-  };
+    const res = await updateBooking({
+      bookingId,
+      payload: { isReturnProcess: true, endTime: formattedTime },
+    });
 
-  const handleCloseConfirmModal = () => {
-    setIsConfirmModalOpen(false);
-  };
-
-  const handleModifyBooking = async () => {
-    if (selectedBooking && actionType === "modify") {
-      setLoading(true);
-      setError(null);
-      try {
-        const response = await fetch(
-          `https://assignment3-phi-fawn.vercel.app/bookings/${selectedBooking.id}`,
-          {
-            method: "PUT",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify(selectedBooking), // Ensure this matches your API payload
-          }
-        );
-
-        if (!response.ok) {
-          throw new Error("Failed to modify booking");
-        }
-
-        const updatedBooking = await response.json();
-        setBookings((prevBookings) =>
-          prevBookings.map((booking) =>
-            booking.id === updatedBooking.id ? updatedBooking : booking
-          )
-        );
-        alert("Booking modified successfully!");
-      } catch (error) {
-        console.error("Error modifying booking:", error);
-        alert("Failed to modify booking.");
-      } finally {
-        setLoading(false);
-        handleCloseModal();
-      }
+    if (res?.data?.success) {
+      toast.success("Return Request Sent");
+      location.reload();
+    } else {
+      toast.error("Something went wrong");
     }
   };
 
-  const handleCancelBooking = async () => {
-    if (selectedBooking && actionType === "cancel") {
-      setLoading(true);
-      setError(null);
-      try {
-        const response = await fetch(
-          `https://assignment3-phi-fawn.vercel.app/bookings/${selectedBooking.id}`,
-          {
-            method: "DELETE",
-          }
-        );
+  // cancel booking
+  const cancelBookingIntoDB = async (bookingId: string, carId: string) => {
+    const res = await cancelBooking({ bookingId, carId });
 
-        if (!response.ok) {
-          throw new Error("Failed to cancel booking");
-        }
-
-        setBookings((prevBookings) =>
-          prevBookings.filter((booking) => booking.id !== selectedBooking.id)
-        );
-        alert("Booking cancelled successfully!");
-      } catch (error) {
-        console.error("Error cancelling booking:", error);
-        alert("Failed to cancel booking.");
-      } finally {
-        setLoading(false);
-        handleCloseConfirmModal();
-      }
+    if (res?.data?.success) {
+      toast.success("Booking Cancelled!");
+    } else {
+      toast.error("Something went wrong");
     }
   };
-
-  const upcomingBookings = bookings.filter(
-    (b) => new Date(b.date) > new Date()
-  );
-  const pastBookings = bookings.filter((b) => new Date(b.date) <= new Date());
 
   return (
-    <div className="p-6 w-full max-w-6xl mx-auto">
-      <h2 className="text-2xl text-gray-700 md:text-3xl font-bold text-center mb-6 uppercase">
-        Booking Management
-        <div className="w-24 h-1 bg-red-600 mt-2 mx-auto"></div>
-      </h2>
-      {loading && <p className="text-gray-600">Loading...</p>}
-      {error && <p className="text-red-600">{error}</p>}
-
-      {/* Upcoming Bookings Section */}
-      <div className="mb-6">
-        <h2 className="text-xl font-semibold text-gray-700 mb-4">
-          Upcoming Bookings
+    <section className="max-w-[1300px] mx-auto px-4 my-2 md:my-6 lg:my-10 mb-10 font-prompt">
+      <div className="flex justify-center items-center mb-3">
+        <h2 className="text-2xl text-gray-700 md:text-3xl font-bold text-center mb-6 uppercase">
+          My bookings
+          <div className="w-24 h-1 bg-red-600 mt-2 mx-auto"></div>
         </h2>
-        {upcomingBookings.length > 0 ? (
-          <div className="overflow-x-auto">
-            <table className="w-full border-separate border border-gray-300 rounded-md">
-              <thead className="bg-gray-200 text-gray-600">
-                <tr>
-                  <th className="px-4 py-2 border-b text-left">ID</th>
-                  <th className="px-4 py-2 border-b text-left">Car Model</th>
-                  <th className="px-4 py-2 border-b text-left">Date</th>
-                  <th className="px-4 py-2 border-b text-left">Status</th>
-                  <th className="px-4 py-2 border-b text-left">Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {upcomingBookings.map((booking) => (
-                  <tr
-                    key={booking.id}
-                    className="border-b hover:bg-gray-50 transition-colors"
-                  >
-                    <td className="px-4 py-2">{booking.id}</td>
-                    <td className="px-4 py-2">{booking.car}</td>
-                    <td className="px-4 py-2">{booking.date}</td>
-                    <td className="px-4 py-2">{booking.status}</td>
-                    <td className="px-4 py-2 flex space-x-2">
-                      <button
-                        onClick={() => handleOpenModal(booking, "modify")}
-                        className="bg-blue-600 text-white px-4 py-2 rounded-md shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-600 flex items-center"
-                      >
-                        <MdEdit className="mr-2" /> Modify
-                      </button>
-                      <button
-                        onClick={() => handleOpenModal(booking, "cancel")}
-                        className="bg-red-600 text-white px-4 py-2 rounded-md shadow-sm hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-600 flex items-center"
-                      >
-                        <MdDelete className="mr-2" /> Cancel
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        ) : (
-          <p className="text-gray-600">No upcoming bookings found.</p>
+      </div>
+
+      <div className="text-right mb-7">
+        {/* update booking modal  */}
+        {openUpdateModal && (
+          <UpdateBookingModal
+            bookingId={updateBookingId}
+            open={openUpdateModal}
+            setOpen={setOpenUpdateModal}
+          />
+        )}
+
+        {/* payment modal  */}
+        {openPayModal && (
+          <PaymentModal
+            bookingId={updateBookingId}
+            open={openPayModal}
+            setOpen={setOpenPayModal}
+          />
         )}
       </div>
 
-      {/* Past Bookings Section */}
-      <div>
-        <h2 className="text-xl font-semibold text-gray-700 mb-4">
-          Past Bookings
-        </h2>
-        {pastBookings.length > 0 ? (
-          <div className="overflow-x-auto">
-            <table className="w-full border-separate border border-gray-300 rounded-md">
-              <thead className="bg-gray-200 text-gray-600">
-                <tr>
-                  <th className="px-4 py-2 border-b text-left">ID</th>
-                  <th className="px-4 py-2 border-b text-left">Car Model</th>
-                  <th className="px-4 py-2 border-b text-left">Date</th>
-                  <th className="px-4 py-2 border-b text-left">Status</th>
-                </tr>
-              </thead>
-              <tbody>
-                {pastBookings.map((booking) => (
-                  <tr
-                    key={booking.id}
-                    className="border-b hover:bg-gray-50 transition-colors"
-                  >
-                    <td className="px-4 py-2">{booking.id}</td>
-                    <td className="px-4 py-2">{booking.car}</td>
-                    <td className="px-4 py-2">{booking.date}</td>
-                    <td className="px-4 py-2">{booking.status}</td>
+      <div className="flex flex-col ">
+        <div className="overflow-x-auto sm:-mx-6 lg:-mx-8">
+          <div className="inline-block min-w-full py-2 sm:px-6 lg:px-8">
+            <div className="overflow-hidden">
+              <table className="min-w-full text-center text-sm inter-regular dark:border-neutral-500">
+                <thead className=" inter-regular ">
+                  <tr className="white h-8 text-gray-700 text-[12px] md:text-base ">
+                    <th
+                      scope="col"
+                      className="border-r px-6 py-0 md:py-2 lg:py-4 border-zinc-600 rounded-l-2xl"
+                    >
+                      Image
+                    </th>
+                    <th
+                      scope="col"
+                      className="border-r px-6 py-0 md:py-2 lg:py-4 border-zinc-600"
+                    >
+                      Name
+                    </th>
+
+                    <th
+                      scope="col"
+                      className="border-r px-6 py-0 md:py-2 lg:py-4 border-zinc-600"
+                    >
+                      Date
+                    </th>
+                    <th
+                      scope="col"
+                      className="border-r px-6 py-0 md:py-2 lg:py-4 border-zinc-600"
+                    >
+                      Price(1H)
+                    </th>
+                    <th
+                      scope="col"
+                      className="border-r px-6 py-0 md:py-2 lg:py-4 border-zinc-600"
+                    >
+                      Status
+                    </th>
+
+                    <th
+                      scope="col"
+                      className="border-r border-zinc-600 px-6 py-0 md:py-2 lg:py-4  "
+                    >
+                      Return REQ
+                    </th>
+
+                    <th
+                      scope="col"
+                      className="border-r border-zinc-600 px-6 py-0 md:py-2 lg:py-4  "
+                    >
+                      Cancel
+                    </th>
+
+                    <th
+                      scope="col"
+                      className=" px-6 py-0 md:py-2 lg:py-4  rounded-r-2xl"
+                    >
+                      {" "}
+                      Edit{" "}
+                    </th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        ) : (
-          <p className="text-gray-600">No past bookings found.</p>
-        )}
-      </div>
-
-      {/* Modal for Modify/Cancel Booking */}
-      <Transition appear show={isModalOpen} as={Fragment}>
-        <Dialog
-          as="div"
-          className="fixed inset-0 z-10 overflow-y-auto"
-          onClose={handleCloseModal}
-        >
-          <div className="min-h-screen px-4 text-center">
-            <Transition.Child
-              as={Fragment}
-              enter="ease-out duration-300"
-              enterFrom="opacity-0"
-              enterTo="opacity-100"
-              leave="ease-in duration-200"
-              leaveFrom="opacity-100"
-              leaveTo="opacity-0"
-            >
-              <div
-                className="fixed inset-0 bg-gray-500 bg-opacity-75"
-                aria-hidden="true"
-              />
-            </Transition.Child>
-
-            <span
-              className="inline-block h-screen align-middle"
-              aria-hidden="true"
-            >
-              &#8203;
-            </span>
-
-            <Transition.Child
-              as={Fragment}
-              enter="ease-out duration-300"
-              enterFrom="opacity-0 scale-95"
-              enterTo="opacity-100 scale-100"
-              leave="ease-in duration-200"
-              leaveFrom="opacity-100 scale-100"
-              leaveTo="opacity-0 scale-95"
-            >
-              <div className="inline-block w-full max-w-md p-6 my-8 overflow-hidden text-left align-middle transition-all transform bg-white shadow-xl rounded-md">
-                <Dialog.Title
-                  as="h3"
-                  className="text-lg font-medium leading-6 text-gray-900 flex items-center"
-                >
-                  {actionType === "modify" ? (
-                    <>
-                      <MdEdit className="mr-2" /> Modify Booking
-                    </>
-                  ) : (
-                    <>
-                      <MdDelete className="mr-2" /> Confirm Cancellation
-                    </>
+                </thead>
+                <tbody className="relative">
+                  {bookingsLoading && (
+                    <ClipLoader
+                      color="#FBBF24"
+                      loading={bookingsLoading}
+                      className="absolute top-14 left-2/4"
+                      size={60}
+                      aria-label="Loading Spinner"
+                      speedMultiplier={0.8}
+                    />
                   )}
-                </Dialog.Title>
-                <div className="mt-2">
-                  {actionType === "modify" ? (
-                    <>
-                      <p className="text-sm text-gray-500">
-                        Modify the booking details for the selected booking.
-                      </p>
-                      {/* Modify booking form */}
-                      {/* Add your form fields here */}
-                      <button
-                        type="button"
-                        onClick={handleModifyBooking}
-                        className="mt-4 inline-flex items-center px-4 py-2 bg-blue-600 text-white border border-transparent rounded-md shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-600"
-                      >
-                        {loading ? (
-                          <MdCheck className="animate-spin mr-2" />
-                        ) : (
-                          <MdCheck className="mr-2" />
-                        )}{" "}
-                        Save Changes
-                      </button>
-                    </>
-                  ) : (
-                    <>
-                      <p className="text-sm text-gray-500">
-                        Are you sure you want to cancel this booking? This
-                        action cannot be undone.
-                      </p>
-                      <div className="flex gap-4 mt-4">
-                        <button
-                          type="button"
-                          onClick={handleCancelBooking}
-                          className="inline-flex items-center px-4 py-2 bg-red-600 text-white border border-transparent rounded-md shadow-sm hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-600"
-                        >
-                          {loading ? (
-                            <MdCancel className="animate-spin mr-2" />
+
+                  {updateLoading && (
+                    <ClipLoader
+                      color="#FBBF24"
+                      loading={updateLoading}
+                      className="absolute top-14 left-2/4 backdrop-blur-lg"
+                      size={60}
+                      aria-label="Loading Spinner"
+                      speedMultiplier={0.8}
+                    />
+                  )}
+
+                  {bookings?.map((booking) => (
+                    <tr key={booking._id} className="border-b ">
+                      <td className="whitespace-nowrap border-r px-6 py-4 font-medium border-zinc-500 flex items-center justify-center">
+                        <img
+                          src={booking?.car?.images[0]}
+                          className="w-[52px] h-[52px] md:w-16 md:h-16 object-contain rounded-full"
+                        />
+                      </td>
+                      <td className=" border-r font-medium text-sm  text-zinc-400 text-start md:text-center px-6 py-4 border-zinc-500">
+                        {booking.car.name}
+                      </td>
+
+                      <td className=" border-r font-medium text-sm   text-zinc-400 text-start md:text-center px-6 py-4 border-zinc-500">
+                        {booking.date}
+                      </td>
+
+                      <td className="whitespace-nowrap font-medium text-lime-500 text-sm md:text-lg border-r px-6 py-4 border-zinc-500">
+                        ${booking.car.pricePerHour}
+                      </td>
+                      <td className="whitespace-nowrap font-medium text-zinc-400 text-sm  border-r px-6 py-4 border-zinc-500">
+                        {booking.status}
+                      </td>
+
+                      {booking.status === "approved" ? (
+                        <td className="whitespace-nowrap font-medium text-zinc-400 text-sm  border-r px-6 py-4 border-zinc-500">
+                          {booking.isReturnProcess === true ? (
+                            <span className="text-amber-500">IN Progress</span>
                           ) : (
-                            <MdCancel className="mr-2" />
-                          )}{" "}
-                          Yes, Cancel
-                        </button>
-                        <button
-                          type="button"
-                          onClick={handleCloseModal}
-                          className="inline-flex items-center px-4 py-2 bg-gray-500 text-white border border-transparent rounded-md shadow-sm hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-500"
-                        >
-                          <MdCancel className="mr-2" /> Cancel
-                        </button>
-                      </div>
-                    </>
-                  )}
-                </div>
-              </div>
-            </Transition.Child>
-          </div>
-        </Dialog>
-      </Transition>
-
-      {/* Confirm Cancellation Modal */}
-      <Transition appear show={isConfirmModalOpen} as={Fragment}>
-        <Dialog
-          as="div"
-          className="fixed inset-0 z-10 overflow-y-auto"
-          onClose={handleCloseConfirmModal}
-        >
-          <div className="min-h-screen px-4 text-center">
-            <Transition.Child
-              as={Fragment}
-              enter="ease-out duration-300"
-              enterFrom="opacity-0"
-              enterTo="opacity-100"
-              leave="ease-in duration-200"
-              leaveFrom="opacity-100"
-              leaveTo="opacity-0"
-            >
-              <div
-                className="fixed inset-0 bg-gray-500 bg-opacity-75"
-                aria-hidden="true"
-              />
-            </Transition.Child>
-
-            <span
-              className="inline-block h-screen align-middle"
-              aria-hidden="true"
-            >
-              &#8203;
-            </span>
-
-            <Transition.Child
-              as={Fragment}
-              enter="ease-out duration-300"
-              enterFrom="opacity-0 scale-95"
-              enterTo="opacity-100 scale-100"
-              leave="ease-in duration-200"
-              leaveFrom="opacity-100 scale-100"
-              leaveTo="opacity-0 scale-95"
-            >
-              <div className="inline-block w-full max-w-md p-6 my-8 overflow-hidden text-left align-middle transition-all transform bg-white shadow-xl rounded-md">
-                <Dialog.Title
-                  as="h3"
-                  className="text-lg font-medium leading-6 text-gray-900 flex items-center"
-                >
-                  <MdDelete className="mr-2" /> Confirm Cancellation
-                </Dialog.Title>
-                <div className="mt-2">
-                  <p className="text-sm text-gray-500">
-                    Are you sure you want to cancel this booking? This action
-                    cannot be undone.
-                  </p>
-                  <div className="flex gap-4 mt-4">
-                    <button
-                      type="button"
-                      onClick={handleCancelBooking}
-                      className="inline-flex items-center px-4 py-2 bg-red-600 text-white border border-transparent rounded-md shadow-sm hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-600"
-                    >
-                      {loading ? (
-                        <MdCancel className="animate-spin mr-2" />
+                            <button
+                              className={` bg-white text-violet-600 rounded font-semibold transition-all md:text-3xl `}
+                              onClick={() => {
+                                sendReturnReq(booking._id!);
+                              }}
+                            >
+                              {" "}
+                              <BsArrowUpRightSquareFill />{" "}
+                            </button>
+                          )}
+                        </td>
                       ) : (
-                        <MdCancel className="mr-2" />
-                      )}{" "}
-                      Yes, Cancel
-                    </button>
-                    <button
-                      type="button"
-                      onClick={handleCloseConfirmModal}
-                      className="inline-flex items-center px-4 py-2 bg-gray-500 text-white border border-transparent rounded-md shadow-sm hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-500"
-                    >
-                      <MdCancel className="mr-2" /> Cancel
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </Transition.Child>
-          </div>
-        </Dialog>
-      </Transition>
-    </div>
-  );
-};
+                        <>
+                          {" "}
+                          <span> </span>
+                        </>
+                      )}
 
-export default BookingManagement;
+                      {booking.status === "completed" ? (
+                        <td className="whitespace-nowrap font-medium text-zinc-400 text-sm  border-r px-6 py-4 border-zinc-500">
+                          {booking.isPaid ? (
+                            <span className="text-lg text-purple-500">
+                              Paid
+                            </span>
+                          ) : (
+                            <button
+                              className={` text-blue-500 hover:text-blue-600 flex items-center gap-1 rounded carter-one-regular transition-all md:text-xl `}
+                              onClick={() => {
+                                setUpdateBookingId(booking._id!);
+                                setOpenPayModal(true);
+                              }}
+                            >
+                              {" "}
+                              <SiPayoneer /> PAY
+                            </button>
+                          )}
+                        </td>
+                      ) : (
+                        <>
+                          {" "}
+                          <span> </span>
+                        </>
+                      )}
+
+                      {booking.status === "pending" ? (
+                        <>
+                          {" "}
+                          <td className="whitespace-nowrap font-medium  text-sm md:text-lg  px-6 py-4 border border-zinc-400">
+                            {/* delete product  */}
+                            <button
+                              className={`  text-white rounded font-semibold transition-all md:text-2xl `}
+                              onClick={() =>
+                                cancelBookingIntoDB(
+                                  booking._id!,
+                                  booking.car._id!
+                                )
+                              }
+                            >
+                              <FcCancel />
+                            </button>
+                          </td>
+                          <td className="whitespace-nowrap font-medium border-r text-sm md:text-lg  px-6 py-4 border-zinc-500">
+                            <button
+                              className={`bg-blue-700 p-1 px-2 md:py-2  text-white rounded font-semibold transition-all hover:bg-blue-800 text-[12px] md:text-base `}
+                              onClick={() => {
+                                setUpdateBookingId(booking._id!);
+                                setOpenUpdateModal(true);
+                              }}
+                            >
+                              <RiEditCircleLine />
+                            </button>
+                          </td>
+                        </>
+                      ) : (
+                        <></>
+                      )}
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+              {!bookings?.length && (
+                <p className="text-xl text-center mt-44 text-gray-500">
+                  {" "}
+                  No Bookings{" "}
+                </p>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}

@@ -17,6 +17,7 @@ import {
   useDeleteCarMutation,
   useGetAllCarsQuery,
 } from "../../../redux/features/car/carApi";
+import UpdateModal from "./CRUD/Modal/UpdateModal";
 
 interface Car {
   _id: string;
@@ -29,6 +30,8 @@ interface Car {
 const ManageCars: React.FC = () => {
   const navigate = useNavigate();
   const [showAll, setShowAll] = useState(false);
+  const [selectedCarId, setSelectedCarId] = useState<string | null>(null); // State for selected car ID
+  const [modalOpen, setModalOpen] = useState(false); // State for modal visibility
 
   // Fetch cars and manage loading and error states
   const { data: response, isLoading, error } = useGetAllCarsQuery({});
@@ -137,7 +140,7 @@ const ManageCars: React.FC = () => {
         {displayedCars.map((car: Car) => (
           <Card
             key={car._id}
-            className="flex flex-col  rounded-lg overflow-hidden bg-white border border-gray-200"
+            className="flex flex-col rounded-lg overflow-hidden bg-white border border-gray-200"
           >
             <CardHeader className="relative h-2/5">
               <img
@@ -156,7 +159,10 @@ const ManageCars: React.FC = () => {
               </div>
               <div className="flex justify-between mt-4">
                 <Button
-                  onClick={() => navigate(`/admin/update-car/${car._id}`)}
+                  onClick={() => {
+                    setSelectedCarId(car._id);
+                    setModalOpen(true);
+                  }}
                   className="flex items-center bg-white text-red-600 outline-3"
                 >
                   <AiOutlineEdit className="mr-2" /> Edit
@@ -183,6 +189,15 @@ const ManageCars: React.FC = () => {
             Show All
           </button>
         </div>
+      )}
+
+      {/* Conditionally render UpdateModal */}
+      {modalOpen && selectedCarId && (
+        <UpdateModal
+          carId={selectedCarId}
+          open={modalOpen}
+          setOpen={setModalOpen}
+        />
       )}
 
       <Toaster />
