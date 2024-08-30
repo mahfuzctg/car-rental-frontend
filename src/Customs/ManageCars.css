@@ -116,11 +116,11 @@
 }
 
 /* modal styles */
-.modal {
+/* .modal {
   overlay: {
     backgroundcolor: rgba(0, 0, 0, 0.5);
   }
-}
+} */
 
 .small-modal {
   width: 400px; /* Adjust the width as needed */

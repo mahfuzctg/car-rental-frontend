@@ -1,228 +1,108 @@
-import {
-  CardElement,
-  Elements,
-  useElements,
-  useStripe,
-} from "@stripe/react-stripe-js";
-import { loadStripe } from "@stripe/stripe-js";
-import axios from "axios";
-import React, { useEffect, useState } from "react";
-import toast, { Toaster } from "react-hot-toast";
-import { BsBank } from "react-icons/bs"; // Bkash Icon
-import { FaCcStripe } from "react-icons/fa"; // Stripe Icon
-import { useParams } from "react-router-dom";
-import { Button } from "../components/ui/UI/button";
-import { Input } from "../components/ui/UI/input";
+/* eslint-disable @typescript-eslint/no-unused-vars */
+import { useState } from "react";
+import { SubmitHandler } from "react-hook-form";
+import CarCard from "../components/Card/BookingCard";
 
-// Load Stripe
-const stripePromise = loadStripe("YOUR_STRIPE_PUBLIC_KEY");
+import { useGetAllCarsQuery } from "../redux/features/car/carApi";
+import { TCar } from "../types/carTypes";
 
-const BookingForm: React.FC<{ id: string }> = ({ id }) => {
-  const stripe = useStripe();
-  const elements = useElements();
-  const [bookingData, setBookingData] = useState({
-    name: "",
-    email: "",
-    phone: "",
-    paymentMethod: "Credit Card",
+const BookingPage = () => {
+  const searchParams = new URLSearchParams(location.search);
+  const searchableValue = searchParams.get("searchValue");
+
+  const [searchValue, setSearchValue] = useState(searchableValue || "");
+  const [carType, setCarType] = useState("");
+  const [minPrice, setMinPrice] = useState("");
+  const [maxPrice, setMaxPrice] = useState("");
+
+  const onSubmit: SubmitHandler<{ searchValue: string }> = (data) => {
+    setSearchValue(data.searchValue);
+  };
+
+  const { data: carData, isLoading } = useGetAllCarsQuery({
+    searchValue,
+    carType,
+    minPrice,
+    maxPrice,
   });
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setBookingData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
-  };
-
-  const handleStripeSubmit = async (event: React.FormEvent) => {
-    event.preventDefault();
-
-    if (!bookingData.name || !bookingData.email || !bookingData.phone) {
-      toast.error("Please fill in all required fields.");
-      return;
-    }
-
-    if (!stripe || !elements) {
-      toast.error("Stripe.js has not yet loaded.");
-      return;
-    }
-
-    const cardElement = elements.getElement(CardElement);
-    if (!cardElement) {
-      toast.error("Card element not found.");
-      return;
-    }
-
-    const { error, paymentMethod } = await stripe.createPaymentMethod({
-      type: "card",
-      card: cardElement,
-      billing_details: {
-        name: bookingData.name,
-        email: bookingData.email,
-        phone: bookingData.phone,
-      },
-    });
-
-    if (error) {
-      toast.error(error.message || "Failed to create payment method.");
-      return;
-    }
-
-    try {
-      await axios.post(`/api/bookings`, {
-        ...bookingData,
-        carId: id,
-        paymentMethodId: paymentMethod.id,
-      });
-      toast.success("Booking successful!");
-    } catch (error) {
-      toast.error("Failed to complete booking. Please try again.");
-    }
-  };
-
-  const handleBkashPayment = async () => {
-    try {
-      const response = await axios.post("/create-bkash-payment", {
-        amount: 5000, // Example amount in BDT
-      });
-      window.location.href = response.data.paymentUrl; // Redirect to Bkash payment page
-    } catch (error) {
-      toast.error("Failed to initiate Bkash payment. Please try again.");
-    }
-  };
-
   return (
-    <form onSubmit={handleStripeSubmit} className="space-y-6">
-      <Input
-        placeholder="Enter your name"
-        name="name"
-        value={bookingData.name}
-        onChange={handleInputChange}
-        required
-        className="focus:ring-green-500"
-      />
-      <Input
-        placeholder="Enter your email"
-        name="email"
-        type="email"
-        value={bookingData.email}
-        onChange={handleInputChange}
-        required
-        className="focus:ring-green-500"
-      />
-      <Input
-        placeholder="Enter your phone number"
-        name="phone"
-        value={bookingData.phone}
-        onChange={handleInputChange}
-        required
-        className="focus:ring-green-500"
-      />
-      <div className="flex gap-4 mb-6">
-        <div className="flex-1 border p-4 rounded-lg">
-          <h3 className="text-lg font-medium text-gray-800 mb-2 flex items-center">
-            <FaCcStripe className="mr-2 text-blue-500" />
-            Stripe
-          </h3>
-          <CardElement className="border p-4 rounded-lg" />
-        </div>
-        <div className="flex-1 border p-4 rounded-lg">
-          <h3 className="text-lg font-medium text-gray-800 mb-2 flex items-center">
-            <BsBank
-              className="mr-2"
-              style={{ color: "#D11F53", fontSize: "1.5rem" }} // Adjust size as needed
-            />
-            <span style={{ color: "#D11F53", fontWeight: "bold" }}>Bkash</span>
-          </h3>
-          <Button
-            type="button"
-            onClick={handleBkashPayment}
-            variant="secondary"
-            className="w-full py-3"
-            // style={{ backgroundColor: "#D11F53", color: "#FFFFFF" }}
-          >
-            Pay with Bkash
-          </Button>
-        </div>
-      </div>
-      <div className="flex justify-end">
-        <Button type="submit" variant="primary" className="px-6 py-3">
-          Confirm Booking with Stripe
-        </Button>
-      </div>
-    </form>
-  );
-};
+    <section className="min-h-screen max-w-screen-xl mx-auto my-8 px-3 lg:px-0">
+      {/* Filter Controls */}
+      <div className="filters mb-4 p-4 bg-gray-100 rounded-md shadow-sm">
+        <div className="flex flex-col md:flex-row gap-4 mb-4">
+          {/* Search Field */}
+          <div className="flex-1">
+            <label className="block text-gray-700 font-semibold mb-2">
+              Search:
+              <input
+                type="text"
+                placeholder="Search by name or features"
+                value={searchValue}
+                onChange={(e) => setSearchValue(e.target.value)}
+                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+              />
+            </label>
+          </div>
 
-const BookingPage: React.FC = () => {
-  const { id } = useParams<{ id: string }>();
-  const [carDetails, setCarDetails] = useState<any>(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    const fetchCarDetails = async () => {
-      try {
-        const response = await axios.get(`/api/cars/${id}`);
-        setCarDetails(response.data);
-        setLoading(false);
-      } catch (error) {
-        toast.error("Failed to fetch car details. Please try again later.");
-        setLoading(false);
-      }
-    };
-
-    fetchCarDetails();
-  }, [id]);
-
-  if (loading)
-    return <p className="text-center text-gray-600">Loading car details...</p>;
-  if (!carDetails)
-    return <p className="text-center text-red-600">Car not found</p>;
-
-  // Ensure features is always an array
-  const features = carDetails.features || [];
-
-  return (
-    <div className="booking-page p-6 max-w-6xl mx-auto bg-white shadow-lg rounded-lg">
-      <h1 className="text-4xl font-extrabold mb-6 text-gray-900 text-center">
-        Booking Page
-      </h1>
-      <div className="flex flex-col lg:flex-row gap-8">
-        {/* Car Details */}
-        <div className="lg:w-1/2 flex flex-col gap-6">
-          <h2 className="text-3xl font-semibold mb-4 text-gray-900">
-            Car Details
-          </h2>
-          <div className="border p-6 rounded-lg bg-gray-50 shadow-md">
-            <img
-              src={carDetails.image}
-              alt={carDetails.make}
-              className="w-full h-48 object-cover mb-4 rounded-lg"
-            />
-            <h3 className="text-2xl font-bold mb-2 text-gray-800">
-              {carDetails.make} {carDetails.model} ({carDetails.year})
-            </h3>
-            <p className="text-lg font-semibold text-gray-800 mb-2">
-              ${carDetails.pricePerHour}/hour
-            </p>
-            <p className="text-md text-gray-600">
-              Features: {features.length > 0 ? features.join(", ") : "None"}
-            </p>
+          {/* Type Filter */}
+          <div className="flex-1">
+            <label className="block text-gray-700 font-semibold mb-2">
+              Type:
+              <select
+                value={carType}
+                onChange={(e) => setCarType(e.target.value)}
+                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+              >
+                <option value="">All Types</option>
+                <option value="SUV">SUV</option>
+                <option value="Sedan">Sedan</option>
+                <option value="Hybrid">Hybrid</option>
+                <option value="Sports">Sports</option>
+                {/* Add more options as needed */}
+              </select>
+            </label>
           </div>
         </div>
-        {/* Booking Form */}
-        <div className="lg:w-1/2 flex flex-col gap-6">
-          <h2 className="text-3xl font-semibold mb-4 text-gray-900">
-            Booking Form
-          </h2>
-          <Elements stripe={stripePromise}>
-            <BookingForm id={id!} />
-          </Elements>
+
+        <div className="flex flex-col md:flex-row gap-4">
+          {/* Price Range */}
+          <div className="flex-1">
+            <label className="block text-gray-700 font-semibold mb-2">
+              Price Range:
+              <div className="flex gap-2 mt-1">
+                <input
+                  type="number"
+                  placeholder="Min Price"
+                  value={minPrice}
+                  onChange={(e) => setMinPrice(e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                />
+                <span>-</span>
+                <input
+                  type="number"
+                  placeholder="Max Price"
+                  value={maxPrice}
+                  onChange={(e) => setMaxPrice(e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                />
+              </div>
+            </label>
+          </div>
         </div>
       </div>
-      <Toaster position="top-right" />
-    </div>
+
+      {/* Booking content */}
+
+      {/* Booking content */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 my-12">
+        {carData?.data?.map((car: TCar) => (
+          <div key={car._id}>
+            <CarCard car={car} cardType="booking" />
+          </div>
+        ))}
+      </div>
+    </section>
   );
 };
 

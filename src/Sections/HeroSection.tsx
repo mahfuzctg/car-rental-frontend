@@ -1,65 +1,83 @@
-import React from "react";
-import FeaturedCars from "./FeaturedCarsCarousel";
+import React, { useEffect, useState } from "react";
+import "../Customs/btn-custom.css";
+import FeaturedCars from "./FeaturedCars";
 import CustomerTestimonials from "./Testimonial";
+import TextAnimation from "./TextAnimation";
 import WhyChooseUs from "./WhyChooseUs";
 
+const images = [
+  "https://i.postimg.cc/VknqPxXX/car-buying-process-ec.png",
+  "https://i.postimg.cc/ZKy36G7X/car-dealership-family-1600x675-e1674463578724.jpg",
+  "https://i.postimg.cc/5NvgfQVH/3-L7-ND2-CKLWKPO7-PWEHZT2-YUNMY.jpg",
+];
+
 const HeroSection: React.FC = () => {
+  const [currentImage, setCurrentImage] = useState(0);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentImage((prevImage) => (prevImage + 1) % images.length);
+    }, 2000);
+
+    return () => clearInterval(interval);
+  }, []);
+
   return (
     <div>
-      <section className="relative w-full h-[700px] flex flex-col justify-between">
-        {/* Top Section: Text and Search Bar */}
-        <div className="z-20 flex flex-col items-center justify-center text-center space-y-4 p-4">
-          <h1 className="text-2xl sm:text-3xl md:text-5xl lg:text-6xl font-bold text-gray-800 uppercase">
-            Find Your Perfect Ride
-          </h1>
-          <p className="text-xs sm:text-sm md:text-lg lg:text-xl font-bold text-gray-700">
-            Book your next car rental with ease
-          </p>
-          <a
-            href="/book"
-            className="px-3 sm:px-5 py-2 sm:py-3 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-lg transition duration-300"
-          >
-            Book Now
-          </a>
-          <div className="mt-6 sm:mt-10 w-full px-2 sm:px-4 max-w-md md:max-w-2xl">
+      <section className="relative  w-full h-[700px] flex flex-col justify-between">
+        {/* Top Section: Search Bar */}
+        <div className="z-20 flex px-4 mt-3 md:mt-2 items-center justify-center w-full bg-white bg-opacity-90 py-2">
+          <div className="w-full ">
             <form className="flex flex-col md:flex-row items-center justify-center space-y-3 md:space-y-0 md:space-x-4">
               <input
                 type="text"
                 placeholder="Enter Location"
-                className="w-full md:w-1/3 p-2 md:p-3 text-gray-800 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-green-500"
+                className="w-full md:w-1/3 p-1.5 md:p-2 text-gray-600 border-b-4 border-red-600 focus:outline-none focus:border-green-500"
               />
               <input
                 type="date"
-                className="w-full md:w-1/3 p-2 md:p-3 text-gray-800 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-green-500"
+                className="w-full md:w-1/3 p-1.5 md:p-2 text-gray-500 border-b-4 border-red-600 focus:outline-none focus:border-green-500"
               />
               <input
                 type="date"
-                className="w-full md:w-1/3 p-2 md:p-3 text-gray-800 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-green-500"
+                className="w-full md:w-1/3 p-1.5 md:p-2 text-gray-500 border-b-4 border-red-600 focus:outline-none focus:border-green-500"
               />
-              <button
-                type="submit"
-                className="w-full md:w-auto px-4 py-2 md:px-6 md:py-3 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-lg transition duration-300"
-              >
+              <button type="submit" className="btn-custom w-full md:w-32  ">
                 Search
               </button>
             </form>
           </div>
         </div>
 
-        {/* Bottom Section: Background Image */}
-        <div
-          className="w-full h-[50%] bg-cover bg-center"
-          style={{
-            backgroundImage:
-              "url('https://i.postimg.cc/Bv0rf4V4/luxury-car-rental-promotional-web-banner-design-10669966.jpg')",
-          }}
-        ></div>
+        {/* Middle Section: Background Image with Title and Button */}
+        <div className="relative flex-1 flex flex-col items-center justify-center text-center">
+          {images.map((image, index) => (
+            <div
+              key={index}
+              className={`absolute inset-0 bg-cover bg-center transition-opacity duration-1000 ${
+                currentImage === index ? "opacity-100" : "opacity-0"
+              }`}
+              style={{
+                backgroundImage: `url(${image})`,
+              }}
+            ></div>
+          ))}
+          <div className="relative z-10 text-white px-4 py-8 bg-black bg-opacity-60 rounded-lg">
+            <TextAnimation text="Find Your Perfect CAR" />
+            <p className="text-xs sm:text-sm md:text-lg lg:text-xl font-bold mt-4">
+              Book your next car rental with ease
+            </p>
+            <a href="/bookings" className="btn-custom">
+              Book Now
+            </a>
+          </div>
+        </div>
       </section>
 
-      {/* Others Section  */}
-      <FeaturedCars></FeaturedCars>
-      <WhyChooseUs></WhyChooseUs>
-      <CustomerTestimonials></CustomerTestimonials>
+      {/* Others Section */}
+      <FeaturedCars />
+      <WhyChooseUs />
+      <CustomerTestimonials />
     </div>
   );
 };

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { createContext, ReactNode, useContext } from "react";
 
 interface UserContextType {
@@ -15,7 +16,12 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({
   children,
 }) => {
   // Example user data, replace with actual data fetching logic
-  const user = { isAuthenticated: true, role: "admin" }; // Mocked user data
+  const user = {
+    email: "user@example.com",
+    name: "John Doe",
+    isAuthenticated: true,
+    role: "admin",
+  }; // Mocked user data
 
   return (
     <UserContext.Provider value={{ user }}>{children}</UserContext.Provider>

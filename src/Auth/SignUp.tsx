@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
-import { Label } from "@radix-ui/react-label";
 import { useState } from "react";
 import { Controller, SubmitHandler, useForm } from "react-hook-form";
 import { IoEye, IoEyeOff } from "react-icons/io5";
@@ -7,6 +5,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { Button } from "../components/ui/UI/button";
 import { Input } from "../components/ui/UI/input";
+import { Label } from "../components/ui/UI/label";
 import {
   Select,
   SelectContent,
@@ -15,7 +14,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "../components/ui/UI/select";
-import { useSignUpMutation } from "./AuthApi";
+import { useSignUpMutation } from "../redux/features/auth/authApi";
 
 type Inputs = {
   name: string;
@@ -23,8 +22,9 @@ type Inputs = {
   password: string;
   confirmPassword: string;
   phone: string;
+  address: string;
   role: string;
-  terms: boolean;
+  terms?: boolean; // Optional if you want to include the terms checkbox
 };
 
 const SignUp = () => {
@@ -51,86 +51,72 @@ const SignUp = () => {
       email: data.email,
       password: data.password,
       phone: data.phone,
+      address: data.address,
       role: data.role,
     };
 
     try {
       const res = await signUp(userData);
-
-      // Type assertions and guards
-      if ("data" in res) {
-        // Handle successful response
-        if (res.data.success) {
-          toast.success("Registered Successfully!");
-          navigate("/login");
-        } else {
-          toast.error(res.data.message || "An unexpected error occurred");
-        }
-      } else if ("error" in res) {
-        // Handle error response
-        if (res.error && "data" in res.error) {
-          const errorMessage =
-            (res.error as { data: { message?: string } }).data?.message ||
-            "An unexpected error occurred";
-          toast.error(errorMessage);
-        } else {
-          toast.error("An unexpected error occurred");
-        }
-      } else {
-        toast.error("An unexpected error occurred");
+      if (res?.data?.success) {
+        toast.success("Registered Successfully!");
+        navigate("/sign-in");
+      } else if (res?.error?.data?.success === false) {
+        toast.error(res?.error?.data?.message);
       }
     } catch (error) {
-      toast.error("An unexpected error occurred");
+      toast.error("An error occurred during registration");
     }
   };
 
   return (
-    <section className="bg-[#ffffff] shadow-md w-full md:w-7/12 mx-auto text-gray-700 min-h-screen flex items-center justify-center my-14">
-      <div className="rounded-xl shadow-custom-light shadow-gray-600 p-6 md:py-8">
-        <div className="max-w-8 mx-auto flex items-center justify-center mb-6"></div>
-        <h2 className="text-gray-700 text-2xl font-semibold text-center mb-8">
-          Create a new account!
+    <section className="bg-white min-h-screen flex items-center justify-center py-12">
+      <div className="rounded-xl shadow-lg p-8 w-full max-w-md">
+        <h2 className="text-gray-800 text-3xl font-bold text-center mb-8">
+          Create a New Account
         </h2>
-        <form
-          onSubmit={handleSubmit(onSubmit)}
-          className="space-y-4 w-full max-w-[370px]"
-        >
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
           <div>
-            <div className="grid w-full items-center gap-1.5">
-              <Label htmlFor="name">Name:</Label>
-              <Input
-                className="md:w-80 focus-visible:ring-offset-0"
-                type="text"
-                id="name"
-                {...register("name", { required: true })}
-              />
-            </div>
+            <Label htmlFor="name" className="block text-gray-700">
+              Name:
+            </Label>
+            <Input
+              className="mt-1 p-3 border border-gray-300 rounded-md w-full"
+              type="text"
+              id="name"
+              placeholder="Enter your full name"
+              {...register("name", { required: "Name is required" })}
+            />
             {errors?.name && (
-              <p className="text-red-600 text-sm">Name is required</p>
+              <p className="text-red-500 text-sm mt-1">{errors.name.message}</p>
             )}
           </div>
           <div>
-            <div className="grid w-full items-center gap-1.5">
-              <Label htmlFor="email">Email:</Label>
-              <Input
-                className="md:w-80 focus-visible:ring-offset-0"
-                type="email"
-                id="email"
-                {...register("email", { required: true })}
-              />
-            </div>
+            <Label htmlFor="email" className="block text-gray-700">
+              Email:
+            </Label>
+            <Input
+              className="mt-1 p-3 border border-gray-300 rounded-md w-full"
+              type="email"
+              id="email"
+              placeholder="Enter your email address"
+              {...register("email", { required: "Email is required" })}
+            />
             {errors?.email && (
-              <p className="text-red-600 text-sm">Email is required</p>
+              <p className="text-red-500 text-sm mt-1">
+                {errors.email.message}
+              </p>
             )}
           </div>
-
           <div>
-            <div className="grid w-full items-center gap-1.5 relative">
-              <Label htmlFor="password">Password:</Label>
+            <Label htmlFor="password" className="block text-gray-700">
+              Password:
+            </Label>
+            <div className="relative">
               <Input
-                className="md:w-80 focus-visible:ring-offset-0"
-                type={`${isShowPassword ? "text" : "password"}`}
+                className="mt-1 p-3 border border-gray-300 rounded-md w-full"
+                type={isShowPassword ? "text" : "password"}
                 id="password"
+                placeholder="Enter your password"
                 {...register("password", {
                   required: "Password is required",
                   minLength: {
@@ -148,30 +134,31 @@ const SignUp = () => {
                   },
                 })}
               />
-              <p
+              <span
                 onClick={() => setIsShowPassword(!isShowPassword)}
-                className="absolute right-2 top-[67%] -translate-y-1/2 text-gray-100 cursor-pointer p-1 "
+                className="absolute inset-y-0 right-3 flex items-center cursor-pointer"
               >
                 {isShowPassword ? <IoEye /> : <IoEyeOff />}
-              </p>
+              </span>
             </div>
             {errors?.password && (
-              <p className="text-red-600 text-sm max-w-[300px]">
+              <p className="text-red-500 text-sm mt-1">
                 {errors.password.message}
               </p>
             )}
           </div>
-
-          {/* Confirm password */}
           <div>
-            <div className="grid w-full items-center gap-1.5 relative">
-              <Label htmlFor="confirmPassword">Confirm Password:</Label>
+            <Label htmlFor="confirmPassword" className="block text-gray-700">
+              Confirm Password:
+            </Label>
+            <div className="relative">
               <Input
-                className="md:w-80 focus-visible:ring-offset-0"
-                type={`${isConfirmShowPassword ? "text" : "password"}`}
+                className="mt-1 p-3 border border-gray-300 rounded-md w-full"
+                type={isConfirmShowPassword ? "text" : "password"}
                 id="confirmPassword"
+                placeholder="Confirm your password"
                 {...register("confirmPassword", {
-                  required: "Password is required",
+                  required: "Confirm Password is required",
                   minLength: {
                     value: 6,
                     message: "Password must be more than 6 characters",
@@ -187,44 +174,68 @@ const SignUp = () => {
                   },
                 })}
               />
-              <p
+              <span
                 onClick={() => setIsConfirmShowPassword(!isConfirmShowPassword)}
-                className="absolute right-2 top-[67%] -translate-y-1/2 text-gray-100 cursor-pointer p-1 "
+                className="absolute inset-y-0 right-3 flex items-center cursor-pointer"
               >
                 {isConfirmShowPassword ? <IoEye /> : <IoEyeOff />}
-              </p>
+              </span>
             </div>
             {errors?.confirmPassword && (
-              <p className="text-red-600 text-sm max-w-[300px]">
+              <p className="text-red-500 text-sm mt-1">
                 {errors.confirmPassword.message}
               </p>
             )}
           </div>
-
           <div>
-            <div className="grid w-full items-center gap-1.5">
-              <Label htmlFor="phone">Phone:</Label>
-              <Input
-                className="md:w-80 focus-visible:ring-offset-0"
-                type="phone"
-                id="phone"
-                {...register("phone", { required: true })}
-              />
-            </div>
+            <Label htmlFor="phone" className="block text-gray-700">
+              Phone:
+            </Label>
+            <Input
+              className="mt-1 p-3 border border-gray-300 rounded-md w-full"
+              type="text"
+              id="phone"
+              placeholder="Enter your phone number"
+              {...register("phone", { required: "Phone number is required" })}
+            />
             {errors?.phone && (
-              <p className="text-red-600 text-sm">Phone is required</p>
+              <p className="text-red-500 text-sm mt-1">
+                {errors.phone.message}
+              </p>
             )}
           </div>
-
-          <div className="grid w-full items-center gap-1.5">
-            <Label htmlFor="role">Role:</Label>
+          <div>
+            <Label htmlFor="address" className="block text-gray-700">
+              Address:
+            </Label>
+            <Input
+              className="mt-1 p-3 border border-gray-300 rounded-md w-full"
+              type="text"
+              id="address"
+              placeholder="Enter your address"
+              {...register("address", { required: "Address is required" })}
+            />
+            {errors?.address && (
+              <p className="text-red-500 text-sm mt-1">
+                {errors.address.message}
+              </p>
+            )}
+          </div>
+          <div>
+            <Label htmlFor="role" className="block text-gray-700">
+              Role:
+            </Label>
             <Controller
               name="role"
               control={control}
               rules={{ required: "Role is required" }}
               render={({ field }) => (
-                <Select onValueChange={field.onChange} value={field.value}>
-                  <SelectTrigger className="md:w-80 focus-visible:ring-offset-0">
+                <Select
+                  onValueChange={field.onChange}
+                  value={field.value}
+                  className="mt-1 border border-gray-300 rounded-md w-full"
+                >
+                  <SelectTrigger>
                     <SelectValue placeholder="Select a Role" />
                   </SelectTrigger>
                   <SelectContent>
@@ -237,52 +248,41 @@ const SignUp = () => {
               )}
             />
             {errors?.role && (
-              <p className="text-red-500 text-sm">{errors.role.message}</p>
+              <p className="text-red-500 text-sm mt-1">{errors.role.message}</p>
             )}
           </div>
-
-          <div>
-            <div className="flex items-center space-x-2">
-              <input
-                id="terms"
-                className="w-4 h-4 rounded focus:ring-0"
-                type="checkbox"
-                required
-                {...register("terms", { required: true })}
-              />
-              <label
-                htmlFor="terms"
-                className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-              >
-                Accept{" "}
-                <Link
-                  to="/terms-and-condition"
-                  className="text-orange-600 font-semibold"
-                >
-                  Terms & Conditions
-                </Link>
-              </label>
+          {false && ( // Optional terms checkbox
+            <div>
+              <div className="flex items-center space-x-2">
+                <input
+                  id="terms"
+                  className="w-4 h-4 rounded focus:ring-0"
+                  type="checkbox"
+                  {...register("terms", {
+                    required: "You must accept the terms and conditions",
+                  })}
+                />
+                <Label htmlFor="terms" className="text-gray-700">
+                  I accept the{" "}
+                  <Link to="/terms" className="text-blue-500">
+                    terms and conditions
+                  </Link>
+                </Label>
+              </div>
+              {errors?.terms && (
+                <p className="text-red-500 text-sm mt-1">
+                  {errors.terms.message}
+                </p>
+              )}
             </div>
-            {errors?.terms && (
-              <p className="text-red-600 text-sm">You must accept the terms</p>
-            )}
-          </div>
-
+          )}
           <Button
             type="submit"
-            variant="default"
-            className="w-full mt-4 py-4"
+            className="w-full py-3 px-4 bg-red-600 hover:bg-red-700 text-white rounded-md"
             disabled={isLoading}
           >
             {isLoading ? "Signing Up..." : "Sign Up"}
           </Button>
-
-          <p className="text-sm text-center mt-4">
-            Already have an account?{" "}
-            <Link to="/login" className="text-orange-600 font-semibold">
-              Login
-            </Link>
-          </p>
         </form>
       </div>
     </section>

@@ -1,0 +1,24 @@
+/* {
+  "name": "Mahfuz",
+  "email": "mahfuzadmin@gmail.com",
+  "role": "admin",  // role can be user or admin
+  "password": "password@A1",
+  "phone": "1234567890",
+  "address": "123 Main St, City, Country"
+ 
+} */
+/* {
+  "name": "Mahfuz",
+  "email": "mahfuzuser1@gmail.com",
+  "role": "user",  // role can be user or admin
+  "password": "password@A1",
+  "phone": "1234567890",
+  "address": "123 Main St, City, Country"
+ 
+} */
+/* path: "/admin",
+    element: (
+      <ProtectedRoute role="admin">
+        <AdminLayout />
+      </ProtectedRoute>
+    ), */

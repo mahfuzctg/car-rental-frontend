@@ -1,165 +1,168 @@
-import React, { useEffect, useState } from "react";
-import { FaEdit, FaPlus, FaTrash } from "react-icons/fa";
+/* eslint-disable @typescript-eslint/no-unused-vars */
 
-// Sample user data
-const userData = [
-  { id: 1, name: "John Doe", email: "john.doe@example.com", role: "Admin" },
-  {
-    id: 2,
-    name: "Jane Smith",
-    email: "jane.smith@example.com",
-    role: "Customer",
-  },
-  // Add more users as needed
-];
+import { Link } from "react-router-dom";
+import Swal from "sweetalert2";
+import { Button } from "../../../components/ui/UI/button";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "../../../components/ui/UI/table";
+import {
+  useDeleteUserMutation,
+  useGetAllUserQuery,
+  useUpdateRoleMutation,
+} from "../../../redux/features/user/userApi";
+import { TUser } from "../../../types/userTypes";
 
-const UserManagement: React.FC = () => {
-  const [users, setUsers] = useState(userData);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [currentUser, setCurrentUser] = useState<any>(null);
+const UserManagement = () => {
+  const { data: userData } = useGetAllUserQuery(undefined);
 
-  useEffect(() => {
-    // Fetch actual user data from the server
-    // fetchUsers();
-  }, []);
+  const [updateRole] = useUpdateRoleMutation();
 
-  const handleAddUser = () => {
-    // Add user logic
-    setIsModalOpen(true);
-    setCurrentUser(null);
-  };
+  const [deleteUser] = useDeleteUserMutation();
 
-  const handleEditUser = (user: any) => {
-    // Edit user logic
-    setIsModalOpen(true);
-    setCurrentUser(user);
-  };
+  const handleRole = (id: string, role: string) => {
+    let newRole;
 
-  const handleDeleteUser = (id: number) => {
-    // Confirm deletion
-    if (window.confirm("Are you sure you want to delete this user?")) {
-      setUsers(users.filter((user) => user.id !== id));
+    if (role === "admin") {
+      newRole = "user";
+    } else {
+      newRole = "admin";
     }
+
+    const userInfo = {
+      id,
+      role: newRole,
+    };
+
+    console.log(role);
+
+    Swal.fire({
+      title: "Are you sure?",
+      text: "You won't be able to revert this!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Yes, change the role!",
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    }).then(async (result: any) => {
+      if (result.isConfirmed) {
+        try {
+          const res = await updateRole(userInfo).unwrap();
+          console.log(res);
+          if (res?.success) {
+            Swal.fire({
+              title: "Changed!",
+              text: res?.message,
+              icon: "success",
+            });
+          }
+        } catch (err) {
+          Swal.fire({
+            text: "Failed to change role",
+            icon: "error",
+            title: "Oops...",
+          });
+        }
+      }
+    });
   };
 
-  const handleCloseModal = () => {
-    setIsModalOpen(false);
-    setCurrentUser(null);
-  };
-
-  const handleSaveUser = () => {
-    // Save user logic
-    handleCloseModal();
+  const handleDelete = (id: string) => {
+    Swal.fire({
+      title: "Are you sure?",
+      text: "You won't be able to revert this!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Yes, delete it!",
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    }).then(async (result: any) => {
+      if (result.isConfirmed) {
+        try {
+          const res = await deleteUser(id).unwrap();
+          if (res?.success) {
+            Swal.fire({
+              title: "Deleted!",
+              text: res?.message,
+              icon: "success",
+            });
+          }
+        } catch (err) {
+          Swal.fire({
+            text: err?.message,
+            icon: "error",
+            title: "Oops...",
+          });
+        }
+      }
+    });
   };
 
   return (
-    <div className="p-6">
-      <h1 className="text-2xl font-semibold mb-4">User Management</h1>
-      <button
-        onClick={handleAddUser}
-        className="mb-4 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
-      >
-        <FaPlus className="mr-2" /> Add User
-      </button>
-      <table className="w-full bg-white border border-gray-200 rounded-md shadow-sm">
-        <thead className="bg-gray-100">
-          <tr>
-            <th className="p-3 text-left">Name</th>
-            <th className="p-3 text-left">Email</th>
-            <th className="p-3 text-left">Role</th>
-            <th className="p-3 text-center">Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          {users.map((user) => (
-            <tr key={user.id}>
-              <td className="p-3">{user.name}</td>
-              <td className="p-3">{user.email}</td>
-              <td className="p-3">{user.role}</td>
-              <td className="p-3 text-center">
-                <button
-                  onClick={() => handleEditUser(user)}
-                  className="bg-yellow-500 text-white px-4 py-2 rounded hover:bg-yellow-600 mr-2"
-                >
-                  <FaEdit />
-                </button>
-                <button
-                  onClick={() => handleDeleteUser(user.id)}
-                  className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
-                >
-                  <FaTrash />
-                </button>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+    <div className="lg:p-8 text-white max-w-screen-xl mx-auto my-8 px-3">
+      <Link to="/sign-up">
+        <Button className="bg-orange-500 hover:bg-orange-600">
+          Add A New User
+        </Button>
+      </Link>
+      <Table className="p-12 min-w-[700px] md:w-full">
+        <TableHeader>
+          <TableRow>
+            <TableHead>Name</TableHead>
+            <TableHead>Email</TableHead>
+            <TableHead>Phone</TableHead>
+            <TableHead className="text-right">Role</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {userData?.data?.map((user: TUser) => (
+            <TableRow key={user?._id}>
+              <TableCell className="text-sm min-w-[200px]">
+                {user?.name}
+              </TableCell>
+              <TableCell className="text-sm">{user?.email}</TableCell>
+              <TableCell className="text-sm">{user?.phone}</TableCell>
 
-      {/* Modal for adding/editing user */}
-      {isModalOpen && (
-        <div className="fixed inset-0 bg-gray-500 bg-opacity-75 flex items-center justify-center">
-          <div className="bg-white p-6 rounded-md shadow-lg w-80">
-            <h2 className="text-xl font-semibold mb-4">
-              {currentUser ? "Edit User" : "Add User"}
-            </h2>
-            <form>
-              <div className="mb-4">
-                <label className="block text-gray-700">Name</label>
-                <input
-                  type="text"
-                  value={currentUser?.name || ""}
-                  onChange={(e) =>
-                    setCurrentUser({ ...currentUser, name: e.target.value })
-                  }
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md"
-                  placeholder="Enter name"
-                />
-              </div>
-              <div className="mb-4">
-                <label className="block text-gray-700">Email</label>
-                <input
-                  type="email"
-                  value={currentUser?.email || ""}
-                  onChange={(e) =>
-                    setCurrentUser({ ...currentUser, email: e.target.value })
-                  }
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md"
-                  placeholder="Enter email"
-                />
-              </div>
-              <div className="mb-4">
-                <label className="block text-gray-700">Role</label>
-                <select
-                  value={currentUser?.role || "Customer"}
-                  onChange={(e) =>
-                    setCurrentUser({ ...currentUser, role: e.target.value })
-                  }
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md"
+              <TableCell className="text-right  flex items-center gap-2 ">
+                <Button
+                  onClick={() => handleRole(user?._id, user?.role)}
+                  variant="outline"
+                  className="text-orange-500 hover:text-orange-600"
                 >
-                  <option value="Admin">Admin</option>
-                  <option value="Customer">Customer</option>
-                </select>
-              </div>
-              <div className="flex justify-end space-x-2">
-                <button
-                  type="button"
-                  onClick={handleCloseModal}
-                  className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600"
+                  Change to {user?.role === "admin" ? "user" : "admin"}
+                </Button>
+                <Button
+                  onClick={() => handleDelete(user?._id)}
+                  variant={"destructive"}
+                  className="hover:bg-red-500"
                 >
-                  Cancel
-                </button>
-                <button
-                  type="button"
-                  onClick={handleSaveUser}
-                  className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
-                >
-                  Save
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    strokeWidth={1.5}
+                    stroke="currentColor"
+                    className="size-5"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0"
+                    />
+                  </svg>
+                </Button>
+              </TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
     </div>
   );
 };

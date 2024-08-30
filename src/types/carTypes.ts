@@ -1,21 +1,22 @@
-import { ReactNode } from "react";
-
-export interface Car {
-  image: string | undefined;
-  year: ReactNode;
-  pricing: ReactNode;
-  make: ReactNode;
-  model: ReactNode;
-  imageUrl: string;
+export type TCar = {
+  imageUrl?: string;
   _id: string;
   name: string;
+  model: string;
+  year: string;
+  image: string;
+  location: string;
+  ownerEmail: string;
+  ownerName: string;
   description: string;
   color: string;
   isElectric: boolean;
+  status: string;
   features: string[];
   pricePerHour: number;
-  status: string;
   isDeleted: boolean;
   createdAt: string;
   updatedAt: string;
-}
+
+  __v: number;
+};

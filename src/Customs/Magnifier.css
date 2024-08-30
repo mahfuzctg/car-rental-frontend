@@ -1,0 +1,18 @@
+.img-magnifier-container {
+  position: relative;
+}
+
+.magnifier-img {
+  width: 100%;
+}
+
+.magnifier-image {
+  width: 200px;
+  height: 200px;
+  position: absolute;
+  pointer-events: none;
+  border: 2px solid #000;
+  background-repeat: no-repeat;
+  background-size: 200%;
+  z-index: 10;
+}

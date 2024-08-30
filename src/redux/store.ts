@@ -1,42 +1,33 @@
 import { configureStore } from "@reduxjs/toolkit";
-import { persistReducer, persistStore } from "redux-persist";
-import storage from "redux-persist/lib/storage";
-import authReducer from "../Auth/AuthSlice";
-import { carApi } from "./api/carApi";
+import { baseApi } from "./api/baseApi";
+import authReducer from "./features/auth/authSlice";
+import bookingReducer from "./features/booking/bookingSlice";
+import carReducer from "./features/car/carSlice";
 
-// Persist configuration for the auth reducer
+import { persistReducer, persistStore } from "redux-persist";
+
+import storage from "redux-persist/lib/storage";
+
 const persistConfig = {
-  key: "auth", // The key to be used in local storage
-  storage, // The storage method to be used (local storage in this case)
+  key: "auth",
+  storage,
 };
 
-// Create a persisted reducer for auth
 const persistedAuthReducer = persistReducer(persistConfig, authReducer);
 
-// Configure the Redux store
 export const store = configureStore({
   reducer: {
-    [carApi.reducerPath]: carApi.reducer, // Adding the car API reducer
-    auth: persistedAuthReducer, // Adding the persisted auth reducer
+    [baseApi.reducerPath]: baseApi.reducer,
+    auth: persistedAuthReducer,
+    car: carReducer,
+    booking: bookingReducer,
   },
-  middleware: (getDefaultMiddleware) =>
-    getDefaultMiddleware({
-      serializableCheck: {
-        ignoredActions: [
-          "persist/PERSIST",
-          "persist/REHYDRATE",
-          "persist/FLUSH",
-          "persist/PAUSE",
-          "persist/PURGE",
-          "persist/REGISTER",
-        ],
-      },
-    }).concat(carApi.middleware), // Adding the API middleware
+  middleware: (getDefaultMiddlewares) =>
+    getDefaultMiddlewares().concat(baseApi.middleware),
 });
 
-// Types for the store's state and dispatch
+// Infer the `RootState` and `AppDispatch` types from the store itself
 export type RootState = ReturnType<typeof store.getState>;
+// Inferred type: {posts: PostsState, comments: CommentsState, users: UsersState}
 export type AppDispatch = typeof store.dispatch;
-
-// Create and export the persistor for the store
 export const persistor = persistStore(store);

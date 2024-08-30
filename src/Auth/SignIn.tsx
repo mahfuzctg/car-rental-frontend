@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { useState } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
@@ -6,14 +5,13 @@ import { Link, useNavigate } from "react-router-dom";
 
 import { IoEye, IoEyeOff } from "react-icons/io5";
 import { toast } from "sonner";
-
-import { Label } from "@radix-ui/react-label";
 import { Button } from "../components/ui/UI/button";
 import { Input } from "../components/ui/UI/input";
+import { Label } from "../components/ui/UI/label";
+import { useLoginMutation } from "../redux/features/auth/authApi";
+import { setUser, TUser } from "../redux/features/auth/authSlice";
 import { useAppDispatch } from "../redux/hooks/hook";
 import { verifyToken } from "../utils/token";
-import { useLoginMutation } from "./AuthApi";
-import { setUser, TUser } from "./AuthSlice";
 
 type Inputs = {
   email: string;
@@ -22,6 +20,8 @@ type Inputs = {
 
 const Login = () => {
   const [isShowPassword, setIsShowPassword] = useState(false);
+  const [isLoading, setIsLoading] = useState(false); // Add this state
+
   const [login] = useLoginMutation();
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
@@ -34,28 +34,35 @@ const Login = () => {
 
   const onSubmit: SubmitHandler<Inputs> = async (data) => {
     const toastId = toast.loading("Signing in...");
+    setIsLoading(true); // Set loading state to true
 
     try {
-      const { email, password } = data;
-      const res = await login({ email, password }).unwrap();
+      const userInfo = {
+        email: data.email,
+        password: data.password,
+      };
+
+      const res = await login(userInfo).unwrap();
+      const { __v, updatedAt, createdAt, ...userData } = res.data;
 
       const user = verifyToken(res.token) as TUser;
 
       if (user) {
-        const { __v, updatedAt, createdAt, ...userData } = res.data;
         dispatch(setUser({ user: userData, token: res.token }));
         toast.success("Logged in successfully", {
           id: toastId,
           duration: 2000,
         });
-        navigate(`/${user.role}/dashboard`);
+
+        navigate(`/${user?.role}/dashboard`, { replace: true });
       } else {
-        toast.error("Invalid credentials", { id: toastId, duration: 2000 });
+        toast.error("Invalid credentials", {
+          id: toastId,
+          duration: 2000,
+        });
       }
-    } catch (err: any) {
-      const errorMessage =
-        err?.data?.message || "An unexpected error occurred.";
-      toast.error(errorMessage, {
+    } catch (err) {
+      toast.error(err?.data?.message, {
         action: (
           <Button
             onClick={() => navigate("/password-recovery")}
@@ -67,76 +74,87 @@ const Login = () => {
         id: toastId,
         duration: 2000,
       });
+    } finally {
+      setIsLoading(false); // Set loading state to false
     }
   };
 
   return (
-    <section className="bg-[#ffffff] min-h-screen flex items-center justify-center my-14">
-      <div className="rounded-xl shadow-custom-light shadow-gray-600 p-6 md:py-8">
-        <h2 className="text-gray-700 text-2xl font-semibold text-center mb-8">
-          Sign In to your account!
+    <section className="bg-white min-h-screen flex items-center justify-center py-12">
+      <div className="rounded-xl shadow-lg p-8 w-full max-w-md">
+        <h2 className="text-gray-800 text-3xl font-bold text-center mb-8">
+          Sign In to Your Account
         </h2>
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
           <div>
-            <div className="grid w-full items-center gap-1.5">
-              <Label htmlFor="email">Email:</Label>
-              <Input
-                className="md:w-80 focus-visible:ring-offset-0"
-                type="email"
-                id="email"
-                {...register("email", { required: "Email is required" })}
-              />
-            </div>
-            {errors.email && (
-              <p className="text-red-500 text-sm">{errors.email.message}</p>
+            <Label htmlFor="email" className="block text-gray-700">
+              Email:
+            </Label>
+            <Input
+              className="mt-1 p-3 border border-gray-300 rounded-md w-full"
+              type="email"
+              id="email"
+              placeholder="Enter your email address"
+              {...register("email", { required: "Email is required" })}
+            />
+            {errors?.email && (
+              <p className="text-red-600 text-sm mt-1">
+                {errors.email.message}
+              </p>
             )}
           </div>
 
-          <div className="pb-2">
-            <div className="grid w-full items-center gap-1.5 relative">
-              <Label htmlFor="password">Password:</Label>
+          <div>
+            <Label htmlFor="password" className="block text-gray-700">
+              Password:
+            </Label>
+            <div className="relative">
               <Input
-                className="md:w-80 focus-visible:ring-offset-0"
+                className="mt-1 p-3 border border-gray-300 rounded-md w-full"
                 type={isShowPassword ? "text" : "password"}
                 id="password"
+                placeholder="Enter your password"
                 {...register("password", { required: "Password is required" })}
               />
-              <p
+              <span
                 onClick={() => setIsShowPassword(!isShowPassword)}
-                className="absolute right-2 top-[67%] -translate-y-1/2 text-gray-100 cursor-pointer p-1"
+                className="absolute inset-y-0 right-3 flex items-center cursor-pointer"
               >
                 {isShowPassword ? <IoEye /> : <IoEyeOff />}
-              </p>
+              </span>
             </div>
-            {errors.password && (
-              <p className="text-red-500 text-sm">{errors.password.message}</p>
+            {errors?.password && (
+              <p className="text-red-600 text-sm mt-1">
+                {errors.password.message}
+              </p>
             )}
           </div>
 
-          <Link to="/forget-password" className="text-orange-500">
+          <Link to="/forget-password" className="text-red-500 hover:underline">
             Forgot Password?
           </Link>
 
           <Button
             type="submit"
-            className="w-full bg-green-500 hover:bg-green-600"
+            className="w-full bg-red-600 hover:bg-red-600 text-white"
+            disabled={isLoading} // Disable button while loading
           >
-            Sign In
+            {isLoading ? "Signing In..." : "Sign In"} {/* Update button text */}
           </Button>
-          <div>
-            <p className="text-gray-100">
+          <div className="mt-4 text-center">
+            <p className="text-gray-600">
               Don't have an account?{" "}
-              <Link to="/sign-up" className="text-orange-500 font-semibold">
-                Sign Up!
+              <Link to="/sign-up" className="text-red-600 font-semibold">
+                Sign Up Free!
               </Link>
             </p>
-            <p>
+            <p className="text-gray-600 mt-2">
               Read our{" "}
-              <Link to="/privacy-policy" className="text-orange-500">
+              <Link to="/privacy-policy" className="text-red-600">
                 Privacy Policy
               </Link>{" "}
               and{" "}
-              <Link to="/terms-and-condition" className="text-orange-500">
+              <Link to="/terms-and-condition" className="text-red-600">
                 Terms of Service
               </Link>
             </p>

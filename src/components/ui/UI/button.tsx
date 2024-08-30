@@ -1,6 +1,6 @@
 import React from "react";
 
-// Define the possible variants for the Button component
+// Add "danger" to the list of possible variants
 type ButtonVariant =
   | "link"
   | "default"
@@ -8,7 +8,8 @@ type ButtonVariant =
   | "outline"
   | "secondary"
   | "ghost"
-  | "primary";
+  | "primary"
+  | "danger"; // Added "danger"
 
 // Define the props for the Button component
 interface ButtonProps {
@@ -38,6 +39,7 @@ const Button: React.FC<ButtonProps> = ({
     secondary: "bg-gray-500 text-white",
     ghost: "bg-transparent text-gray-700",
     primary: "bg-blue-500 text-white",
+    danger: "bg-red-600 text-white", // Added styling for "danger"
   }[variant];
 
   return (
