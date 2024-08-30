@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+
 import ReactImageZoom from "react-image-zoom";
 import { useParams } from "react-router-dom";
 import { useGetCarByIdQuery } from "../redux/api/carApi";
@@ -8,7 +9,13 @@ const CarDetails: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const { data, isLoading, isError } = useGetCarByIdQuery(id!);
   const [car, setCar] = useState<Car | null>(null);
-  const [additionalFeatures, setAdditionalFeatures] = useState({
+
+  // Use a type or enum for additional features
+  type AdditionalFeatures = "insurance" | "gps" | "childSeat";
+
+  const [additionalFeatures, setAdditionalFeatures] = useState<
+    Record<AdditionalFeatures, boolean>
+  >({
     insurance: false,
     gps: false,
     childSeat: false,
@@ -38,10 +45,10 @@ const CarDetails: React.FC = () => {
     img: car.imageUrl || "https://via.placeholder.com/800",
     zoomWidth: 400,
     height: 300,
-    zoomPosition: "original",
+    zoomPosition: "original" as "original" | "inside" | "right" | "bottom",
   };
 
-  const handleFeatureChange = (feature: string) => {
+  const handleFeatureChange = (feature: AdditionalFeatures) => {
     setAdditionalFeatures((prev) => ({
       ...prev,
       [feature]: !prev[feature],

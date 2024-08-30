@@ -9,7 +9,7 @@ const CarListing: React.FC = () => {
   const { data, isLoading, isError } = useGetAllCarsQuery();
   const [filters, setFilters] = useState({
     type: "",
-    minPrice: "0",
+    minPrice: 0,
     maxPrice: 10000,
     search: "",
   });
@@ -39,11 +39,15 @@ const CarListing: React.FC = () => {
     return <p className="text-center text-red-600">Failed to load cars.</p>;
   }
 
+  // Convert minPrice and maxPrice to numbers before filtering
+  const minPrice = Number(filters.minPrice);
+  const maxPrice = Number(filters.maxPrice);
+
   // Filter cars based on filters
   const filteredCars = cars.filter(
     (car) =>
-      car.pricePerHour >= filters.minPrice &&
-      car.pricePerHour <= filters.maxPrice &&
+      car.pricePerHour >= minPrice &&
+      car.pricePerHour <= maxPrice &&
       (filters.type ? car.color === filters.type : true) &&
       (filters.search
         ? car.name.toLowerCase().includes(filters.search.toLowerCase()) ||

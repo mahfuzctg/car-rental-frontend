@@ -6,11 +6,22 @@ import { Input } from "../../../../components/ui/UI/input";
 import { cn } from "../../../../lib/utils";
 import { useUpdateCarMutation } from "../../../../redux/api/carApi";
 
+interface Car {
+  _id: string;
+  make: string;
+  model: string;
+  year: number;
+  features: string[];
+  pricing: number;
+}
+
 interface UpdateCarModalProps {
   isOpen: boolean;
   onRequestClose: () => void;
   carToUpdate: Car | null;
 }
+
+type CarFormKeys = "make" | "model" | "year" | "features" | "pricing" | "image";
 
 const UpdateCarModal: React.FC<UpdateCarModalProps> = ({
   isOpen,
@@ -18,13 +29,15 @@ const UpdateCarModal: React.FC<UpdateCarModalProps> = ({
   carToUpdate,
 }) => {
   const [updateCar] = useUpdateCarMutation();
-  const [carForm, setCarForm] = useState({
+  const [carForm, setCarForm] = useState<
+    Record<CarFormKeys, string | File | null>
+  >({
     make: "",
     model: "",
     year: "",
     features: "",
     pricing: "",
-    image: null as File | null,
+    image: null,
   });
 
   useEffect(() => {
@@ -44,7 +57,7 @@ const UpdateCarModal: React.FC<UpdateCarModalProps> = ({
     const { name, value } = e.target;
     setCarForm((prev) => ({
       ...prev,
-      [name]: value,
+      [name as CarFormKeys]: value,
     }));
   };
 
@@ -61,13 +74,18 @@ const UpdateCarModal: React.FC<UpdateCarModalProps> = ({
   const handleUpdateSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const formData = new FormData();
-    for (const key in carForm) {
+    (Object.keys(carForm) as Array<CarFormKeys>).forEach((key) => {
       if (key === "features") {
-        formData.append(key, JSON.stringify(carForm[key]?.split(",") || []));
+        formData.append(
+          key,
+          JSON.stringify((carForm[key] as string)?.split(",") || [])
+        );
+      } else if (key === "image" && carForm[key] instanceof File) {
+        formData.append(key, carForm[key]);
       } else {
         formData.append(key, carForm[key] || "");
       }
-    }
+    });
     if (carToUpdate) {
       try {
         await updateCar({ id: carToUpdate._id, carData: formData }).unwrap();
@@ -93,14 +111,14 @@ const UpdateCarModal: React.FC<UpdateCarModalProps> = ({
       <form onSubmit={handleUpdateSubmit} className="space-y-4">
         <Input
           name="make"
-          value={carForm.make}
+          value={carForm.make as string}
           onChange={handleInputChange}
           placeholder="Make"
           required
         />
         <Input
           name="model"
-          value={carForm.model}
+          value={carForm.model as string}
           onChange={handleInputChange}
           placeholder="Model"
           required
@@ -108,14 +126,14 @@ const UpdateCarModal: React.FC<UpdateCarModalProps> = ({
         <Input
           type="number"
           name="year"
-          value={carForm.year}
+          value={carForm.year as string}
           onChange={handleInputChange}
           placeholder="Year"
           required
         />
         <Input
           name="features"
-          value={carForm.features}
+          value={carForm.features as string}
           onChange={handleInputChange}
           placeholder="Features (comma separated)"
           required
@@ -123,7 +141,7 @@ const UpdateCarModal: React.FC<UpdateCarModalProps> = ({
         <Input
           type="number"
           name="pricing"
-          value={carForm.pricing}
+          value={carForm.pricing as string}
           onChange={handleInputChange}
           placeholder="Pricing"
           required

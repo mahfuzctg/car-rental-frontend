@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import React, { useState } from "react";
 
 interface Booking {
@@ -26,7 +25,7 @@ const Overview: React.FC = () => {
     preferences: "Automatic transmission, GPS",
   });
 
-  const [bookings, setBookings] = useState<Booking[]>([
+  const [bookings] = useState<Booking[]>([
     { id: 1, car: "Toyota Camry", date: "2024-08-20", status: "Completed" },
     { id: 2, car: "Honda Accord", date: "2024-08-22", status: "Pending" },
     { id: 3, car: "BMW 3 Series", date: "2024-08-25", status: "Cancelled" },

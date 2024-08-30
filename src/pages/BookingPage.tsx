@@ -1,4 +1,9 @@
-import { CardElement, Elements } from "@stripe/react-stripe-js";
+import {
+  CardElement,
+  Elements,
+  useElements,
+  useStripe,
+} from "@stripe/react-stripe-js";
 import { loadStripe } from "@stripe/stripe-js";
 import axios from "axios";
 import React, { useEffect, useState } from "react";
@@ -12,10 +17,9 @@ import { Input } from "../components/ui/UI/input";
 // Load Stripe
 const stripePromise = loadStripe("YOUR_STRIPE_PUBLIC_KEY");
 
-const BookingPage: React.FC = () => {
-  const { id } = useParams<{ id: string }>();
-  const [carDetails, setCarDetails] = useState<any>(null);
-  const [loading, setLoading] = useState(true);
+const BookingForm: React.FC<{ id: string }> = ({ id }) => {
+  const stripe = useStripe();
+  const elements = useElements();
   const [bookingData, setBookingData] = useState({
     name: "",
     email: "",
@@ -23,30 +27,7 @@ const BookingPage: React.FC = () => {
     paymentMethod: "Credit Card",
   });
 
-  useEffect(() => {
-    const fetchCarDetails = async () => {
-      try {
-        const response = await axios.get(`/api/cars/${id}`);
-        setCarDetails(response.data);
-        setLoading(false);
-      } catch (error) {
-        toast.error("Failed to fetch car details. Please try again later.");
-        setLoading(false);
-      }
-    };
-
-    fetchCarDetails();
-  }, [id]);
-
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setBookingData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
-  };
-
-  const handleSelectChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const { name, value } = e.target;
     setBookingData((prev) => ({
       ...prev,
@@ -67,9 +48,15 @@ const BookingPage: React.FC = () => {
       return;
     }
 
+    const cardElement = elements.getElement(CardElement);
+    if (!cardElement) {
+      toast.error("Card element not found.");
+      return;
+    }
+
     const { error, paymentMethod } = await stripe.createPaymentMethod({
       type: "card",
-      card: elements.getElement(CardElement) as any,
+      card: cardElement,
       billing_details: {
         name: bookingData.name,
         email: bookingData.email,
@@ -104,6 +91,89 @@ const BookingPage: React.FC = () => {
       toast.error("Failed to initiate Bkash payment. Please try again.");
     }
   };
+
+  return (
+    <form onSubmit={handleStripeSubmit} className="space-y-6">
+      <Input
+        placeholder="Enter your name"
+        name="name"
+        value={bookingData.name}
+        onChange={handleInputChange}
+        required
+        className="focus:ring-green-500"
+      />
+      <Input
+        placeholder="Enter your email"
+        name="email"
+        type="email"
+        value={bookingData.email}
+        onChange={handleInputChange}
+        required
+        className="focus:ring-green-500"
+      />
+      <Input
+        placeholder="Enter your phone number"
+        name="phone"
+        value={bookingData.phone}
+        onChange={handleInputChange}
+        required
+        className="focus:ring-green-500"
+      />
+      <div className="flex gap-4 mb-6">
+        <div className="flex-1 border p-4 rounded-lg">
+          <h3 className="text-lg font-medium text-gray-800 mb-2 flex items-center">
+            <FaCcStripe className="mr-2 text-blue-500" />
+            Stripe
+          </h3>
+          <CardElement className="border p-4 rounded-lg" />
+        </div>
+        <div className="flex-1 border p-4 rounded-lg">
+          <h3 className="text-lg font-medium text-gray-800 mb-2 flex items-center">
+            <BsBank
+              className="mr-2"
+              style={{ color: "#D11F53", fontSize: "1.5rem" }} // Adjust size as needed
+            />
+            <span style={{ color: "#D11F53", fontWeight: "bold" }}>Bkash</span>
+          </h3>
+          <Button
+            type="button"
+            onClick={handleBkashPayment}
+            variant="secondary"
+            className="w-full py-3"
+            style={{ backgroundColor: "#D11F53", color: "#FFFFFF" }}
+          >
+            Pay with Bkash
+          </Button>
+        </div>
+      </div>
+      <div className="flex justify-end">
+        <Button type="submit" variant="primary" className="px-6 py-3">
+          Confirm Booking with Stripe
+        </Button>
+      </div>
+    </form>
+  );
+};
+
+const BookingPage: React.FC = () => {
+  const { id } = useParams<{ id: string }>();
+  const [carDetails, setCarDetails] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchCarDetails = async () => {
+      try {
+        const response = await axios.get(`/api/cars/${id}`);
+        setCarDetails(response.data);
+        setLoading(false);
+      } catch (error) {
+        toast.error("Failed to fetch car details. Please try again later.");
+        setLoading(false);
+      }
+    };
+
+    fetchCarDetails();
+  }, [id]);
 
   if (loading)
     return <p className="text-center text-gray-600">Loading car details...</p>;
@@ -147,70 +217,7 @@ const BookingPage: React.FC = () => {
             Booking Form
           </h2>
           <Elements stripe={stripePromise}>
-            <form onSubmit={handleStripeSubmit} className="space-y-6">
-              <Input
-                label="Name"
-                placeholder="Enter your name"
-                name="name"
-                value={bookingData.name}
-                onChange={handleInputChange}
-                required
-                className="focus:ring-green-500"
-              />
-              <Input
-                label="Email"
-                placeholder="Enter your email"
-                name="email"
-                type="email"
-                value={bookingData.email}
-                onChange={handleInputChange}
-                required
-                className="focus:ring-green-500"
-              />
-              <Input
-                label="Phone"
-                placeholder="Enter your phone number"
-                name="phone"
-                value={bookingData.phone}
-                onChange={handleInputChange}
-                required
-                className="focus:ring-green-500"
-              />
-              <div className="flex gap-4 mb-6">
-                <div className="flex-1 border p-4 rounded-lg">
-                  <h3 className="text-lg font-medium text-gray-800 mb-2 flex items-center">
-                    <FaCcStripe className="mr-2 text-blue-500" />
-                    Stripe
-                  </h3>
-                  <CardElement className="border p-4 rounded-lg" />
-                </div>
-                <div className="flex-1 border p-4 rounded-lg">
-                  <h3 className="text-lg font-medium text-gray-800 mb-2 flex items-center">
-                    <BsBank
-                      className="mr-2"
-                      style={{ color: "#D11F53", fontSize: "1.5rem" }} // Adjust size as needed
-                    />
-                    <span style={{ color: "#D11F53", fontWeight: "bold" }}>
-                      Bkash
-                    </span>
-                  </h3>
-                  <Button
-                    type="button"
-                    onClick={handleBkashPayment}
-                    variant="secondary"
-                    className="w-full py-3"
-                    style={{ backgroundColor: "#D11F53", color: "#FFFFFF" }}
-                  >
-                    Pay with Bkash
-                  </Button>
-                </div>
-              </div>
-              <div className="flex justify-end">
-                <Button type="submit" variant="primary" className="px-6 py-3">
-                  Confirm Booking with Stripe
-                </Button>
-              </div>
-            </form>
+            <BookingForm id={id!} />
           </Elements>
         </div>
       </div>

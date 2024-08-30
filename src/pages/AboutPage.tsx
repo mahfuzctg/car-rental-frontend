@@ -322,7 +322,7 @@ const AboutUsSection: React.FC = () => {
                   <textarea
                     id="message"
                     name="message"
-                    rows="2"
+                    rows={2}
                     className="w-full p-2 border border-gray-300 rounded-lg"
                     placeholder="Your Message"
                     required

@@ -1,12 +1,11 @@
-/* eslint-disable react-hooks/rules-of-hooks */
-/* eslint-disable @typescript-eslint/no-unused-vars */
-import { useState } from "react";
+// Define the CarFormState type
+type CarFormState = {
+  make: string;
+  model: string;
+  year: string;
+  features: string;
+  pricing: string;
+  image: File | null;
+};
 
-const [carForm, setCarForm] = useState<CarFormState>({
-  make: "",
-  model: "",
-  year: "",
-  features: "",
-  pricing: "",
-  image: null,
-});
+export default CarFormState;
