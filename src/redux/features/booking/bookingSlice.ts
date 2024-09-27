@@ -2,6 +2,8 @@
 import { createSlice } from "@reduxjs/toolkit";
 
 type TBooking = {
+  paymentMethod: string;
+  location: string;
   userEmail: string;
   gps: any;
   GPS: boolean | null;

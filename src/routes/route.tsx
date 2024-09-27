@@ -21,6 +21,7 @@ import AdminLayout from "../Layout/AdminLayout";
 import UserLayout from "../Layout/UserLayout";
 import AboutPage from "../pages/AboutPage";
 
+import BookingConfirmation from "../pages/Booking/BookingConfirm";
 import BookingForm from "../pages/Booking/BookingForm";
 import BookingPage from "../pages/BookingPage";
 import CarDetails from "../pages/CarDetailsPage";
@@ -40,10 +41,11 @@ export const router = createBrowserRouter([
       { path: "booking-form/:id", element: <BookingForm /> },
       {
         path: "booking-confirmation/:id",
+        element: <BookingConfirmation></BookingConfirmation>,
       },
       { path: "cars", element: <CarListing /> },
       { path: "car/:id", element: <CarDetails /> },
-      { path: "*", element: <NotFoundPage /> }, // Root-Level 404
+      { path: "*", element: <NotFoundPage /> },
     ],
   },
   { path: "sign-in", element: <SignIn /> },

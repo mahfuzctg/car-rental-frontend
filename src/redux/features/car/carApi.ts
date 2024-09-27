@@ -4,11 +4,14 @@ import { baseApi } from "../../api/baseApi";
 const productApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
     createCar: builder.mutation({
-      query: (car: TCar) => ({
-        url: "/cars",
-        method: "POST",
-        body: car,
-      }),
+      query: (car: TCar) => {
+        console.log("Creating car with data:", car); // Log the car data
+        return {
+          url: "/cars",
+          method: "POST",
+          body: car,
+        };
+      },
       invalidatesTags: ["Cars"],
     }),
 

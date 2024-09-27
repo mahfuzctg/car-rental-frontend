@@ -1,4 +1,3 @@
-/* eslint-disable no-constant-binary-expression */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { useState } from "react";
 import { Controller, SubmitHandler, useForm } from "react-hook-form";
@@ -24,15 +23,15 @@ export type TFormData = {
   name: string;
   model: string;
   year: string;
-  features: string;
+  features: string; // Keep this as string and split later
   pricePerHour: number;
   description: string;
-  isElectric: string;
+  isElectric: boolean; // Ensure this is a boolean
   carType: string;
   location: string;
   color: string;
-  seatCapacity: string;
-  date: string;
+  seatCapacity: number;
+  date: string; // Added date field
 };
 
 const CreateCar = () => {
@@ -53,44 +52,22 @@ const CreateCar = () => {
   const onSubmit: SubmitHandler<TFormData> = async (data) => {
     setLoading(true);
     const toastId = toast.loading("Creating...");
-    const carData: {
-      name: string;
-      model: string;
-      year: string;
-      features: string[];
-      pricePerHour: number;
-      description: string;
-      isElectric: boolean;
-      carType: string;
-      location: string;
-      color: string;
-      seatCapacity: number;
-      date: string;
-      image: string | undefined; // Change this to avoid `null`
-      ownerEmail: string | undefined;
-      ownerName: string | undefined;
-    } = {
-      name: "Car Name",
-      model: "Model XYZ",
-      year: "2022",
-      features: ["Airbags", "ABS"],
-      pricePerHour: 50,
-      description: "A great car for rental.",
-      isElectric: true,
-      carType: "SUV",
-      location: "New York",
-      color: "Red",
-      seatCapacity: 5,
-      date: "2023-01-01",
-      image: null ?? undefined,
-      ownerEmail: "owner@example.com",
-      ownerName: "John Doe",
+
+    const carData = {
+      ...data,
+      image: imageUrl || "", // Use imageUrl directly
+      ownerEmail: user?.email,
+      ownerName: user?.name,
+      features: data.features.split(",").map((feature) => feature.trim()),
+      pricePerHour: Number(data.pricePerHour),
+      seatCapacity: Number(data.seatCapacity),
+      isElectric: data.isElectric, // Use the boolean directly
     };
 
     try {
       const res = await createCar(carData);
       if (res.data?.success) {
-        toast.success(res.data?.message || "Car created successfully!", {
+        toast.success(res.data.message || "Car created successfully!", {
           id: toastId,
         });
         navigate("/admin/manage-cars");
@@ -138,25 +115,23 @@ const CreateCar = () => {
     <section className="max-w-screen-xl mx-auto min-h-screen flex items-center justify-center px-4 py-8 bg-gray-100">
       <div className="shadow-lg p-8 rounded-xl bg-white border border-gray-200">
         <h2 className="text-xl text-gray-700 md:text-3xl font-bold text-center mb-6 uppercase">
-          create new car!
+          Create New Car!
           <div className="w-24 h-1 bg-red-600 mt-2 mx-auto"></div>
         </h2>
         <form onSubmit={handleSubmit(onSubmit)}>
           <div className="grid gap-6 grid-cols-1 md:grid-cols-2">
-            {/* Image */}
+            {/* Image Upload */}
             <div>
-              <div className="grid w-full items-center gap-1.5">
-                <Label htmlFor="image" className="font-medium">
-                  Upload Image:
-                </Label>
-                <Input
-                  type="file"
-                  id="image"
-                  accept="image/*"
-                  onChange={handleImageUpload}
-                  className="md:w-80"
-                />
-              </div>
+              <Label htmlFor="image" className="font-medium">
+                Upload Image:
+              </Label>
+              <Input
+                type="file"
+                id="image"
+                accept="image/*"
+                onChange={handleImageUpload}
+                className="md:w-80"
+              />
               {imageUrl && (
                 <div className="mt-2 flex justify-center">
                   <img
@@ -169,91 +144,81 @@ const CreateCar = () => {
             </div>
             {/* Name */}
             <div>
-              <div className="grid w-full items-center gap-1.5">
-                <Label htmlFor="name" className="font-medium">
-                  Car Name:
-                </Label>
-                <Input
-                  className="md:w-80"
-                  type="text"
-                  id="name"
-                  placeholder="Enter car name"
-                  {...register("name", { required: true })}
-                />
-              </div>
-              {errors?.name && (
+              <Label htmlFor="name" className="font-medium">
+                Car Name:
+              </Label>
+              <Input
+                className="md:w-80"
+                type="text"
+                id="name"
+                placeholder="Enter car name"
+                {...register("name", { required: true })}
+              />
+              {errors.name && (
                 <p className="text-red-500 text-sm">Name is required</p>
               )}
             </div>
             {/* Model */}
             <div>
-              <div className="grid w-full items-center gap-1.5">
-                <Label htmlFor="model" className="font-medium">
-                  Model:
-                </Label>
-                <Input
-                  className="md:w-80"
-                  type="text"
-                  id="model"
-                  placeholder="Enter car model"
-                  {...register("model", { required: true })}
-                />
-              </div>
-              {errors?.model && (
+              <Label htmlFor="model" className="font-medium">
+                Model:
+              </Label>
+              <Input
+                className="md:w-80"
+                type="text"
+                id="model"
+                placeholder="Enter car model"
+                {...register("model", { required: true })}
+              />
+              {errors.model && (
                 <p className="text-red-500 text-sm">Model is required</p>
               )}
             </div>
             {/* Year */}
             <div>
-              <div className="grid w-full items-center gap-1.5">
-                <Label htmlFor="year" className="font-medium">
-                  Year:
-                </Label>
-                <Input
-                  className="md:w-80"
-                  type="text"
-                  id="year"
-                  placeholder="Enter car year"
-                  {...register("year", { required: true })}
-                />
-              </div>
-              {errors?.year && (
+              <Label htmlFor="year" className="font-medium">
+                Year:
+              </Label>
+              <Input
+                className="md:w-80"
+                type="text"
+                id="year"
+                placeholder="Enter car year"
+                {...register("year", { required: true })}
+              />
+              {errors.year && (
                 <p className="text-red-500 text-sm">Year is required</p>
               )}
             </div>
             {/* Features */}
             <div>
-              <div className="grid w-full items-center gap-1.5">
-                <Label htmlFor="features" className="font-medium">
-                  Features:
-                </Label>
-                <Input
-                  className="md:w-80"
-                  type="text"
-                  id="features"
-                  placeholder="Enter car features"
-                  {...register("features", { required: true })}
-                />
-              </div>
-              {errors?.features && (
+              <Label htmlFor="features" className="font-medium">
+                Features:
+              </Label>
+              <Input
+                className="md:w-80"
+                type="text"
+                id="features"
+                placeholder="Enter car features (comma separated)"
+                {...register("features", { required: true })}
+              />
+              {errors.features && (
                 <p className="text-red-500 text-sm">Features are required</p>
               )}
             </div>
-            {/* Price per hour */}
+            {/* Price per Hour */}
             <div>
-              <div className="grid w-full items-center gap-1.5">
-                <Label htmlFor="pricePerHour" className="font-medium">
-                  Price per Hour:
-                </Label>
-                <Input
-                  className="md:w-80"
-                  type="number"
-                  id="pricePerHour"
-                  placeholder="Enter price per hour"
-                  {...register("pricePerHour", { required: true })}
-                />
-              </div>
-              {errors?.pricePerHour && (
+              <Label htmlFor="pricePerHour" className="font-medium">
+                Price per Hour:
+              </Label>
+              <Input
+                className="md:w-80"
+                type="number"
+                id="pricePerHour"
+                placeholder="Enter price per hour"
+                {...register("pricePerHour", { required: true })}
+              />
+              {errors.pricePerHour && (
                 <p className="text-red-500 text-sm">
                   Price per hour is required
                 </p>
@@ -261,147 +226,113 @@ const CreateCar = () => {
             </div>
             {/* Description */}
             <div>
-              <div className="grid w-full items-center gap-1.5">
-                <Label htmlFor="description" className="font-medium">
-                  Description:
-                </Label>
-                <Input
-                  className="md:w-80"
-                  type="text"
-                  id="description"
-                  placeholder="Enter car description"
-                  {...register("description", { required: true })}
-                />
-              </div>
-              {errors?.description && (
+              <Label htmlFor="description" className="font-medium">
+                Description:
+              </Label>
+              <Input
+                className="md:w-80"
+                type="text"
+                id="description"
+                placeholder="Enter car description"
+                {...register("description", { required: true })}
+              />
+              {errors.description && (
                 <p className="text-red-500 text-sm">Description is required</p>
               )}
             </div>
             {/* Is Electric */}
             <div>
-              <div className="grid w-full items-center gap-1.5">
-                <Label htmlFor="isElectric" className="font-medium">
-                  Is Electric:
-                </Label>
-                <Controller
-                  name="isElectric"
-                  control={control}
-                  rules={{ required: true }}
-                  render={({ field }) => (
-                    <div className="md:w-80">
-                      <Select
-                        onValueChange={field.onChange}
-                        value={field.value}
-                        defaultValue=""
-                      >
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select an option" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectGroup>
-                            <SelectItem value="true">Yes</SelectItem>
-                            <SelectItem value="false">No</SelectItem>
-                          </SelectGroup>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                  )}
-                />
-              </div>
-              {errors?.isElectric && (
-                <p className="text-red-500 text-sm">
-                  Electric status is required
-                </p>
+              <Label htmlFor="isElectric" className="font-medium">
+                Is Electric:
+              </Label>
+              <Controller
+                name="isElectric"
+                control={control}
+                rules={{ required: true }}
+                render={({ field }) => (
+                  <Select
+                    onValueChange={(value) => field.onChange(value === "true")}
+                    value={field.value ? "true" : "false"} // Ensure correct string representation
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select an option" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectGroup>
+                        <SelectItem value="true">Yes</SelectItem>
+                        <SelectItem value="false">No</SelectItem>
+                      </SelectGroup>
+                    </SelectContent>
+                  </Select>
+                )}
+              />
+              {errors.isElectric && (
+                <p className="text-red-500 text-sm">Is Electric is required</p>
               )}
             </div>
             {/* Car Type */}
             <div>
-              <div className="grid w-full items-center gap-1.5">
-                <Label htmlFor="carType" className="font-medium">
-                  Car Type:
-                </Label>
-                <Controller
-                  name="carType"
-                  control={control}
-                  rules={{ required: true }}
-                  render={({ field }) => (
-                    <div className="md:w-80">
-                      <Select
-                        onValueChange={field.onChange}
-                        value={field.value}
-                        defaultValue=""
-                      >
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select car type" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectGroup>
-                            <SelectItem value="sedan">Sedan</SelectItem>
-                            <SelectItem value="suv">SUV</SelectItem>
-                            <SelectItem value="truck">Truck</SelectItem>
-                            <SelectItem value="coupe">Coupe</SelectItem>
-                          </SelectGroup>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                  )}
-                />
-              </div>
-              {errors?.carType && (
-                <p className="text-red-500 text-sm">Car type is required</p>
-              )}
+              <Label htmlFor="carType" className="font-medium">
+                Car Type:
+              </Label>
+              <Select>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select a car type" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectGroup>
+                    <SelectItem value="suv">SUV</SelectItem>
+                    <SelectItem value="sedan">Sedan</SelectItem>
+                    <SelectItem value="hatchback">Hatchback</SelectItem>
+                  </SelectGroup>
+                </SelectContent>
+              </Select>
             </div>
             {/* Location */}
             <div>
-              <div className="grid w-full items-center gap-1.5">
-                <Label htmlFor="location" className="font-medium">
-                  Location:
-                </Label>
-                <Input
-                  className="md:w-80"
-                  type="text"
-                  id="location"
-                  placeholder="Enter location"
-                  {...register("location", { required: true })}
-                />
-              </div>
-              {errors?.location && (
+              <Label htmlFor="location" className="font-medium">
+                Location:
+              </Label>
+              <Input
+                className="md:w-80"
+                type="text"
+                id="location"
+                placeholder="Enter location"
+                {...register("location", { required: true })}
+              />
+              {errors.location && (
                 <p className="text-red-500 text-sm">Location is required</p>
               )}
             </div>
             {/* Color */}
             <div>
-              <div className="grid w-full items-center gap-1.5">
-                <Label htmlFor="color" className="font-medium">
-                  Color:
-                </Label>
-                <Input
-                  className="md:w-80"
-                  type="text"
-                  id="color"
-                  placeholder="Enter car color"
-                  {...register("color", { required: true })}
-                />
-              </div>
-              {errors?.color && (
+              <Label htmlFor="color" className="font-medium">
+                Color:
+              </Label>
+              <Input
+                className="md:w-80"
+                type="text"
+                id="color"
+                placeholder="Enter car color"
+                {...register("color", { required: true })}
+              />
+              {errors.color && (
                 <p className="text-red-500 text-sm">Color is required</p>
               )}
             </div>
             {/* Seat Capacity */}
             <div>
-              <div className="grid w-full items-center gap-1.5">
-                <Label htmlFor="seatCapacity" className="font-medium">
-                  Seat Capacity:
-                </Label>
-                <Input
-                  className="md:w-80"
-                  type="text"
-                  id="seatCapacity"
-                  placeholder="Enter seat capacity"
-                  {...register("seatCapacity", { required: true })}
-                />
-              </div>
-              {errors?.seatCapacity && (
+              <Label htmlFor="seatCapacity" className="font-medium">
+                Seat Capacity:
+              </Label>
+              <Input
+                className="md:w-80"
+                type="number"
+                id="seatCapacity"
+                placeholder="Enter seat capacity"
+                {...register("seatCapacity", { required: true })}
+              />
+              {errors.seatCapacity && (
                 <p className="text-red-500 text-sm">
                   Seat capacity is required
                 </p>
@@ -409,29 +340,29 @@ const CreateCar = () => {
             </div>
             {/* Date */}
             <div>
-              <div className="grid w-full items-center gap-1.5">
-                <Label htmlFor="date" className="font-medium">
-                  Date:
-                </Label>
-                <Input
-                  className="md:w-80"
-                  type="date"
-                  id="date"
-                  {...register("date", { required: true })}
-                />
-              </div>
-              {errors?.date && (
+              <Label htmlFor="date" className="font-medium">
+                Date:
+              </Label>
+              <Input
+                className="md:w-80"
+                type="date"
+                id="date"
+                {...register("date", { required: true })}
+              />
+              {errors.date && (
                 <p className="text-red-500 text-sm">Date is required</p>
               )}
             </div>
           </div>
-          <div className="mt-8 text-center">
+          <div className="flex justify-center  mt-8">
             <Button
               type="submit"
-              className="w-full bg-red-600 text-white hover:bg-red-700"
-              disabled={isLoading || loading}
+              disabled={loading || isLoading}
+              className={`w-full bg-red-600 text-white hover:bg-red-700 ${
+                loading || isLoading ? "opacity-50" : ""
+              }`}
             >
-              {isLoading || loading ? "Creating..." : "Create Car"}
+              {loading || isLoading ? "Creating..." : "Create Car"}
             </Button>
           </div>
         </form>

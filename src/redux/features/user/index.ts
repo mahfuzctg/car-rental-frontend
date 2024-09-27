@@ -4,7 +4,7 @@ const userApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
     // Fetch all users
     getAllUsers: builder.query({
-      query: () => `/users`, // Matches backend route for fetching all users
+      query: () => `/users/users`, // Matches backend route for fetching all users
       providesTags: ["User"], // Cache management for "user"
     }),
     // Fetch specific user info by email

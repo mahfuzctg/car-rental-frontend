@@ -29,6 +29,7 @@ export default function UpdateModal({ open, setOpen, carId }: TModalProps) {
   } = useGetSingleCarQuery(carId);
   const car: TCar | undefined = data?.data;
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(null); // For image preview
 
   useEffect(() => {
     if (isSuccess && car) {
@@ -43,24 +44,25 @@ export default function UpdateModal({ open, setOpen, carId }: TModalProps) {
         features: car.features?.join(",") || "",
         image1: car.images?.[0] || "",
       });
+      setImagePreview(car.images?.[0] || null); // Set initial image preview
     }
   }, [reset, car, isSuccess]);
 
-  const onSubmit = async (data: any) => {
-    const imageUrl = data.image1; // Default URL from the input
-
-    let imageFileUrl = imageUrl;
-    if (selectedImage) {
-      try {
-        // Handle file upload and get the URL
-        const fileUrl = await uploadFile(selectedImage);
-        imageFileUrl = fileUrl;
-      } catch (error) {
-        toast.error("Image upload failed");
-        console.error("Image upload error:", error);
-        return;
-      }
+  // Preview image file
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files?.[0]) {
+      const file = e.target.files[0];
+      setSelectedImage(file);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImagePreview(reader.result as string); // Set the image preview
+      };
+      reader.readAsDataURL(file);
     }
+  };
+
+  const onSubmit = async (data: any) => {
+    const imageFileUrl = imagePreview; // Use the preview URL directly
 
     const carData: TCar = {
       name: data.name,
@@ -71,7 +73,7 @@ export default function UpdateModal({ open, setOpen, carId }: TModalProps) {
       pricePerHour: parseInt(data.pricePerHour) || 0,
       description: data.description,
       features: data.features.toUpperCase().split(",") || [],
-      images: "",
+      images: imageFileUrl ? [imageFileUrl] : [], // Use the image URL
     };
 
     try {
@@ -92,19 +94,10 @@ export default function UpdateModal({ open, setOpen, carId }: TModalProps) {
     }
   };
 
-  const uploadFile = async (file: File): Promise<string> => {
-    // Simulate upload and return file URL
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        resolve(URL.createObjectURL(file));
-      }, 1000);
-    });
-  };
-
   return (
     <section className="w-screen h-screen fixed top-0 left-0 right-0 bottom-0 z-50 bg-black/30 backdrop-blur-sm flex justify-center items-center overflow-y-auto p-4">
       <form
-        className="w-full max-w-md p-6  bg-white mt-96 rounded-lg shadow-lg relative"
+        className="w-full max-w-md p-6 bg-white mt-96 rounded-lg shadow-lg relative"
         onSubmit={handleSubmit(onSubmit)}
       >
         {(dataLoading || updateLoading) && (
@@ -224,12 +217,15 @@ export default function UpdateModal({ open, setOpen, carId }: TModalProps) {
               <input
                 type="file"
                 className="mt-2"
-                onChange={(e) => {
-                  if (e.target.files?.[0]) {
-                    setSelectedImage(e.target.files[0]);
-                  }
-                }}
+                onChange={handleImageChange}
               />
+              {imagePreview && (
+                <img
+                  src={imagePreview}
+                  alt="Image Preview"
+                  className="mt-2 h-32 w-full object-cover rounded-md"
+                />
+              )}
             </div>
           )}
 
@@ -238,15 +234,21 @@ export default function UpdateModal({ open, setOpen, carId }: TModalProps) {
               type="submit"
               className="flex items-center px-4 py-2 font-semibold text-white rounded-md transition bg-red-600 hover:bg-red-700"
             >
-              <FaRegSave className="mr-2" /> Update
+              {updateLoading ? (
+                <ClipLoader color="#ffffff" size={20} />
+              ) : (
+                <FaRegSave className="mr-1" />
+              )}
+              Save Changes
             </button>
 
             <button
               type="button"
+              className="flex items-center px-4 py-2 font-semibold text-red-600 border border-red-600 rounded-md transition hover:bg-red-600 hover:text-white"
               onClick={() => setOpen(false)}
-              className="flex items-center px-4 py-2 font-semibold text-white rounded-md transition bg-red-600 hover:bg-red-700"
             >
-              <FaTimes className="mr-2" /> Close
+              <FaTimes className="mr-1" />
+              Cancel
             </button>
           </div>
         </div>
