@@ -1,12 +1,13 @@
 import { Loader } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useSelector } from "react-redux";
 import { toast } from "sonner";
 import { selectCurrentUser } from "../../../redux/features/auth/authSlice";
 import {
-  useGetAllUserQuery,
+  useGetUserByEmailQuery,
   useUpdateUserMutation,
 } from "../../../redux/features/user";
+import { TErrorResponse } from "../../../types/errorTypes";
 
 type TEditUserInitialValues = {
   name: string;
@@ -14,151 +15,146 @@ type TEditUserInitialValues = {
   address: string;
 };
 
+// Define a type for the update user response without message
+interface TUpdateUserResponse {
+  // Remove message property
+}
+
 const UserOverview = () => {
   const currentUser = useSelector(selectCurrentUser);
-  const userEmail = currentUser?.email; // Get the user's email
+  const userEmail = currentUser?.email;
 
-  const { data, isLoading, error } = useGetAllUserQuery(userEmail); // Fetch user info by email
+  const { data, isLoading, error, refetch } = useGetUserByEmailQuery(userEmail, {
+    skip: !userEmail,
+  });
+
   const userInfo = data?.data;
-  const [updateUser] = useUpdateUserMutation();
+  const [updateUser, { isLoading: isUpdating }] = useUpdateUserMutation();
 
-  // Modal state for editing user
-  const [isEditUserModalOpen, setEditUserModalOpen] = useState(false);
+  const [formValues, setFormValues] = useState<TEditUserInitialValues>({
+    name: "",
+    phone: "",
+    address: "",
+  });
 
-  // Initial form values for the user
-  const userProfileInitialValues: TEditUserInitialValues = {
-    name: userInfo?.name || "",
-    phone: userInfo?.phone || "",
-    address: userInfo?.address || "",
-  };
-
-  // Form values state
-  const [formValues, setFormValues] = useState(userProfileInitialValues);
-
-  // Form submission handler
-  const onSubmit = async (e: React.FormEvent) => {
-    e.preventDefault(); // Prevent default form submission
-    setEditUserModalOpen(false); // Close modal
-    const toastId = toast.loading("User updating");
+  useEffect(() => {
     if (userInfo) {
-      try {
-        const response = await updateUser({
-          userData: formValues,
-          id: userInfo._id,
-        }).unwrap();
-        toast.success(response.message, { id: toastId, duration: 2000 });
-      } catch (error) {
-        const err = error as TErrorResponse;
-        toast.error(err?.data?.errorMessages[0].message, {
-          id: toastId,
-          duration: 2000,
-        });
-      }
+      setFormValues({
+        name: userInfo.name || "",
+        phone: userInfo.phone || "",
+        address: userInfo.address || "",
+      });
+    }
+  }, [userInfo]);
+
+  const onSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const toastId = toast.loading("Updating user...");
+
+    try {
+      const response = await updateUser({
+        userInfo: formValues,
+        id: userInfo._id,
+      }).unwrap() as TUpdateUserResponse;
+
+      toast.success("User updated successfully!", { id: toastId, duration: 2000 });
+      await refetch();
+    } catch (error) {
+      const err = error as TErrorResponse;
+
+      const errorMessage =
+        err.status === 401
+          ? "Unauthorized access. Please log in."
+          : err.data && Array.isArray(err.data.errorMessages) && err.data.errorMessages.length > 0
+          ? err.data.errorMessages[0].message
+          : "Error updating user.";
+      toast.error(errorMessage, { id: toastId, duration: 2000 });
     }
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setFormValues({ ...formValues, [name]: value });
+    setFormValues((prevValues) => ({ ...prevValues, [name]: value }));
   };
 
   if (isLoading) {
-    return <Loader />;
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-gray-200">
+        <Loader />
+      </div>
+    );
   }
 
-  if (error || !userInfo) {
-    return <p>Error loading user info or user not found.</p>;
+  if (error) {
+    console.log("Error fetching user data:", error);
+    
+    // Make sure to assert that error is of type TErrorResponse
+    const err = error as TErrorResponse;
+
+    const errorMessage =
+      err.status === 401
+        ? "Unauthorized access. Please log in."
+        : err.data && typeof err.data.message === "string"
+        ? err.data.message
+        : "User not found.";
+
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-gray-200">
+        <p>Error loading user info: {errorMessage}</p>
+      </div>
+    );
   }
 
   return (
-    <>
-      <h2 className="text-2xl font-semibold mb-4">User Overview</h2>
-      <div className="flex justify-center w-full">
-        <div className="mt-6 relative grid grid-cols-1 sm:grid-cols-2 gap-6 lg:w-[50%] lg:p-10 p-5 bg-primary-foreground/5 rounded-md w-full">
-          {/* Edit button */}
-          <button
-            onClick={() => setEditUserModalOpen(true)}
-            className="absolute top-1 right-2 flex items-center gap-x-2"
-          >
-            Edit profile
-          </button>
-          <div className="space-y-3">
-            <h2 className="text-lg font-semibold text-gray-700">Name</h2>
-            <p className="text-gray-500">{userInfo?.name}</p>
-          </div>
-          <div className="space-y-3">
-            <h2 className="text-lg font-semibold text-gray-700">Email</h2>
-            <p className="text-gray-500">{userInfo?.email}</p>
-          </div>
-          <div className="space-y-3">
-            <h2 className="text-lg font-semibold text-gray-700">Phone</h2>
-            <p className="text-gray-500">{userInfo?.phone}</p>
-          </div>
-          <div className="space-y-3">
-            <h2 className="text-lg font-semibold text-gray-700">Address</h2>
-            <p className="text-gray-500">{userInfo?.address}</p>
-          </div>
-        </div>
+    <div className="flex items-center justify-center min-h-screen bg-gray-200">
+      <div className="user-overview w-full max-w-md p-6 bg-white rounded-lg shadow-md">
+        <h1 className="text-3xl font-bold mb-4 text-red-600">User Overview</h1>
+        {userInfo && (
+          <form onSubmit={onSubmit} className="space-y-4">
+            <div className="mb-4">
+              <label className="block mb-1 text-sm font-medium text-gray-700">Name:</label>
+              <input
+                type="text"
+                name="name"
+                value={formValues.name}
+                onChange={handleInputChange}
+                className="border border-gray-300 rounded-lg p-2 w-full focus:outline-none focus:ring focus:ring-red-200"
+                required
+              />
+            </div>
+            <div className="mb-4">
+              <label className="block mb-1 text-sm font-medium text-gray-700">Phone:</label>
+              <input
+                type="tel"
+                name="phone"
+                value={formValues.phone}
+                onChange={handleInputChange}
+                className="border border-gray-300 rounded-lg p-2 w-full focus:outline-none focus:ring focus:ring-red-200"
+                required
+              />
+            </div>
+            <div className="mb-4">
+              <label className="block mb-1 text-sm font-medium text-gray-700">Address:</label>
+              <input
+                type="text"
+                name="address"
+                value={formValues.address}
+                onChange={handleInputChange}
+                className="border border-gray-300 rounded-lg p-2 w-full focus:outline-none focus:ring focus:ring-red-200"
+                required
+              />
+            </div>
+            <button
+              type="submit"
+              className={`bg-red-500 text-white py-2 px-4 rounded hover:bg-red-600 transition-colors ${isUpdating ? "opacity-50 cursor-not-allowed" : ""}`}
+              disabled={isUpdating}
+            >
+              {isUpdating ? "Updating..." : "Update Profile"}
+            </button>
+          </form>
+        )}
       </div>
-
-      {/* Edit User Modal */}
-      {isEditUserModalOpen && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
-          <div className="bg-white p-6 rounded-md shadow-md">
-            <h3 className="text-xl font-semibold mb-4">
-              Edit User Information
-            </h3>
-            <form onSubmit={onSubmit} className="space-y-4">
-              <div>
-                <label className="block text-gray-700">Name</label>
-                <input
-                  type="text"
-                  name="name"
-                  value={formValues.name}
-                  onChange={handleInputChange}
-                  className="w-full border border-gray-300 p-2 rounded"
-                  required
-                />
-              </div>
-              <div>
-                <label className="block text-gray-700">Phone</label>
-                <input
-                  type="text"
-                  name="phone"
-                  value={formValues.phone}
-                  onChange={handleInputChange}
-                  className="w-full border border-gray-300 p-2 rounded"
-                  required
-                />
-              </div>
-              <div>
-                <label className="block text-gray-700">Address</label>
-                <input
-                  type="text"
-                  name="address"
-                  value={formValues.address}
-                  onChange={handleInputChange}
-                  className="w-full border border-gray-300 p-2 rounded"
-                  required
-                />
-              </div>
-              <div className="flex justify-end">
-                <button type="submit" className="form-submit-btn">
-                  Submit
-                </button>
-                <button
-                  type="button"
-                  className="ml-2 text-gray-500"
-                  onClick={() => setEditUserModalOpen(false)}
-                >
-                  Cancel
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
-    </>
+    </div>
   );
 };
 

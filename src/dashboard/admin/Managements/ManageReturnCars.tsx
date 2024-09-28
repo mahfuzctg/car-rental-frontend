@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { FaCheck } from "react-icons/fa"; // Importing icons from react-icons
+import { FaCheck } from "react-icons/fa";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import {
@@ -8,12 +8,12 @@ import {
 } from "../../../redux/features/booking/bookingApi";
 import { TBooking } from "../../../types/bookingTypes";
 
+
 const ManageReturnCars = () => {
   const { data, isLoading, error } = useGetAllBookingsQuery([]);
   const [returnBooking] = useReturnBookingMutation();
   const [returnError, setReturnError] = useState<string | null>(null);
 
-  // Accessing the bookings from the data object
   const bookings = data?.data || [];
 
   const handleReturnCar = async (bookingId: string) => {
@@ -34,14 +34,14 @@ const ManageReturnCars = () => {
     }
   }, [error]);
 
-  if (isLoading)
+  if (isLoading) {
     return (
       <div className="flex items-center justify-center h-full w-full">
         <span className="loading loading-spinner loading-lg"></span>
       </div>
     );
+  }
 
-  // Check if bookings is not an array or is empty
   if (!Array.isArray(bookings) || bookings.length === 0) {
     return <p className="text-gray-600 text-lg">No booked cars available.</p>;
   }
@@ -50,19 +50,17 @@ const ManageReturnCars = () => {
     <div className="px-8 lg:px-20 py-10">
       <ToastContainer />
       {returnError && <p className="text-red-500 mb-4">{returnError}</p>}
-      <h2 className="text-2xl  text-gray-700 md:text-3xl font-bold text-center mb-6 uppercase">
-        manage return cars!
+      <h2 className="text-2xl text-gray-700 md:text-3xl font-bold text-center mb-6 uppercase">
+        Manage Return Cars!
         <div className="w-24 h-1 bg-red-600 mt-2 mx-auto"></div>
       </h2>
 
-      {/* Total Bookings Count */}
       <div className="mb-4 text-center">
         <p className="text-lg text-gray-700">
           Total Booked Cars: <strong>{bookings.length}</strong>
         </p>
       </div>
 
-      {/* Booking Table */}
       <div className="overflow-x-auto">
         <table className="min-w-full bg-white border-gray-300 rounded-lg shadow-lg">
           <thead className="bg-gray-100">
@@ -77,11 +75,19 @@ const ManageReturnCars = () => {
           <tbody className="text-center">
             {bookings.map((booking: TBooking) => (
               <tr
-                key={booking._id}
+                key={booking._id.toString()} // Ensure the key is a string
                 className="hover:bg-gray-50 transition duration-200"
               >
-                <td className="py-4 px-4 border-b">{booking.user?.name}</td>
-                <td className="py-4 px-4 border-b">{booking.car?.name}</td>
+                <td className="py-4 px-4 border-b">
+                  {typeof booking.user === "object" && booking.user !== null
+                    ? booking.user?.name
+                    : "N/A"}
+                </td>
+                <td className="py-4 px-4 border-b">
+                  {typeof booking.car === "object" && booking.car !== null
+                    ? booking.car.name
+                    : "N/A"}
+                </td>
                 <td className="py-4 px-4 border-b">
                   <span
                     className={`font-semibold ${
@@ -100,7 +106,7 @@ const ManageReturnCars = () => {
                   {booking.status !== "returned" ? (
                     <button
                       className="bg-red-500 text-center justify-center text-white text-xs py-1 px-2 rounded-lg hover:bg-red-600 transition duration-300 flex items-center shadow-md w-28"
-                      onClick={() => handleReturnCar(booking._id)}
+                      onClick={() => handleReturnCar(booking._id.toString())} // Convert ObjectId to string
                     >
                       <FaCheck className="mr-1" /> Return
                     </button>

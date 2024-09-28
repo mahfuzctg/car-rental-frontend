@@ -15,11 +15,15 @@ import {
   useUpdateUserStatusMutation,
 } from "../../../redux/features/user";
 import { TUser } from "../../../types/userTypes";
+import { useState } from "react";
 
 const UserManagement = () => {
-  const { data: userData } = useGetAllUserQuery(undefined);
+  const { data: userData, refetch } = useGetAllUserQuery(undefined);
   const [updateRole] = useUpdateRoleMutation();
-  const [toggleUserStatus] = useUpdateUserStatusMutation(); // Mutation for toggling user status
+  const [toggleUserStatus] = useUpdateUserStatusMutation();
+
+  // State to hold updated user list
+  const [users, setUsers] = useState(userData?.data || []);
 
   const handleRole = async (id: string, role: string) => {
     const newRole = role === "admin" ? "user" : "admin";
@@ -39,6 +43,12 @@ const UserManagement = () => {
       try {
         const res = await updateRole(userInfo).unwrap();
         if (res?.success) {
+          // Update users state immediately
+          setUsers((prevUsers: any[]) =>
+            prevUsers.map((user) =>
+              user._id === id ? { ...user, role: newRole } : user
+            )
+          );
           Swal.fire({
             title: "Changed!",
             text: res?.message,
@@ -76,6 +86,12 @@ const UserManagement = () => {
           isActive: !isActive,
         }).unwrap();
         if (res?.success) {
+          // Update users state immediately
+          setUsers((prevUsers: any[]) =>
+            prevUsers.map((user) =>
+              user._id === id ? { ...user, isActive: !isActive } : user
+            )
+          );
           Swal.fire({
             title: "Success!",
             text: res?.message,
@@ -94,11 +110,12 @@ const UserManagement = () => {
     }
   };
 
+  const userRole = "admin"; // Replace with actual role retrieval logic
+
   return (
     <div className="lg:p-8 text-gray-900 dark:text-white max-w-screen-xl mx-auto my-8 px-3">
-      {/* Display total users count */}
       <div className="mb-4 text-lg font-semibold">
-        Total Users: {userData?.data?.length || 0}
+        Total Users: {users.length || 0}
       </div>
       <Table className="min-w-full">
         <TableHeader>
@@ -107,12 +124,12 @@ const UserManagement = () => {
             <TableHead>Email</TableHead>
             <TableHead>Phone</TableHead>
             <TableHead>Role</TableHead>
-            <TableHead>Status</TableHead> {/* Added Status Column */}
+            <TableHead>Status</TableHead>
             <TableHead className="text-right">Actions</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
-          {userData?.data?.map((user: TUser) => (
+          {users.map((user: TUser) => (
             <TableRow key={user?._id} className="text-center md:text-left">
               <TableCell className="text-sm min-w-[150px]">
                 {user?.name}
@@ -127,24 +144,27 @@ const UserManagement = () => {
                 {user?.role}
               </TableCell>
               <TableCell className="text-sm min-w-[150px]">
-                {user?.isActive ? "Active" : "Blocked"}{" "}
-                {/* Displaying user status */}
+                {user?.isActive ? "Active" : "Blocked"}
               </TableCell>
               <TableCell className="text-right flex flex-col sm:flex-row items-center justify-end gap-2">
-                <Button
-                  onClick={() => handleRole(user?._id, user?.role)}
-                  variant="outline"
-                  className="text-gray-500 hover:text-gray-600"
-                >
-                  Change to {user?.role === "admin" ? "user" : "admin"}
-                </Button>
-                <Button
-                  onClick={() => handleToggleStatus(user?._id, user?.isActive)}
-                  variant={user?.isActive ? "destructive" : "outline"} // Conditional styling
-                  className="hover:bg-red-500"
-                >
-                  {user?.isActive ? "Block" : "Activate"}
-                </Button>
+                {userRole === "admin" && (
+                  <>
+                    <Button
+                      onClick={() => handleRole(user?._id, user?.role)}
+                      variant="outline"
+                      className="text-gray-500 hover:text-gray-600 w-full sm:w-auto"
+                    >
+                      Make {user?.role === "admin" ? "User" : "Admin"}
+                    </Button>
+                    <Button
+                      onClick={() => handleToggleStatus(user?._id, user?.isActive)}
+                      variant={user?.isActive ? "destructive" : "outline"}
+                      className="hover:bg-red-500 w-full sm:w-auto"
+                    >
+                      {user?.isActive ? "Block" : "Activate"}
+                    </Button>
+                  </>
+                )}
               </TableCell>
             </TableRow>
           ))}

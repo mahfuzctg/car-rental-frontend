@@ -9,6 +9,12 @@ import { Oval } from "react-loader-spinner";
 import { useGetAllBookingsQuery } from "../../../redux/features/booking/bookingApi";
 import { useGetAllCarsQuery } from "../../../redux/features/car/carApi";
 
+// Define TErrorResponse if not already defined
+interface TErrorResponse {
+  message?: string;
+  status?: number;
+}
+
 const AdminOverview: React.FC = () => {
   const {
     data: bookingsResponse,
@@ -50,7 +56,7 @@ const AdminOverview: React.FC = () => {
   }, [bookings]);
 
   const bookingDates = bookings.map((booking) => booking.date);
-  const bookingAmounts = bookings.map((booking) => booking.amount);
+  const bookingAmounts = bookings.map((booking) => booking.amount); // Ensure amount is in TBooking
 
   const bookingsChartData = {
     labels: bookingDates,
@@ -95,7 +101,8 @@ const AdminOverview: React.FC = () => {
   }
 
   if (bookingsError || carsError) {
-    return <p className="text-center text-red-500">Error loading data</p>;
+    const err = bookingsError as TErrorResponse; // Use the defined error type
+    return <p className="text-center text-red-500">Error loading data: {err.message || 'Unknown error'}</p>;
   }
 
   return (

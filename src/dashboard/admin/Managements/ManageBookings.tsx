@@ -1,6 +1,5 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import { useState } from "react";
-import { FaCheck, FaTimes } from "react-icons/fa"; // Importing icons from react-icons
+import { FaCheck, FaTimes } from "react-icons/fa";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import {
@@ -14,19 +13,17 @@ const ManageBookings = () => {
   const [sortField, setSortField] = useState("name");
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
 
-  // Mutation hooks for booking approval and cancellation
   const [bookingApproval] = useBookingApprovalMutation();
   const [cancelBooking] = useCancelBookingMutation();
 
   const { data, isLoading } = useGetAllBookingsQuery([
     { name: "limit", value: 5 },
-    { name: "page", value: 1 }, // Always fetching the first page as pagination is removed
+    { name: "page", value: 1 },
     { name: "sort", value: `${sortField},${sortOrder}` },
   ]);
 
   const allBookings = data?.data || [];
 
-  // Function to approve a booking
   const handleApprove = async (bookingId: string) => {
     try {
       await bookingApproval(bookingId).unwrap();
@@ -36,7 +33,6 @@ const ManageBookings = () => {
     }
   };
 
-  // Function to cancel a booking
   const handleCancel = async (bookingId: string) => {
     try {
       await cancelBooking(bookingId).unwrap();
@@ -55,12 +51,11 @@ const ManageBookings = () => {
         </div>
       ) : (
         <>
-          <h2 className="text-2xl  text-gray-700 md:text-3xl font-bold text-center mb-6 uppercase">
-            manage bookings!
+          <h2 className="text-2xl text-gray-700 md:text-3xl font-bold text-center mb-6 uppercase">
+            Manage Bookings!
             <div className="w-24 h-1 bg-red-600 mt-2 mx-auto"></div>
           </h2>
 
-          {/* Booking Table */}
           <table className="min-w-full bg-white border border-gray-300 rounded-lg">
             <thead>
               <tr>
@@ -75,7 +70,7 @@ const ManageBookings = () => {
             <tbody>
               {allBookings.length > 0 ? (
                 allBookings.map((booking: TBooking) => (
-                  <tr key={booking._id} className="hover:bg-gray-100">
+                  <tr key={booking._id.toString()} className="hover:bg-gray-100">
                     <td className="py-4 px-4 border-b">{booking.user?.name}</td>
                     <td className="py-4 px-4 border-b">
                       {new Date(booking.startTime).toLocaleString()}
@@ -91,13 +86,13 @@ const ManageBookings = () => {
                       <div className="flex space-x-2">
                         <button
                           className="bg-green-500 text-white text-sm py-1 px-2 rounded hover:bg-green-600 transition flex items-center"
-                          onClick={() => handleApprove(booking._id)}
+                          onClick={() => handleApprove(booking._id.toString())}
                         >
                           <FaCheck className="mr-1" /> Approve
                         </button>
                         <button
                           className="bg-red-500 text-white text-sm py-1 px-2 rounded hover:bg-red-600 transition flex items-center"
-                          onClick={() => handleCancel(booking._id)}
+                          onClick={() => handleCancel(booking._id.toString())}
                         >
                           <FaTimes className="mr-1" /> Cancel
                         </button>

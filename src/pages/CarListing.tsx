@@ -184,6 +184,10 @@ const CarListing: React.FC = () => {
           All Cars
           <div className="w-24 h-1 bg-red-600 mt-2 mx-auto"></div>
         </h2>
+           {/* Display total length of cars */}
+       <p className="text-center text-gray-700 mb-4">
+        Total Cars: {cars.length || 0}
+      </p>
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
           {filteredCars.slice(0, 6).map((car) => (
             <motion.div

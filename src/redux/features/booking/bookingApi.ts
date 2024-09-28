@@ -1,4 +1,3 @@
-// bookingApi.ts
 import { TBooking } from "../../../types/bookingTypes";
 import { TQueryParam, TResponseRedux } from "../../../types/globalTypes";
 
@@ -12,7 +11,7 @@ const bookingApi = baseApi.injectEndpoints({
         method: `POST`,
         body: bookingInfo,
       }),
-      invalidatesTags: ["booking"], // Ensure tag matches exactly
+      invalidatesTags: ["booking"],
     }),
 
     getAllBookings: builder.query<TResponseRedux<TBooking[]>, TQueryParam[]>({
@@ -30,10 +29,13 @@ const bookingApi = baseApi.injectEndpoints({
           params: params,
         };
       },
-      transformResponse: (response: TResponseRedux<TBooking[]>) => {
+      transformResponse: (response: TResponseRedux<TBooking[]>): TResponseRedux<TBooking[]> => {
+        // Ensure response structure includes 'success' and 'message'
         return {
-          data: response.data,
-          meta: response.meta,
+          success: response.success, // Ensure this property exists in your response
+          message: response.message, // Ensure this property exists in your response
+          data: response.data, // This should match your expected data structure
+          meta: response.meta, // Keep any additional metadata if applicable
         };
       },
     }),
@@ -70,7 +72,7 @@ const bookingApi = baseApi.injectEndpoints({
       invalidatesTags: ["booking", "Single-booking"],
     }),
 
-    updateStatusInApproved: builder.mutation({
+    updateStatusInApproved: builder.mutation<TBooking, { id: string; status: string }>({
       query: ({ id, status }) => ({
         url: `/bookings/change-booking-status/${id}`,
         method: "PATCH",
@@ -79,7 +81,7 @@ const bookingApi = baseApi.injectEndpoints({
       invalidatesTags: ["booking"],
     }),
 
-    bookingCompletion: builder.mutation({
+    bookingCompletion: builder.mutation<TBooking, { id: string; data: any }>({
       query: (args) => ({
         url: `/bookings/complete/${args.id}`, // Adjust the endpoint if needed
         method: "PATCH",

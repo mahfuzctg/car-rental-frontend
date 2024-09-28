@@ -4,8 +4,8 @@ import { toast } from "sonner";
 import { useLoginMutation } from "../redux/features/auth/authApi";
 import { setUser, TUser } from "../redux/features/auth/authSlice";
 import { useAppDispatch } from "../redux/hooks/hook";
-import { TErrorResponse } from "../types";
 import { verifyToken } from "../utils/token";
+import { TErrorResponse } from "../types/errorTypes";
 
 type TInitialValues = {
   email: string;
@@ -51,7 +51,14 @@ const Login = () => {
     } catch (error) {
       console.error("error:", error);
       const err = error as TErrorResponse;
-      toast.error(err.data.errorMessages[0].message || "Something went wrong", {
+
+      // Ensure error messages exist before accessing them
+      const errorMessage =
+        err.data?.errorMessages && Array.isArray(err.data.errorMessages) && err.data.errorMessages.length > 0
+          ? err.data.errorMessages[0].message
+          : "Something went wrong";
+
+      toast.error(errorMessage, {
         id: toastId,
         duration: 2000,
       });

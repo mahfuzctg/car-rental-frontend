@@ -4,16 +4,17 @@ import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useCreateBookingMutation } from "../../redux/features/booking/bookingApi";
 import { TBooking } from "../../types/bookingTypes";
+import { Types } from "mongoose"; // Import Types from mongoose
 
 const BookingForm = () => {
   const [date, setDate] = useState("");
   const [startTime, setStartTime] = useState("");
   const [endTime, setEndTime] = useState("");
   const [totalCost, setTotalCost] = useState(0);
-  const { id: carId } = useParams();
+  const { id: carId } = useParams(); // This will be a string
   const navigate = useNavigate();
   const [createBooking, { isLoading, error }] = useCreateBookingMutation();
-  const [isBooked, setIsBooked] = useState(false); // Track if the car is booked
+  const [isBooked, setIsBooked] = useState(false);
   const userId = "66749a26c6371e8e922ce1b7"; // Replace with actual user ID retrieval logic
 
   const convertTo24Hour = (time: string): number | null => {
@@ -53,31 +54,35 @@ const BookingForm = () => {
     setTotalCost(cost);
 
     const bookingInfo: TBooking = {
+      _id: new Types.ObjectId().toString(), // Create a new ObjectId and convert to string
       date: new Date(date),
-      user: userId,
-      car: carId!,
+      user: new Types.ObjectId(userId).toString(), // Convert userId to ObjectId and to string
+      car: new Types.ObjectId(carId!).toString(), // Convert carId to ObjectId and to string, using non-null assertion
       startTime,
       endTime,
       totalCost: cost,
+      status: "booked",
+      name: ""
     };
 
     try {
       await createBooking(bookingInfo).unwrap();
-      toast.success("Successfully booked your car! Thank you!"); // Show success message
-      setIsBooked(true); // Set isBooked to true upon successful booking
+      toast.success("Successfully booked your car! Thank you!");
+      setIsBooked(true);
 
-      // Delay navigation to home page for 2 seconds
       setTimeout(() => {
-        navigate("/"); // Redirect to home page after booking
+        navigate("/");
       }, 2000);
     } catch (err) {
       console.error("Booking error:", err);
-      if (error?.data?.message === "Car is already booked!") {
-        setIsBooked(true); // Set isBooked to true if the car is already booked
-        toast.error("Already booked! Unable to book this car."); // Show toast message
+      const fetchError = err as { status?: number; data?: { message?: string } };
+
+      if (fetchError.data?.message === "Car is already booked!") {
+        setIsBooked(true);
+        toast.error("Already booked! Unable to book this car.");
       } else {
         toast.error(
-          "Error creating booking: " + (error?.data?.message || "Unknown error")
+          "Error creating booking: " + (fetchError.data?.message || "Unknown error")
         );
       }
     }
@@ -85,10 +90,12 @@ const BookingForm = () => {
 
   useEffect(() => {
     if (error) {
-      toast.error("Error: " + error.message);
-      if (error?.data?.message === "Car is already booked!") {
-        setIsBooked(true); // Update state if the car is already booked
-        toast.error("Already booked! Unable to book this car."); // Show toast message
+      const fetchError = error as { status?: number; data?: { message?: string } };
+      toast.error("Error: " + (fetchError.data?.message || "Unknown error"));
+
+      if (fetchError.data?.message === "Car is already booked!") {
+        setIsBooked(true);
+        toast.error("Already booked! Unable to book this car.");
       }
     }
   }, [error]);
@@ -128,7 +135,6 @@ const BookingForm = () => {
           />
         </div>
 
-        {/* Conditional button rendering */}
         {isBooked ? (
           <button
             type="button"
@@ -142,9 +148,7 @@ const BookingForm = () => {
             type="submit"
             disabled={isLoading}
             className={`w-full py-2 rounded text-white ${
-              isLoading
-                ? "bg-gray-400 cursor-not-allowed"
-                : "bg-red-600 hover:bg-red-700"
+              isLoading ? "bg-gray-400 cursor-not-allowed" : "bg-red-600 hover:bg-red-700"
             } transition duration-200`}
           >
             {isLoading ? "Booking..." : "Book Now"}

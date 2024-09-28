@@ -11,7 +11,12 @@ import {
 } from "react-icons/fa";
 import { Link, Outlet, useLocation, useNavigate } from "react-router-dom";
 
-const Navbar: React.FC = () => {
+interface NavbarProps {
+  role: 'admin' | 'user'; // Define the role prop
+  isAuthenticated: boolean; // New prop for authentication status
+}
+
+const Navbar: React.FC<NavbarProps> = ({ role, isAuthenticated }) => {
   const [isMenuOpen, setIsMenuOpen] = React.useState(false);
   const navigate = useNavigate();
   const location = useLocation();
@@ -22,6 +27,9 @@ const Navbar: React.FC = () => {
   };
 
   const isActive = (path: string) => location.pathname === path;
+
+  // Determine the dashboard path based on the user role
+  const dashboardPath = role === 'admin' ? '/admin/dashboard' : '/user/dashboard';
 
   return (
     <div className="relative">
@@ -67,8 +75,7 @@ const Navbar: React.FC = () => {
           <FaTimes />
         </button>
         <div className="flex flex-col items-start p-4 space-y-4 mt-16">
-          {["/", "/about", "/dashboard", "/booking", "/cars", "/sign-in"].map(
-            // Add "/dashboard" route
+          {["/", "/about", dashboardPath, "/booking", "/cars", "/sign-in"].map(
             (path, index) => (
               <button
                 key={index}
@@ -79,14 +86,13 @@ const Navbar: React.FC = () => {
               >
                 {index === 0 && <FaHome className="mr-2" />}
                 {index === 1 && <FaInfoCircle className="mr-2" />}
-                {index === 2 && <FaTachometerAlt className="mr-2" />}{" "}
-                {/* Dashboard Icon */}
+                {index === 2 && <FaTachometerAlt className="mr-2" />} {/* Dashboard Icon */}
                 {index === 3 && <FaBook className="mr-2" />}
                 {index === 4 && <FaCar className="mr-2" />}
                 {index === 5 && <FaUser className="mr-2" />}
                 {index === 0 && "Home"}
                 {index === 1 && "About"}
-                {index === 2 && "Dashboard"} {/* Dashboard Label */}
+                {index === 2 && "Dashboard"}
                 {index === 3 && "Bookings"}
                 {index === 4 && "Cars"}
                 {index === 5 && "Sign In"}
@@ -122,8 +128,7 @@ const Navbar: React.FC = () => {
           </Link>
         </div>
         <div className="flex flex-col items-start p-4 space-y-4 mt-16">
-          {["/", "/about", "/dashboard", "/booking", "/cars", "/sign-in"].map(
-            // Add "/dashboard" route
+          {["/", "/about", dashboardPath, "/booking", "/cars", "/sign-in"].map(
             (path, index) => (
               <button
                 key={index}
@@ -134,14 +139,13 @@ const Navbar: React.FC = () => {
               >
                 {index === 0 && <FaHome className="mr-2" />}
                 {index === 1 && <FaInfoCircle className="mr-2" />}
-                {index === 2 && <FaTachometerAlt className="mr-2" />}{" "}
-                {/* Dashboard Icon */}
+                {index === 2 && <FaTachometerAlt className="mr-2" />}
                 {index === 3 && <FaBook className="mr-2" />}
                 {index === 4 && <FaCar className="mr-2" />}
                 {index === 5 && <FaUser className="mr-2" />}
                 {index === 0 && "Home"}
                 {index === 1 && "About"}
-                {index === 2 && "Dashboard"} {/* Dashboard Label */}
+                {index === 2 && "Dashboard"}
                 {index === 3 && "Bookings"}
                 {index === 4 && "Cars"}
                 {index === 5 && "Sign In"}

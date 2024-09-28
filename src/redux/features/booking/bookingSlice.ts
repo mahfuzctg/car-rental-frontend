@@ -23,6 +23,8 @@ const initialState: TBooking = {
   passport: null,
   gps: undefined,
   userEmail: "",
+  paymentMethod: "",
+  location: ""
 };
 
 const bookingSlice = createSlice({

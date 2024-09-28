@@ -8,8 +8,8 @@ import Footer from "./commons/Footer";
 const App = () => {
   return (
     <>
-      <StripeIntegration />
-      <Navbar />
+
+      <Navbar role={"user"} isAuthenticated={false} />
       <Routes>{/* Public Routes */}</Routes>
       <Footer />
     </>

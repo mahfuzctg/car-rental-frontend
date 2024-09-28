@@ -118,6 +118,10 @@ const BookingPage = () => {
         Book your car now!
         <div className="w-24 h-1 bg-red-600 mt-2 mx-auto"></div>
       </h2>
+       {/* Display total length of cars */}
+       <p className="text-center text-gray-700 mb-4">
+        Total Available Cars: {carData?.data?.length || 0}
+      </p>
       <div className="grid  grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:mx-6 my-12">
         {carData?.data?.map((car: TCar) => (
           <animated.div key={car._id} style={cardAnimation}>

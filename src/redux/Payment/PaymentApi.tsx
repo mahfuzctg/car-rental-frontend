@@ -8,7 +8,7 @@ const userApi = baseApi.injectEndpoints({
         method: "GET",
         params: query,
       }),
-      providesTags: ["User"],
+      providesTags: ["users"],
     }),
 
     savePayment: builder.mutation({

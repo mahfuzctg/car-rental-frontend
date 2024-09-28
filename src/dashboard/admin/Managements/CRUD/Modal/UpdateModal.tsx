@@ -39,6 +39,7 @@ export default function UpdateModal({ open, setOpen, carId }: TModalProps) {
         isElectric: car.isElectric ? "yes" : "no",
         color: car.color || "",
         location: car.location || "",
+        status: car.status || "",
         pricePerHour: car.pricePerHour || "",
         description: car.description || "",
         features: car.features?.join(",") || "",
@@ -70,6 +71,7 @@ export default function UpdateModal({ open, setOpen, carId }: TModalProps) {
       isElectric: data.isElectric === "yes",
       color: data.color,
       location: data.location,
+      status: data.status,
       pricePerHour: parseInt(data.pricePerHour) || 0,
       description: data.description,
       features: data.features.toUpperCase().split(",") || [],
@@ -150,6 +152,19 @@ export default function UpdateModal({ open, setOpen, carId }: TModalProps) {
               </option>
               <option value="yes">Yes</option>
               <option value="no">No</option>
+            </select>
+          </div>
+          <div className="flex flex-col">
+            <label className="font-semibold text-gray-700">Status</label>
+            <select
+              className="mt-1 p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              {...register("isElectric")}
+            >
+              <option value="" disabled>
+                Select
+              </option>
+              <option value="yes">Available</option>
+              <option value="no">Unavailable</option>
             </select>
           </div>
 
