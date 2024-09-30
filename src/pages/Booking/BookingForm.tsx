@@ -1,235 +1,163 @@
-import { useState } from "react";
-import { Controller, SubmitHandler, useForm } from "react-hook-form";
-import { useDispatch } from "react-redux";
+import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { Button } from "../../components/ui/UI/button";
-import { Input } from "../../components/ui/UI/input";
-import { Label } from "../../components/ui/UI/label";
-import {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "../../components/ui/UI/select";
-import { setBooking } from "../../redux/features/booking/bookingSlice";
-
-type TBookingForm = {
-  passport?: FileList;
-  drivingLicense: string;
-  creditCard: string;
-  GPS: string;
-  childSeat: string;
-  date: string;
-};
-
-const apiKey = "744cf569a978865f3474c3e180ffe096";
-const url = `https://api.imgbb.com/1/upload?key=${apiKey}`;
+import { useCreateBookingMutation } from "../../redux/features/booking/bookingApi";
+import { TBooking } from "../../types/bookingTypes";
 
 const BookingForm = () => {
+  const [date, setDate] = useState("");
+  const [startTime, setStartTime] = useState("");
+  const [endTime, setEndTime] = useState("");
+  const [totalCost, setTotalCost] = useState(0);
   const { id: carId } = useParams();
-  const [loading, setLoading] = useState(false);
-  const dispatch = useDispatch();
   const navigate = useNavigate();
+  const [createBooking, { isLoading, error }] = useCreateBookingMutation();
+  const [isBooked, setIsBooked] = useState(false); // Track if the car is booked
+  const userId = "66749a26c6371e8e922ce1b7"; // Replace with actual user ID retrieval logic
 
-  const {
-    register,
-    handleSubmit,
-    control,
-    formState: { errors },
-  } = useForm<TBookingForm>();
+  const convertTo24Hour = (time: string): number | null => {
+    const [hours, minutes] = time.split(":").map(Number);
+    if (isNaN(hours) || isNaN(minutes)) return null;
 
-  const onSubmit: SubmitHandler<TBookingForm> = async (data) => {
-    const formData = new FormData();
-    if (data.passport && data.passport[0]) {
-      formData.append("image", data.passport[0]);
+    const now = new Date();
+    const timeDate = new Date(
+      now.getFullYear(),
+      now.getMonth(),
+      now.getDate(),
+      hours,
+      minutes
+    );
+    return timeDate.getTime();
+  };
+
+  const handleBooking = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (!date) {
+      toast.error("Please select a valid date.");
+      return;
     }
 
-    setLoading(true);
+    const start = convertTo24Hour(startTime);
+    const end = convertTo24Hour(endTime);
+
+    if (start === null || end === null || start >= end) {
+      toast.error("Please enter valid start and end times.");
+      return;
+    }
+
+    const hours = (end - start) / (1000 * 60 * 60);
+    const pricePerHour = 10; // Set this to your car's price per hour
+    const cost = hours * pricePerHour;
+    setTotalCost(cost);
+
+    const bookingInfo: TBooking = {
+      date: new Date(date),
+      user: userId,
+      car: carId!,
+      startTime,
+      endTime,
+      totalCost: cost,
+    };
 
     try {
-      let passportUrl = "";
-      if (data.passport && data.passport[0]) {
-        const response = await fetch(url, {
-          method: "POST",
-          body: formData,
-        });
+      await createBooking(bookingInfo).unwrap();
+      toast.success("Successfully booked your car! Thank you!"); // Show success message
+      setIsBooked(true); // Set isBooked to true upon successful booking
 
-        const imgData = await response.json();
-
-        if (!response.ok) {
-          throw new Error(imgData.error.message || "Something went wrong");
-        }
-
-        passportUrl = imgData.data?.url || "";
+      // Delay navigation to home page for 2 seconds
+      setTimeout(() => {
+        navigate("/"); // Redirect to home page after booking
+      }, 2000);
+    } catch (err) {
+      console.error("Booking error:", err);
+      if (error?.data?.message === "Car is already booked!") {
+        setIsBooked(true); // Set isBooked to true if the car is already booked
+        toast.error("Already booked! Unable to book this car."); // Show toast message
+      } else {
+        toast.error(
+          "Error creating booking: " + (error?.data?.message || "Unknown error")
+        );
       }
-
-      const bookingData = {
-        passport: passportUrl,
-        drivingLicense: data.drivingLicense,
-        creditCard: data.creditCard,
-        GPS: data.GPS === "true",
-        childSeat: data.childSeat === "true",
-        car: carId,
-        date: data.date,
-      };
-
-      dispatch(setBooking(bookingData));
-      navigate(`/booking-confirmation/${carId}`);
-      toast.success("Booking successful!");
-    } catch (error: unknown) {
-      const errorMessage =
-        error instanceof Error ? error.message : "An unknown error occurred";
-      toast.error(`Booking failed: ${errorMessage}`);
-    } finally {
-      setLoading(false);
     }
   };
 
-  return (
-    <section className="max-w-screen-xl mx-auto min-h-screen flex items-center justify-center px-3 py-8">
-      <div className="bg-white shadow-lg p-8 rounded-xl border border-gray-200">
-        <h2 className="text-2xl text-gray-700 md:text-3xl font-bold text-center mb-6 uppercase">
-          Book Your Car!
-          <div className="w-24 h-1 bg-red-600 mt-2 mx-auto"></div>
-        </h2>
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-          <div className="grid gap-6 grid-cols-1 md:grid-cols-2">
-            {/* Passport */}
-            <div className="flex flex-col">
-              <Label htmlFor="passport">NID/Passport (optional):</Label>
-              <Input
-                className="border-gray-300 shadow-sm focus:border-red-600 focus:ring-red-600 md:w-80"
-                type="file"
-                id="passport"
-                placeholder="Upload your NID or Passport"
-                {...register("passport")}
-              />
-              {errors.passport && (
-                <p className="text-red-500 text-sm mt-1">
-                  NID/Passport is required if provided
-                </p>
-              )}
-            </div>
-            {/* Driving License */}
-            <div className="flex flex-col">
-              <Label htmlFor="drivingLicense">Driving License:</Label>
-              <Input
-                className="border-gray-300 shadow-sm focus:border-red-600 focus:ring-red-600 md:w-80"
-                type="text"
-                id="drivingLicense"
-                placeholder="Enter your Driving License number"
-                {...register("drivingLicense", { required: true })}
-              />
-              {errors.drivingLicense && (
-                <p className="text-red-500 text-sm mt-1">
-                  Driving License is required
-                </p>
-              )}
-            </div>
-            {/* Date */}
-            <div className="flex flex-col">
-              <Label htmlFor="date">Date:</Label>
-              <Input
-                className="border-gray-300 shadow-sm focus:border-red-600 focus:ring-red-600 md:w-80"
-                type="date"
-                id="date"
-                {...register("date", { required: true })}
-              />
-              {errors.date && (
-                <p className="text-red-500 text-sm mt-1">Date is required</p>
-              )}
-            </div>
-            {/* Credit Card */}
-            <div className="flex flex-col">
-              <Label htmlFor="creditCard">Credit Card:</Label>
-              <Input
-                className="border-gray-300 shadow-sm focus:border-red-600 focus:ring-red-600 md:w-80"
-                type="text"
-                id="creditCard"
-                placeholder="Enter your Credit Card number"
-                {...register("creditCard", { required: true })}
-              />
-              {errors.creditCard && (
-                <p className="text-red-500 text-sm mt-1">
-                  Credit Card is required
-                </p>
-              )}
-            </div>
+  useEffect(() => {
+    if (error) {
+      toast.error("Error: " + error.message);
+      if (error?.data?.message === "Car is already booked!") {
+        setIsBooked(true); // Update state if the car is already booked
+        toast.error("Already booked! Unable to book this car."); // Show toast message
+      }
+    }
+  }, [error]);
 
-            {/* GPS */}
-            <div className="flex flex-col">
-              <Label htmlFor="GPS">GPS:</Label>
-              <div className="border-gray-300 shadow-sm focus-within:border-red-600 focus-within:ring-red-600 md:w-80">
-                <Controller
-                  name="GPS"
-                  control={control}
-                  rules={{ required: true }}
-                  render={({ field }) => (
-                    <Select onValueChange={field.onChange} value={field.value}>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select GPS Option" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectGroup>
-                          <SelectItem value="false">No</SelectItem>
-                          <SelectItem value="true">Yes</SelectItem>
-                        </SelectGroup>
-                      </SelectContent>
-                    </Select>
-                  )}
-                />
-              </div>
-              {errors.GPS && (
-                <p className="text-red-500 text-sm mt-1">GPS is required</p>
-              )}
-            </div>
-            {/* Child Seat */}
-            <div className="flex flex-col">
-              <Label htmlFor="childSeat">Child Seat:</Label>
-              <div className="border-gray-300 shadow-sm focus-within:border-red-600 focus-within:ring-red-600 md:w-80">
-                <Controller
-                  name="childSeat"
-                  control={control}
-                  rules={{ required: true }}
-                  render={({ field }) => (
-                    <Select onValueChange={field.onChange} value={field.value}>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select Child Seat Option" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectGroup>
-                          <SelectItem value="false">No</SelectItem>
-                          <SelectItem value="true">Yes</SelectItem>
-                        </SelectGroup>
-                      </SelectContent>
-                    </Select>
-                  )}
-                />
-              </div>
-              {errors.childSeat && (
-                <p className="text-red-500 text-sm mt-1">
-                  Child Seat is required
-                </p>
-              )}
-            </div>
-          </div>
-          <div className="flex justify-center">
-            <Button
-              type="submit"
-              className="w-full md:w-1/2 bg-red-600 text-white hover:bg-red-700"
-              disabled={loading}
-            >
-              {loading ? "Booking..." : "Book Now"}
-            </Button>
-          </div>
-        </form>
-      </div>
+  return (
+    <div className="max-w-lg mx-auto p-6 bg-white rounded-lg shadow-md">
+      <h1 className="text-2xl font-bold text-center mb-6">Booking Form</h1>
+      <form onSubmit={handleBooking} className="space-y-4">
+        <div className="flex flex-col">
+          <label className="font-semibold">Date:</label>
+          <input
+            type="date"
+            value={date}
+            onChange={(e) => setDate(e.target.value)}
+            required
+            className="mt-1 p-2 border border-gray-300 rounded"
+          />
+        </div>
+        <div className="flex flex-col">
+          <label className="font-semibold">Start Time (HH:mm):</label>
+          <input
+            type="time"
+            value={startTime}
+            onChange={(e) => setStartTime(e.target.value)}
+            required
+            className="mt-1 p-2 border border-gray-300 rounded"
+          />
+        </div>
+        <div className="flex flex-col">
+          <label className="font-semibold">End Time (HH:mm):</label>
+          <input
+            type="time"
+            value={endTime}
+            onChange={(e) => setEndTime(e.target.value)}
+            required
+            className="mt-1 p-2 border border-gray-300 rounded"
+          />
+        </div>
+
+        {/* Conditional button rendering */}
+        {isBooked ? (
+          <button
+            type="button"
+            className="w-full py-2 rounded bg-gray-400 cursor-not-allowed text-white"
+            disabled
+          >
+            Booked
+          </button>
+        ) : (
+          <button
+            type="submit"
+            disabled={isLoading}
+            className={`w-full py-2 rounded text-white ${
+              isLoading
+                ? "bg-gray-400 cursor-not-allowed"
+                : "bg-red-600 hover:bg-red-700"
+            } transition duration-200`}
+          >
+            {isLoading ? "Booking..." : "Book Now"}
+          </button>
+        )}
+      </form>
+      {totalCost > 0 && (
+        <p className="mt-4 text-lg font-semibold">
+          Total Cost: ${totalCost.toFixed(2)}
+        </p>
+      )}
       <ToastContainer />
-    </section>
+    </div>
   );
 };
 

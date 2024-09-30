@@ -5,6 +5,7 @@ import {
   FaCar,
   FaHome,
   FaInfoCircle,
+  FaTachometerAlt,
   FaTimes,
   FaUser,
 } from "react-icons/fa";
@@ -66,7 +67,8 @@ const Navbar: React.FC = () => {
           <FaTimes />
         </button>
         <div className="flex flex-col items-start p-4 space-y-4 mt-16">
-          {["/", "/about", "/booking", "/cars", "/sign-in"].map(
+          {["/", "/about", "/dashboard", "/booking", "/cars", "/sign-in"].map(
+            // Add "/dashboard" route
             (path, index) => (
               <button
                 key={index}
@@ -77,14 +79,17 @@ const Navbar: React.FC = () => {
               >
                 {index === 0 && <FaHome className="mr-2" />}
                 {index === 1 && <FaInfoCircle className="mr-2" />}
-                {index === 2 && <FaBook className="mr-2" />}
-                {index === 3 && <FaCar className="mr-2" />}
-                {index === 4 && <FaUser className="mr-2" />}
+                {index === 2 && <FaTachometerAlt className="mr-2" />}{" "}
+                {/* Dashboard Icon */}
+                {index === 3 && <FaBook className="mr-2" />}
+                {index === 4 && <FaCar className="mr-2" />}
+                {index === 5 && <FaUser className="mr-2" />}
                 {index === 0 && "Home"}
                 {index === 1 && "About"}
-                {index === 2 && "Bookings"}
-                {index === 3 && "Cars"}
-                {index === 4 && "Sign In"}
+                {index === 2 && "Dashboard"} {/* Dashboard Label */}
+                {index === 3 && "Bookings"}
+                {index === 4 && "Cars"}
+                {index === 5 && "Sign In"}
               </button>
             )
           )}
@@ -117,7 +122,8 @@ const Navbar: React.FC = () => {
           </Link>
         </div>
         <div className="flex flex-col items-start p-4 space-y-4 mt-16">
-          {["/", "/about", "/booking", "/cars", "/sign-in"].map(
+          {["/", "/about", "/dashboard", "/booking", "/cars", "/sign-in"].map(
+            // Add "/dashboard" route
             (path, index) => (
               <button
                 key={index}
@@ -128,14 +134,17 @@ const Navbar: React.FC = () => {
               >
                 {index === 0 && <FaHome className="mr-2" />}
                 {index === 1 && <FaInfoCircle className="mr-2" />}
-                {index === 2 && <FaBook className="mr-2" />}
-                {index === 3 && <FaCar className="mr-2" />}
-                {index === 4 && <FaUser className="mr-2" />}
+                {index === 2 && <FaTachometerAlt className="mr-2" />}{" "}
+                {/* Dashboard Icon */}
+                {index === 3 && <FaBook className="mr-2" />}
+                {index === 4 && <FaCar className="mr-2" />}
+                {index === 5 && <FaUser className="mr-2" />}
                 {index === 0 && "Home"}
                 {index === 1 && "About"}
-                {index === 2 && "Bookings"}
-                {index === 3 && "Cars"}
-                {index === 4 && "Sign In"}
+                {index === 2 && "Dashboard"} {/* Dashboard Label */}
+                {index === 3 && "Bookings"}
+                {index === 4 && "Cars"}
+                {index === 5 && "Sign In"}
               </button>
             )
           )}

@@ -6,7 +6,7 @@ import { ClipLoader } from "react-spinners";
 import { toast } from "sonner";
 import {
   useGetSingleBookingQuery,
-  useUpdateBookingMutation,
+  useUpdateStatusInApprovedMutation,
 } from "../../../../../redux/features/booking/bookingApi";
 import { TBooking } from "../../../../../types/bookingTypes";
 
@@ -23,7 +23,7 @@ export default function UpdateBookingModal({
 }: TModalProps) {
   const { register, handleSubmit, reset } = useForm();
   const [updateBooking, { isLoading: updateLoading }] =
-    useUpdateBookingMutation();
+    useUpdateStatusInApprovedMutation();
   const {
     data,
     isLoading: dataLoading,

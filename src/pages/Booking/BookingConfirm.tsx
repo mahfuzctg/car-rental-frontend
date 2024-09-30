@@ -1,112 +1,46 @@
-import { useNavigate, useParams } from "react-router-dom";
-import { Button } from "../../components/ui/UI/button";
-import { useCreateBookingMutation } from "../../redux/features/booking/bookingApi";
-import { useGetSingleCarQuery } from "../../redux/features/car/carApi";
-import { useAppSelector } from "../../redux/hooks/hook";
-import { TBooking } from "../../types/bookingTypes";
-import { TUser } from "../../types/userTypes"; // Assuming you have a TUser type defined somewhere
+import { Link } from "react-router-dom";
 
-const BookingConfirmation = () => {
-  const { id } = useParams<{ id: string }>(); // Ensure id is a string
-  const { data: carData } = useGetSingleCarQuery(id || ""); // Handle the case where id could be undefined
-
-  const booking = useAppSelector((state) => state.booking);
-  const user = useAppSelector((state) => state.auth.user) as unknown as
-    | TUser
-    | undefined; // Ensure user exists and matches TUser type
-
-  const navigate = useNavigate();
-
-  const [createBooking] = useCreateBookingMutation();
-
-  const handleBooking = async () => {
-    // Check if necessary data exists
-    if (!carData || !user || !id) {
-      console.error("Missing car data, user data, or car ID");
-      return;
-    }
-
-    const phone = user.phone || "N/A"; // Fallback if phone is not available
-
-    const bookingData: TBooking = {
-      car: carData.data, // Pass the full car object instead of just the car ID
-      GPS: booking.GPS || false,
-      childSeat: booking.childSeat || false,
-      startTime: new Date().toISOString(), // ISO formatted start time
-      // Remove creditCard
-      drivingLicense: booking.drivingLicense || null,
-      passport: booking.passport || null,
-      date: new Date().toISOString(), // Current date
-      user: {
-        _id: user._id,
-        name: user.name,
-        email: user.email,
-        role: user.role,
-        phone: phone,
-        status: user.status, // Make sure `status` exists
-        createdAt: user.createdAt, // Make sure `createdAt` exists
-        updatedAt: user.updatedAt, // Make sure `updatedAt` exists
-        __v: user.__v, // Make sure `__v` exists
-      },
-      phone: phone, // Phone number from user
-      location: booking.location || "Unknown", // Default location if undefined
-      paymentMethod: booking.paymentMethod || "Credit Card", // Default payment method
-    };
-
-    try {
-      await createBooking(bookingData);
-      navigate("/booking");
-    } catch (error) {
-      console.error("Error creating booking:", error);
-    }
-  };
-
+export default function OrderSuccessPage() {
   return (
-    <section className="max-w-screen-xl mx-auto px-4 lg:px-0 min-h-screen flex items-center justify-center">
-      <div className="max-w-lg mx-auto bg-white rounded-lg shadow-lg p-6">
-        {carData?.data?.image && (
-          <img
-            className="rounded-lg h-48 w-full object-cover mb-4"
-            src={carData?.data?.image}
-            alt={carData?.data?.name}
-          />
-        )}
-        <h3 className="text-3xl font-bold text-gray-800 mb-2">
-          {carData?.data?.name}
-        </h3>
-        <h3 className="text-xl font-semibold text-red-600 mb-4">
-          Price Per Hour:{" "}
-          <span className="text-gray-800">
-            {carData?.data?.pricePerHour} USD
-          </span>
-        </h3>
+    <div className="max-w-4xl mx-auto p-6">
+      <div className="bg-white shadow-lg rounded-lg">
+        <div className="p-8">
+          {/* Success Icon */}
+          <svg
+            viewBox="0 0 24 24"
+            className="text-red-600 w-20 h-20 mx-auto my-6"
+          >
+            <path
+              fill="currentColor"
+              d="M12,0A12,12,0,1,0,24,12,12.014,12.014,0,0,0,12,0Zm6.927,8.2-6.845,9.289a1.011,1.011,0,0,1-1.43.188L5.764,13.769a1,1,0,1,1,1.25-1.562l4.076,3.261,6.227-8.451A1,1,0,1,1,18.927,8.2Z"
+            ></path>
+          </svg>
 
-        <div className="mt-3 border-t border-gray-200 py-4">
-          <h3 className="text-gray-800 font-medium">
-            GPS:{" "}
-            <span className={booking?.GPS ? "text-green-600" : "text-red-600"}>
-              {booking?.GPS ? "Yes" : "No"}
-            </span>
-          </h3>
-          <h3 className="text-gray-800 font-medium">
-            Child Seat:{" "}
-            <span
-              className={booking?.childSeat ? "text-green-600" : "text-red-600"}
+          {/* Success Message */}
+          <div className="text-center">
+            <h3 className="text-3xl font-bold text-gray-800">
+              Order Placed Successfully!
+            </h3>
+            <p className="text-lg text-gray-600 my-4">
+              Thank you for shopping with us. We appreciate your business!
+            </p>
+            <p className="text-gray-500">
+              Your order has been successfully placed. We hope you enjoy your
+              products!
+            </p>
+          </div>
+
+          {/* Go Back Button */}
+          <div className="mt-8 text-center">
+            <Link
+              to="/"
+              className="inline-block bg-red-600 hover:bg-red-700 text-white text-lg font-semibold px-8 py-3 rounded-full transition duration-300 ease-in-out"
             >
-              {booking?.childSeat ? "Yes" : "No"}
-            </span>
-          </h3>
+              Continue Shopping
+            </Link>
+          </div>
         </div>
-
-        <Button
-          onClick={handleBooking}
-          className="w-full mt-6 bg-red-500 hover:bg-red-600 text-white font-semibold py-2 rounded-lg transition duration-200 ease-in-out transform hover:scale-105"
-        >
-          Confirm Booking
-        </Button>
       </div>
-    </section>
+    </div>
   );
-};
-
-export default BookingConfirmation;
+}

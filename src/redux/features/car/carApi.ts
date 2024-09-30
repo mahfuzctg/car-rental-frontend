@@ -55,7 +55,7 @@ const productApi = baseApi.injectEndpoints({
         method: "PUT",
         body: payload,
       }),
-      invalidatesTags: ["Cars", "Bookings"],
+      invalidatesTags: ["Cars", "booking"],
     }),
   }),
 });

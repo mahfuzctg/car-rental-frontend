@@ -1,137 +1,154 @@
-import {
-  BarElement,
-  CategoryScale,
-  Chart as ChartJS,
-  Legend,
-  LinearScale,
-  Title,
-  Tooltip,
-} from "chart.js";
-import { Bar } from "react-chartjs-2";
-import { AiOutlineCalendar } from "react-icons/ai";
-import { FaCar, FaDollarSign } from "react-icons/fa";
-import { useGetStatisticsQuery } from "../../../redux/features/booking/bookingApi";
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable react-hooks/exhaustive-deps */
+import "chart.js/auto";
+import React, { useEffect, useState } from "react";
+import { Line, Pie } from "react-chartjs-2";
+import { Toaster } from "react-hot-toast";
+import { FaCar, FaClipboardList, FaDollarSign } from "react-icons/fa";
+import { Oval } from "react-loader-spinner";
+import { useGetAllBookingsQuery } from "../../../redux/features/booking/bookingApi";
+import { useGetAllCarsQuery } from "../../../redux/features/car/carApi";
 
-ChartJS.register(
-  CategoryScale,
-  LinearScale,
-  BarElement,
-  Title,
-  Tooltip,
-  Legend
-);
+const AdminOverview: React.FC = () => {
+  const {
+    data: bookingsResponse,
+    isLoading: bookingsLoading,
+    error: bookingsError,
+  } = useGetAllBookingsQuery([]);
 
-type TStatistics = {
-  totalBookings: number;
-  availableCars: number;
-  totalRevenue: number;
-};
+  const {
+    data: carsResponse,
+    isLoading: carsLoading,
+    error: carsError,
+  } = useGetAllCarsQuery({});
 
-const AdminOverview = () => {
-  const { data: statisticsData } = useGetStatisticsQuery(undefined);
-  const statistics: TStatistics = statisticsData?.data || [];
+  const bookings = bookingsResponse?.data || [];
+  const cars = carsResponse?.data || [];
 
-  const data = {
-    labels: ["Total Bookings", "Available Cars", "Total Revenue"],
+  const [totalCars, setTotalCars] = useState(0);
+  const [totalBookings, setTotalBookings] = useState(0);
+  const [totalRevenue, setTotalRevenue] = useState(0);
+  const [availableCars, setAvailableCars] = useState(0);
+
+  useEffect(() => {
+    setTotalCars(cars.length);
+
+    const available = cars.filter(
+      (car: { isAvailable: any }) => car.isAvailable
+    ).length;
+    setAvailableCars(available);
+  }, [cars]);
+
+  useEffect(() => {
+    setTotalBookings(bookings.length);
+
+    const revenue = bookings.reduce(
+      (acc: number, booking: any) => acc + booking.amount,
+      0
+    );
+    setTotalRevenue(revenue);
+  }, [bookings]);
+
+  const bookingDates = bookings.map((booking) => booking.date);
+  const bookingAmounts = bookings.map((booking) => booking.amount);
+
+  const bookingsChartData = {
+    labels: bookingDates,
     datasets: [
       {
-        label: "Statistics",
-        data: [
-          statistics.totalBookings,
-          statistics.availableCars,
-          statistics.totalRevenue,
-        ],
-        backgroundColor: ["#3b82f6", "#10b981", "#f59e0b"],
-        borderColor: ["#3b82f6", "#10b981", "#f59e0b"],
-        borderWidth: 1,
+        label: "Booking Amounts",
+        data: bookingAmounts,
+        fill: false,
+        backgroundColor: "rgba(255, 99, 132, 0.2)",
+        borderColor: "rgba(255, 99, 132, 1)",
+        tension: 0.4,
       },
     ],
   };
 
-  const options = {
-    responsive: true,
-    scales: {
-      x: {
-        grid: {
-          color: "#e5e7eb",
-          borderColor: "#e5e7eb",
-        },
-        ticks: {
-          color: "#4b5563",
-        },
+  const carsChartData = {
+    labels: ["Available Cars", "Booked Cars"],
+    datasets: [
+      {
+        data: [availableCars, totalCars - availableCars],
+        backgroundColor: ["#f87171", "#6b7280"],
+        hoverBackgroundColor: ["#ef4444", "#4b5563"],
       },
-      y: {
-        grid: {
-          color: "#e5e7eb",
-          borderColor: "#e5e7eb",
-        },
-        ticks: {
-          color: "#4b5563",
-        },
-      },
-    },
+    ],
   };
 
+  if (bookingsLoading || carsLoading) {
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <Oval
+          height={80}
+          width={80}
+          color="#ef4444"
+          visible={true}
+          ariaLabel="oval-loading"
+          secondaryColor="#ef4444"
+          strokeWidth={2}
+          strokeWidthSecondary={2}
+        />
+      </div>
+    );
+  }
+
+  if (bookingsError || carsError) {
+    return <p className="text-center text-red-500">Error loading data</p>;
+  }
+
   return (
-    <div className="container mx-auto p-6 min-h-screen">
-      {/* Overview Header */}
+    <div className="container mx-auto p-6">
       <h2 className="text-2xl text-gray-700 md:text-3xl font-bold text-center mb-6 uppercase">
         Admin Overview
         <div className="w-24 h-1 bg-red-600 mt-2 mx-auto"></div>
       </h2>
 
-      {/* Grid Container */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        {/* Statistics Cards */}
-        <div className="grid grid-cols-1 gap-8">
-          {/* Card 1: Total Bookings */}
-          <div className="bg-white shadow-md rounded-lg p-6 text-center transition-transform hover:scale-105 max-w-xs mx-auto">
-            <div className="text-red-500 text-4xl mb-4">
-              <AiOutlineCalendar />
-            </div>
-            <h3 className="text-xl text-gray-700 font-semibold mb-2">
-              Total Bookings
-            </h3>
-            <p className="text-4xl font-bold text-red-600">
-              {statistics.totalBookings}
-            </p>
-          </div>
-
-          {/* Card 2: Available Cars */}
-          <div className="bg-white shadow-md rounded-lg p-6 text-center transition-transform hover:scale-105 max-w-xs mx-auto">
-            <div className="text-red-600 text-4xl mb-4">
-              <FaCar />
-            </div>
-            <h3 className="text-xl text-gray-700 font-semibold mb-2">
-              Available Cars
-            </h3>
-            <p className="text-4xl font-bold text-green-500">
-              {statistics.availableCars}
-            </p>
-          </div>
-
-          {/* Card 3: Total Revenue */}
-          <div className="bg-white shadow-md rounded-lg p-6 text-center transition-transform hover:scale-105 max-w-xs mx-auto">
-            <div className="text-red-600 text-4xl mb-4">
-              <FaDollarSign />
-            </div>
-            <h3 className="text-xl text-gray-700 font-semibold mb-2">
-              Total Revenue
-            </h3>
-            <p className="text-4xl font-bold text-yellow-500">
-              ${statistics.totalRevenue?.toFixed(1)}
-            </p>
-          </div>
+      {/* Stats Section */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
+        <div className="flex flex-col items-center bg-gray-100 p-6 rounded-lg shadow-md transform hover:scale-105 transition-transform duration-200">
+          <FaCar className="text-5xl text-red-600 mb-4" />
+          <h2 className="text-xl font-semibold text-gray-700">Total Cars</h2>
+          <p className="text-5xl font-bold text-gray-900">{totalCars}</p>
         </div>
-
-        {/* Statistic Graph Section */}
-        <div className="bg-white shadow-lg rounded-lg p-6">
-          <h3 className="text-3xl font-bold text-gray-800 text-center mb-10">
-            Statistic Graph
-          </h3>
-          <Bar data={data} options={options} />
+        <div className="flex flex-col items-center bg-gray-100 p-6 rounded-lg shadow-md transform hover:scale-105 transition-transform duration-200">
+          <FaClipboardList className="text-5xl text-red-600 mb-4" />
+          <h2 className="text-xl font-semibold text-gray-700">
+            Total Bookings
+          </h2>
+          <p className="text-5xl font-bold text-gray-900">{totalBookings}</p>
+        </div>
+        <div className="flex flex-col items-center bg-gray-100 p-6 rounded-lg shadow-md transform hover:scale-105 transition-transform duration-200">
+          <FaDollarSign className="text-5xl text-red-600 mb-4" />
+          <h2 className="text-xl font-semibold text-gray-700">Total Revenue</h2>
+          <p className="text-5xl font-bold text-gray-900">
+            ${totalRevenue.toFixed(2)}
+          </p>
         </div>
       </div>
+
+      {/* Charts Section */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <div className="bg-white p-6 rounded-lg shadow-lg hover:shadow-2xl transition-shadow duration-200">
+          <h2 className="text-2xl font-bold text-gray-700 mb-4">
+            Bookings Trend
+          </h2>
+          <div className="w-full h-64">
+            <Line data={bookingsChartData} />
+          </div>
+        </div>
+        <div className="bg-white p-6 rounded-lg shadow-lg hover:shadow-2xl transition-shadow duration-200">
+          <h2 className="text-2xl font-bold text-gray-700 mb-4">
+            Cars Availability
+          </h2>
+          <div className="w-full h-64">
+            <Pie data={carsChartData} />
+          </div>
+        </div>
+      </div>
+
+      <Toaster />
     </div>
   );
 };

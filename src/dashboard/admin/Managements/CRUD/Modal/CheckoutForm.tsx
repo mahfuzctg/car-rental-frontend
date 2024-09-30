@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import { ClipLoader } from "react-spinners";
 
 import { toast } from "sonner";
-import { useUpdateBookingMutation } from "../../../../../redux/features/booking/bookingApi";
+import { useUpdateStatusInApprovedMutation } from "../../../../../redux/features/booking/bookingApi";
 import { useAppSelector } from "../../../../../redux/hooks/hook";
 import { useSavePaymentMutation } from "../../../../../redux/Payment/PaymentApi";
 import { TBooking } from "../../../../../types/bookingTypes";
@@ -19,7 +19,7 @@ export default function CheckoutForm({
 }) {
   const { _id, totalCost } = booking || {};
   const [savePayment] = useSavePaymentMutation();
-  const [updateBooking] = useUpdateBookingMutation();
+  const [updateBooking] = useUpdateStatusInApprovedMutation();
 
   const currentUser = useAppSelector((state) => state.auth.user);
   const [loading, setLoading] = useState(false);

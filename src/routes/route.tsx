@@ -7,13 +7,12 @@ import SignUp from "../Auth/SignUp";
 import AdminDashboard from "../dashboard/admin/AdminDashboard";
 import CreateCar from "../dashboard/admin/Managements/CRUD/CreateCar";
 
-import DashboardOverview from "../dashboard/admin/Managements/DashboardOverview";
 import ManageBookings from "../dashboard/admin/Managements/ManageBookings";
 import ManageCars from "../dashboard/admin/Managements/ManageCars";
 import ManageReturnCars from "../dashboard/admin/Managements/ManageReturnCars";
 import Reports from "../dashboard/admin/Managements/Reports";
 import UserManagement from "../dashboard/admin/Managements/UserManagement";
-import BookingManagement from "../dashboard/user/Managements/BookingManagement";
+
 import Overview from "../dashboard/user/Managements/Overview ";
 import PaymentManagement from "../dashboard/user/Managements/PaymentManagement";
 import UserDashboard from "../dashboard/user/userDashboard";
@@ -21,6 +20,8 @@ import AdminLayout from "../Layout/AdminLayout";
 import UserLayout from "../Layout/UserLayout";
 import AboutPage from "../pages/AboutPage";
 
+import AdminOverview from "../dashboard/admin/Managements/DashboardOverview";
+import MyBookings from "../dashboard/user/Managements/MyBooking";
 import BookingConfirmation from "../pages/Booking/BookingConfirm";
 import BookingForm from "../pages/Booking/BookingForm";
 import BookingPage from "../pages/BookingPage";
@@ -65,7 +66,7 @@ export const router = createBrowserRouter([
     ),
     children: [
       { path: "dashboard", element: <AdminDashboard /> },
-      { path: "overview", element: <DashboardOverview /> },
+      { path: "overview", element: <AdminOverview /> },
       { path: "manage-cars", element: <ManageCars /> },
       { path: "create-car", element: <CreateCar /> },
       // { path: "update-car/:id", element: <UpdateCar /> },
@@ -88,7 +89,7 @@ export const router = createBrowserRouter([
     children: [
       { path: "dashboard", element: <UserDashboard /> },
       { path: "overview", element: <Overview /> },
-      { path: "booking-management", element: <BookingManagement /> },
+      { path: "booking-management", element: <MyBookings /> },
       { path: "payment-management", element: <PaymentManagement /> },
       { path: "*", element: <NotFoundPage /> }, // User-Level 404
     ],
